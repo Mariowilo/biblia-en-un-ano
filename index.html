@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Biblia en un Año — Lectura Cronológica</title>
+<meta name="description" content="Plan cronológico de lectura bíblica en 365 días con contexto histórico, cultural y análisis pactual. RVR60 y LBLA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16233b; --navy2:#1e2f4f; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#5a5a5a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:18px;line-height:1.65}
+.sans{font-family:'Inter',system-ui,sans-serif}
+
+/* ---------- Header ---------- */
+header{background:var(--navy);color:#fff;padding:2.4rem 1rem 1.6rem;text-align:center;border-bottom:4px solid var(--gold)}
+header .kicker{font-family:'Inter',sans-serif;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-light)}
+header h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.9rem,5vw,3rem);margin:.35rem 0 .2rem}
+header p.sub{font-style:italic;color:#c9d2e3;font-size:1.02rem;max-width:640px;margin:0 auto}
+.progress-wrap{max-width:560px;margin:1.2rem auto 0}
+.progress-bar{height:7px;background:#33415e;border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;transition:width .5s}
+.progress-label{font-family:'Inter',sans-serif;font-size:.75rem;color:#c9d2e3;margin-top:.45rem}
+
+/* ---------- Nav ---------- */
+nav{background:var(--navy2);position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+nav .inner{max-width:960px;margin:0 auto;display:flex;justify-content:center;gap:.25rem;flex-wrap:wrap}
+nav button{background:none;border:none;color:#c9d2e3;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;padding:.85rem 1.2rem;cursor:pointer;border-bottom:3px solid transparent}
+nav button:hover{color:#fff}
+nav button.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+
+main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
+.view{display:none}.view.active{display:block}
+
+/* ---------- Day view ---------- */
+.day-head{text-align:center;margin-bottom:1.4rem}
+.etapa-tag{display:inline-block;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:.3rem .9rem;border-radius:2rem;margin-bottom:.7rem}
+.day-num{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--ink-soft)}
+.day-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,4.4vw,2.35rem);font-weight:600;color:var(--navy);line-height:1.2;margin:.25rem 0 .3rem}
+.day-date{font-style:italic;color:var(--ink-soft);font-size:.95rem}
+
+.lecturas-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.4rem 1.5rem;margin-bottom:1.3rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.lecturas-card h3{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.7rem}
+.lect-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.lect-chip{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:.35rem .85rem;color:var(--navy)}
+.ver-buttons{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.btn{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;text-decoration:none;padding:.6rem 1.15rem;border-radius:6px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-rvr{background:var(--navy);color:#fff}.btn-rvr:hover{background:var(--navy2)}
+.btn-lbla{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}.btn-lbla:hover{background:var(--cream)}
+.btn-check{background:#fff;border:1.5px solid var(--green);color:var(--green);margin-left:auto}
+.btn-check.done{background:var(--green);color:#fff}
+
+.sec{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:1.35rem 1.5rem;margin-bottom:1.05rem}
+.sec h3{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;display:flex;align-items:center;gap:.55rem}
+.sec h3 .ico{font-size:1rem;color:var(--gold)}
+.sec p{color:var(--ink);text-align:justify}
+.sec.voces{border-left-color:var(--navy);background:#f4f1ea}
+.sec.voces p{font-style:italic}
+.sec.pregunta{border-left-color:var(--green);background:#f2f6f2}
+.sec.pregunta p{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#2c4a34;text-align:left}
+.no-com{background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:1.6rem;text-align:center;color:var(--ink-soft);font-style:italic}
+
+.day-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:1.8rem}
+.day-nav button{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;background:#fff;border:1px solid var(--line);border-radius:6px;padding:.65rem 1.1rem;cursor:pointer;color:var(--navy)}
+.day-nav button:hover{border-color:var(--gold)}
+.day-nav button:disabled{opacity:.35;cursor:default}
+
+/* ---------- Plan view ---------- */
+.plan-controls{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.6rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;font-family:'Inter',sans-serif;font-size:.85rem}
+.plan-controls label{font-weight:600;color:var(--navy)}
+.plan-controls input[type=date]{font-family:'Inter',sans-serif;padding:.4rem .6rem;border:1px solid var(--line);border-radius:6px}
+.etapa-block{margin-bottom:1.7rem}
+.etapa-block h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:.15rem;margin-bottom:.75rem}
+.dias-grid{display:flex;flex-wrap:wrap;gap:.45rem}
+.dia-pill{font-family:'Inter',sans-serif;font-size:.78rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:.42rem .6rem;cursor:pointer;color:var(--ink);min-width:52px;text-align:center;line-height:1.35}
+.dia-pill small{display:block;color:var(--ink-soft);font-size:.66rem}
+.dia-pill:hover{border-color:var(--gold)}
+.dia-pill.done{background:#e9f2ea;border-color:var(--green);color:var(--green)}
+.dia-pill.today{outline:2px solid var(--gold);outline-offset:1px}
+.dia-pill.has-com{position:relative}
+.dia-pill.has-com::after{content:"✦";color:var(--gold);font-size:.6rem;position:absolute;top:2px;right:4px}
+
+/* ---------- About ---------- */
+.about{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.8rem 1.9rem}
+.about h2{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.6rem;margin-bottom:.6rem}
+.about h3{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.25rem;margin:1.1rem 0 .35rem}
+.about p{margin-bottom:.7rem;text-align:justify}
+.about .verse{font-style:italic;color:var(--navy);border-left:3px solid var(--gold);padding-left:1rem;margin:1rem 0}
+
+footer{background:var(--navy);color:#8fa0bd;text-align:center;font-family:'Inter',sans-serif;font-size:.75rem;padding:1.6rem 1rem;line-height:1.8}
+footer a{color:var(--gold-light)}
+@media(max-width:560px){ .btn-check{margin-left:0;width:100%;justify-content:center} .ver-buttons{flex-direction:column;align-items:stretch} .btn{justify-content:center} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Plan cronológico · 365 días</div>
+  <h1>La Biblia en un Año</h1>
+  <p class="sub">«Lámpara es a mis pies tu palabra, y lumbrera a mi camino» — Salmo 119:105</p>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+</header>
+
+<nav>
+  <div class="inner">
+    <button id="navHoy" class="active" onclick="showView('hoy')">Lectura del día</button>
+    <button id="navPlan" onclick="showView('plan')">Plan completo</button>
+    <button id="navAcerca" onclick="showView('acerca')">Acerca del plan</button>
+  </div>
+</nav>
+
+<main>
+  <!-- ===== Vista del día ===== -->
+  <section id="view-hoy" class="view active"></section>
+
+  <!-- ===== Vista del plan ===== -->
+  <section id="view-plan" class="view">
+    <div class="plan-controls">
+      <label for="startDate">Fecha de inicio del plan:</label>
+      <input type="date" id="startDate" onchange="setStartDate(this.value)">
+      <span style="color:var(--ink-soft)">✦ = día con estudio profundo disponible</span>
+    </div>
+    <div id="planList"></div>
+  </section>
+
+  <!-- ===== Acerca ===== -->
+  <section id="view-acerca" class="view">
+    <div class="about">
+      <h2>Acerca de este plan</h2>
+      <p>Este es un plan de lectura <strong>cronológico</strong>: recorre la Escritura siguiendo el orden histórico de los acontecimientos. Job se lee junto a Génesis (era patriarcal), los Salmos junto a la vida de David, los profetas junto a los reyes bajo los cuales ministraron, y las epístolas entretejidas con el libro de los Hechos. Así el lector ve la historia de la redención desplegarse como un solo relato: la promesa hecha en Edén (Gn 3:15), jurada a Abraham, tipificada en Moisés y David, anunciada por los profetas y cumplida en Cristo.</p>
+      <div class="verse">«Y comenzando desde Moisés, y siguiendo por todos los profetas, les declaraba en todas las Escrituras lo que de él decían.» — Lucas 24:27</div>
+      <h3>Las versiones</h3>
+      <p>Cada día encontrarás botones para leer el pasaje en <strong>Reina-Valera 1960 (RVR60)</strong> y en <strong>La Biblia de las Américas (LBLA)</strong>. Los textos se abren en Bible Gateway, respetando los derechos de las sociedades bíblicas que custodian estas traducciones.</p>
+      <h3>El estudio profundo</h3>
+      <p>Los días marcados con ✦ incluyen cinco secciones de estudio: <em>contexto histórico</em> (cuándo y dónde ocurre el pasaje), <em>contexto cultural</em> (costumbres, derecho y mundo del antiguo Cercano Oriente), <em>análisis narrativo</em> (cómo está construido el texto y qué destaca), <em>teología bíblica y pactual</em> (el lugar del pasaje en la historia de la redención y su cumplimiento en Cristo) y <em>voces</em> (citas y referencias de autores puritanos y reformados: Matthew Henry, John Gill, John Owen, Nehemiah Coxe, Thomas Watson, Joseph Caryl, Spurgeon, entre otros). Cierra una pregunta de meditación personal.</p>
+      <p>La línea teológica del estudio es <strong>bautista reformada y confesional</strong> (Confesión de Fe de Londres de 1689), con lectura expositiva y pactual de la Escritura.</p>
+      <h3>Tu progreso</h3>
+      <p>Marca cada día como leído y tu avance se guarda en este navegador. En «Plan completo» puedes fijar tu fecha de inicio para que la página calcule automáticamente qué día te corresponde hoy.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Plan cronológico de lectura bíblica · Textos bíblicos © Sociedades Bíblicas en América Latina (RVR60) y The Lockman Foundation (LBLA), leídos vía Bible Gateway.<br>
+  «La hierba se seca, y la flor se cae; mas la palabra del Señor permanece para siempre.» — 1 Pedro 1:24-25
+</footer>
+
+<script src="plan.js"></script>
+<script src="comentarios.js"></script>
+<script>
+/* ================= Estado ================= */
+const LS_DONE = 'biblia365_done';
+const LS_START = 'biblia365_start';
+const LS_CUR = 'biblia365_current';
+
+let done = new Set(JSON.parse(localStorage.getItem(LS_DONE) || '[]'));
+let startDate = localStorage.getItem(LS_START) || '';
+let currentDay = parseInt(localStorage.getItem(LS_CUR) || '0', 10) || todayPlanDay();
+
+function saveDone(){ localStorage.setItem(LS_DONE, JSON.stringify([...done])); }
+
+function todayPlanDay(){
+  if(!startDate) return 1;
+  const s = new Date(startDate + 'T00:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  const diff = Math.floor((now - s) / 86400000) + 1;
+  return Math.min(Math.max(diff, 1), 365);
+}
+
+function setStartDate(v){
+  startDate = v;
+  localStorage.setItem(LS_START, v);
+  currentDay = todayPlanDay();
+  localStorage.setItem(LS_CUR, currentDay);
+  renderAll();
+}
+
+/* ================= Utilidades ================= */
+function bgUrl(lecturas, version){
+  return 'https://www.biblegateway.com/passage/?search=' +
+    encodeURIComponent(lecturas.join('; ')) + '&version=' + version;
+}
+function fechaDelDia(d){
+  if(!startDate) return '';
+  const s = new Date(startDate + 'T00:00:00');
+  s.setDate(s.getDate() + d - 1);
+  return s.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+}
+
+/* ================= Navegación ================= */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  window.scrollTo({top:0});
+}
+
+function goToDay(d){
+  currentDay = Math.min(Math.max(d,1),365);
+  localStorage.setItem(LS_CUR, currentDay);
+  renderDay();
+  showView('hoy');
+}
+
+/* ================= Render día ================= */
+function renderDay(){
+  const p = PLAN[currentDay - 1];
+  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[currentDay] : null;
+  const isDone = done.has(currentDay);
+  const fecha = fechaDelDia(currentDay);
+
+  let html = `
+  <div class="day-head">
+    <div class="etapa-tag">${p.etapa}</div>
+    <div class="day-num">Día ${p.d} de 365</div>
+    <h2 class="day-title">${c ? c.t : p.lecturas.join(' · ')}</h2>
+    ${fecha ? `<div class="day-date">${fecha}</div>` : ''}
+  </div>
+
+  <div class="lecturas-card">
+    <h3>Lectura de hoy</h3>
+    <div class="lect-list">${p.lecturas.map(l => `<span class="lect-chip">${l}</span>`).join('')}</div>
+    <div class="ver-buttons">
+      <a class="btn btn-rvr" target="_blank" rel="noopener" href="${bgUrl(p.lecturas,'RVR1960')}">📖 Leer en RVR60</a>
+      <a class="btn btn-lbla" target="_blank" rel="noopener" href="${bgUrl(p.lecturas,'LBLA')}">📖 Leer en LBLA</a>
+      <button class="btn btn-check ${isDone?'done':''}" onclick="toggleDone(${p.d})">${isDone ? '✓ Leído' : 'Marcar como leído'}</button>
+    </div>
+  </div>`;
+
+  if(c){
+    html += `
+    <div class="sec"><h3><span class="ico">🏛</span> Contexto histórico</h3><p>${c.h}</p></div>
+    <div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>${c.c}</p></div>
+    <div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>${c.n}</p></div>
+    <div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>${c.p}</p></div>
+    <div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>${c.v}</p></div>
+    <div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>${c.q}</p></div>`;
+  } else {
+    html += `<div class="no-com">El estudio profundo de este día aún está en preparación.<br>Disfruta la lectura del texto sagrado — la Palabra misma es el pan.</div>`;
+  }
+
+  html += `
+  <div class="day-nav">
+    <button onclick="goToDay(${p.d - 1})" ${p.d===1?'disabled':''}>← Día ${p.d-1 || ''}</button>
+    <button onclick="goToDay(todayPlanDay())">Ir al día de hoy</button>
+    <button onclick="goToDay(${p.d + 1})" ${p.d===365?'disabled':''}>Día ${p.d===365?'':p.d+1} →</button>
+  </div>`;
+
+  document.getElementById('view-hoy').innerHTML = html;
+}
+
+function toggleDone(d){
+  if(done.has(d)) done.delete(d); else done.add(d);
+  saveDone();
+  renderDay(); renderPlan(); renderProgress();
+}
+
+/* ================= Render plan ================= */
+function renderPlan(){
+  const hoy = todayPlanDay();
+  const cont = document.getElementById('planList');
+  let html = '', etapa = '';
+  PLAN.forEach(p => {
+    if(p.etapa !== etapa){
+      if(etapa) html += '</div></div>';
+      etapa = p.etapa;
+      html += `<div class="etapa-block"><h3>${etapa}</h3><div class="dias-grid">`;
+    }
+    const cls = ['dia-pill'];
+    if(done.has(p.d)) cls.push('done');
+    if(startDate && p.d === hoy) cls.push('today');
+    if(typeof COMENTARIOS !== 'undefined' && COMENTARIOS[p.d]) cls.push('has-com');
+    html += `<div class="${cls.join(' ')}" onclick="goToDay(${p.d})" title="${p.lecturas.join('; ')}">${p.d}<small>${p.lecturas[0].split(' ').slice(0,-1).join(' ').slice(0,10) || p.lecturas[0]}</small></div>`;
+  });
+  html += '</div></div>';
+  cont.innerHTML = html;
+  document.getElementById('startDate').value = startDate;
+}
+
+/* ================= Progreso ================= */
+function renderProgress(){
+  const pct = Math.round(done.size / 365 * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent =
+    `${done.size} de 365 días leídos · ${pct}%`;
+}
+
+function renderAll(){ renderDay(); renderPlan(); renderProgress(); }
+renderAll();
+</script>
+</body>
+</html>
