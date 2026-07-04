@@ -75,6 +75,12 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 .plan-controls{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.6rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;font-family:'Inter',sans-serif;font-size:.85rem}
 .plan-controls label{font-weight:600;color:var(--navy)}
 .plan-controls input[type=date]{font-family:'Inter',sans-serif;padding:.4rem .6rem;border:1px solid var(--line);border-radius:6px}
+.plan-controls input[type=text]{font-family:'Inter',sans-serif;padding:.5rem .7rem;border:1px solid var(--line);border-radius:6px;min-width:190px}
+.mini-btn{font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;padding:.4rem .8rem;border-radius:6px;cursor:pointer;border:1.5px solid var(--navy);background:#fff;color:var(--navy)}
+.mini-btn.principal{background:var(--navy);color:#fff}
+.mini-btn:hover{border-color:var(--gold)}
+#pasajeResultado{font-family:'Inter',sans-serif;font-size:.85rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;width:100%}
+#pasajeResultado.err{color:#a33}
 .etapa-block{margin-bottom:1.7rem}
 .etapa-block h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:.15rem;margin-bottom:.75rem}
 .dias-grid{display:flex;flex-wrap:wrap;gap:.45rem}
@@ -124,6 +130,12 @@ footer a{color:var(--gold-light)}
 
   <!-- ===== Vista del plan ===== -->
   <section id="view-plan" class="view">
+    <div class="plan-controls">
+      <label for="pasajeInput">¿Ya venías leyendo? Escribe el pasaje donde vas:</label>
+      <input type="text" id="pasajeInput" placeholder="p. ej. Éxodo 12" onkeydown="if(event.key==='Enter')buscarPasaje()">
+      <button class="mini-btn principal" onclick="buscarPasaje()">Buscar mi día</button>
+      <span id="pasajeResultado"></span>
+    </div>
     <div class="plan-controls">
       <label for="startDate">Fecha de inicio del plan:</label>
       <input type="date" id="startDate" onchange="setStartDate(this.value)">
@@ -215,6 +227,55 @@ function sbtUrl(lecturas){
   if(!code) return null;
   return 'https://www.tbsonlinebible.com/#es_' + code + '_' + m[2];
 }
+/* ===== Buscador: ¿en qué día del plan está un pasaje? ===== */
+function normTxt(s){
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
+}
+const LIBROS_NORM = {};
+Object.keys(SBT_LIBROS).forEach(n => LIBROS_NORM[normTxt(n)] = n);
+/* alias frecuentes */
+Object.assign(LIBROS_NORM, {
+  'salmo':'Salmos','psalmos':'Salmos','cantar de los cantares':'Cantares',
+  'cantar':'Cantares','eclesiastes':'Eclesiastés','apocalipsis de juan':'Apocalipsis',
+  'hechos de los apostoles':'Hechos','exodo':'Éxodo','genesis':'Génesis',
+  'levitico':'Levítico','numeros':'Números','deuteronomio':'Deuteronomio'
+});
+function buscarPasaje(){
+  const out = document.getElementById('pasajeResultado');
+  const raw = document.getElementById('pasajeInput').value;
+  out.classList.remove('err');
+  const m = raw.match(/^(.+?)\s*(\d+)?\s*(?::.*)?$/);
+  if(!m || !m[1]){ out.classList.add('err'); out.textContent = 'Escribe un libro y capítulo, p. ej. "Éxodo 12".'; return; }
+  const libro = LIBROS_NORM[normTxt(m[1])];
+  const cap = parseInt(m[2] || '1', 10);
+  if(!libro){ out.classList.add('err'); out.textContent = 'No reconozco ese libro. Revisa la ortografía (p. ej. "1 Samuel", "Salmos").'; return; }
+  for(const p of PLAN){
+    for(const l of p.lecturas){
+      const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
+      if(!lm) continue;
+      if(lm[1] !== libro) continue;
+      const ini = parseInt(lm[2],10), fin = parseInt(lm[3] || lm[2],10);
+      if(cap >= ini && cap <= fin){
+        out.innerHTML = `${libro} ${cap} está en el <strong>día ${p.d}</strong> (${p.lecturas.join('; ')}). ` +
+          `<button class="mini-btn" onclick="goToDay(${p.d})">Ver el día</button> ` +
+          `<button class="mini-btn principal" onclick="continuarDesde(${p.d})">Continuar desde aquí</button>`;
+        return;
+      }
+    }
+  }
+  out.classList.add('err');
+  out.textContent = 'No encontré ese capítulo en el plan. Verifica libro y capítulo.';
+}
+function continuarDesde(n){
+  for(let i = 1; i < n; i++) done.add(i);
+  saveDone();
+  const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - (n - 1));
+  startDate = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
+  localStorage.setItem(LS_START, startDate);
+  renderAll();
+  goToDay(n);
+}
+
 function fechaDelDia(d){
   if(!startDate) return '';
   const s = new Date(startDate + 'T00:00:00');
