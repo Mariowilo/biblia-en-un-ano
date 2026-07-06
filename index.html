@@ -89,6 +89,11 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 .mini-btn:hover{border-color:var(--gold)}
 #pasajeResultado{font-family:'Inter',sans-serif;font-size:.85rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;width:100%}
 #pasajeResultado.err{color:#a33}
+.t-fila{display:flex;align-items:center;gap:.6rem;width:100%;padding:.34rem 0;border-bottom:1px dashed var(--line);font-family:'Inter',sans-serif;font-size:.82rem}
+.t-nom{min-width:130px;font-weight:600;color:var(--navy)}
+.t-bar{flex:1;height:8px;background:var(--cream);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.t-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.t-dat{min-width:95px;text-align:right;color:var(--ink-soft)}
 .etapa-block{margin-bottom:1.7rem}
 .etapa-block h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:.15rem;margin-bottom:.75rem}
 .dias-grid{display:flex;flex-wrap:wrap;gap:.45rem}
@@ -139,6 +144,10 @@ footer a{color:var(--gold-light)}
 
   <!-- ===== Vista del plan ===== -->
   <section id="view-plan" class="view">
+    <div class="plan-controls" id="tableroCard" style="flex-direction:column;align-items:flex-start">
+      <label>🤝 Hermanos en el camino</label>
+      <div id="tablero" style="width:100%"></div>
+    </div>
     <div class="plan-controls">
       <label for="pasajeInput">¿Ya venías leyendo? Escribe el pasaje donde vas:</label>
       <input type="text" id="pasajeInput" placeholder="p. ej. Éxodo 12" onkeydown="if(event.key==='Enter')buscarPasaje()">
@@ -298,6 +307,7 @@ function showView(name){
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  if(name === 'plan') cargarTablero();
   window.scrollTo({top:0});
 }
 
@@ -360,6 +370,7 @@ function toggleDone(d){
   if(done.has(d)) done.delete(d); else done.add(d);
   saveDone();
   renderDay(); renderPlan(); renderProgress();
+  publicarAvance();
 }
 
 /* ================= Render plan ================= */
@@ -392,6 +403,40 @@ function renderProgress(){
     `${done.size} de 365 días leídos · ${pct}%`;
 }
 
+/* ================= Tablero compartido (Pantry) ================= */
+const PANTRY_ID = 'c60e88aa-0af7-411a-af51-1ef2a5da50c8'; /* despensa compartida del grupo */
+const pantryUrl = () => 'https://getpantry.cloud/apiv1/pantry/' + PANTRY_ID + '/basket/hermanos';
+const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+async function publicarAvance(){
+  if(!PANTRY_ID || !nombre) return;
+  const clave = nombre.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'_').slice(0,30);
+  const opts = { headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ [clave]: { n: nombre, l: done.size, d: todayPlanDay(), t: Date.now() } }) };
+  try{
+    const r = await fetch(pantryUrl(), { method:'PUT', ...opts });
+    if(!r.ok) await fetch(pantryUrl(), { method:'POST', ...opts });
+  }catch(e){}
+}
+async function cargarTablero(){
+  const el = document.getElementById('tablero');
+  if(!el) return;
+  if(!PANTRY_ID){ document.getElementById('tableroCard').style.display = 'none'; return; }
+  el.innerHTML = '<em>Cargando…</em>';
+  try{
+    const r = await fetch(pantryUrl());
+    if(!r.ok) throw 0;
+    const data = await r.json();
+    const filas = Object.values(data).filter(x => x && x.n).sort((a,b) => (b.l||0)-(a.l||0));
+    el.innerHTML = filas.length ? filas.map(x => {
+      const pct = Math.min(100, Math.round((x.l||0)/365*100));
+      return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}</span>` +
+             `<span class="t-bar"><span style="width:${pct}%"></span></span>` +
+             `<span class="t-dat">${x.l||0} días · ${pct}%</span></div>`;
+    }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: guarda tu nombre arriba y marca tu primer día!</em>';
+  }catch(e){ el.innerHTML = '<em>No se pudo cargar el tablero (revisa tu conexión).</em>'; }
+}
+
 /* ================= Nombre y compartir avance ================= */
 const LS_NAME = 'biblia365_nombre';
 let nombre = localStorage.getItem(LS_NAME) || '';
@@ -414,6 +459,7 @@ function guardarNombre(){
   nombre = v;
   localStorage.setItem(LS_NAME, nombre);
   renderShare();
+  publicarAvance();
 }
 function cambiarNombre(){
   nombre = '';
