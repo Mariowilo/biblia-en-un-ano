@@ -26,6 +26,14 @@ header p.sub{font-style:italic;color:#c9d2e3;font-size:1.02rem;max-width:640px;m
 .progress-bar{height:7px;background:#33415e;border-radius:4px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;transition:width .5s}
 .progress-label{font-family:'Inter',sans-serif;font-size:.75rem;color:#c9d2e3;margin-top:.45rem}
+.share-wrap{margin-top:.8rem;display:flex;justify-content:center;align-items:center;gap:.5rem;flex-wrap:wrap;font-family:'Inter',sans-serif;font-size:.8rem}
+.share-wrap input{padding:.45rem .7rem;border-radius:6px;border:1px solid #33415e;background:#0f1a2e;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;width:170px}
+.share-wrap input::placeholder{color:#7d8db0}
+.share-btn{background:#25d366;color:#0b3d1f;border:none;border-radius:6px;padding:.5rem .9rem;font-weight:600;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+.share-btn:hover{background:#2fe375}
+.share-btn.sec{background:transparent;color:#c9d2e3;border:1px solid #33415e}
+.share-btn.sec:hover{color:#fff;border-color:var(--gold)}
+.share-name{color:var(--gold-light);font-weight:600}
 
 /* ---------- Nav ---------- */
 nav{background:var(--navy2);position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -113,6 +121,7 @@ footer a{color:var(--gold-light)}
   <div class="progress-wrap">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="progress-label" id="progressLabel"></div>
+    <div class="share-wrap" id="shareWrap"></div>
   </div>
 </header>
 
@@ -383,7 +392,48 @@ function renderProgress(){
     `${done.size} de 365 días leídos · ${pct}%`;
 }
 
-function renderAll(){ renderDay(); renderPlan(); renderProgress(); }
+/* ================= Nombre y compartir avance ================= */
+const LS_NAME = 'biblia365_nombre';
+let nombre = localStorage.getItem(LS_NAME) || '';
+
+function renderShare(){
+  const w = document.getElementById('shareWrap');
+  if(!nombre){
+    w.innerHTML = `<input type="text" id="nombreInput" placeholder="Tu nombre" maxlength="30"
+        onkeydown="if(event.key==='Enter')guardarNombre()">
+      <button class="share-btn sec" onclick="guardarNombre()">Guardar</button>`;
+  } else {
+    w.innerHTML = `<span>👤 <span class="share-name">${nombre}</span></span>
+      <button class="share-btn" onclick="compartirAvance()">📱 Compartir mi avance</button>
+      <button class="share-btn sec" onclick="cambiarNombre()">Cambiar</button>`;
+  }
+}
+function guardarNombre(){
+  const v = document.getElementById('nombreInput').value.trim();
+  if(!v) return;
+  nombre = v;
+  localStorage.setItem(LS_NAME, nombre);
+  renderShare();
+}
+function cambiarNombre(){
+  nombre = '';
+  localStorage.removeItem(LS_NAME);
+  renderShare();
+}
+function compartirAvance(){
+  const pct = Math.round(done.size / 365 * 100);
+  const hoy = todayPlanDay();
+  const p = PLAN[hoy - 1];
+  const barra = '🟩'.repeat(Math.round(pct/10)) + '⬜'.repeat(10 - Math.round(pct/10));
+  const texto = `📖 *La Biblia en un Año*\n👤 ${nombre}\n${barra} ${pct}%\n✅ ${done.size} de 365 días leídos\n📍 Día ${hoy}: ${p.lecturas.join('; ')}\n\n«Lámpara es a mis pies tu palabra» Sal 119:105\nhttps://mariowilo.github.io/biblia-en-un-ano/`;
+  if(navigator.share){
+    navigator.share({ text: texto }).catch(()=>{});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener');
+  }
+}
+
+function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare(); }
 renderAll();
 </script>
 </body>
