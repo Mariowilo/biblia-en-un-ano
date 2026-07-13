@@ -34,6 +34,10 @@ header p.lema .ref{font-family:'Inter',sans-serif;font-style:normal;font-size:.6
 .share-wrap input{padding:.45rem .7rem;border-radius:6px;border:1px solid #33415e;background:#0f1a2e;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;width:170px}
 .share-wrap input::placeholder{color:#7d8db0}
 .share-btn{background:#25d366;color:#0b3d1f;border:none;border-radius:6px;padding:.5rem .9rem;font-weight:600;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+.login-wrap{margin-top:.5rem;display:flex;justify-content:center;align-items:center;gap:.5rem;flex-wrap:wrap;font-family:'Inter',sans-serif;font-size:.78rem;color:#9fb0d0}
+.btn-login{background:#fff;color:#1a2b4a;border:1px solid #33415e;border-radius:6px;padding:.45rem .9rem;font-weight:600;font-size:.76rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
+.btn-login:hover{background:#e8ecf5}
+.login-info{color:#8fd694;font-weight:600}
 .share-btn:hover{background:#2fe375}
 .share-btn.sec{background:transparent;color:#c9d2e3;border:1px solid #33415e}
 .share-btn.sec:hover{color:#fff;border-color:var(--gold)}
@@ -133,6 +137,7 @@ footer a{color:var(--gold-light)}
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="progress-label" id="progressLabel"></div>
     <div class="share-wrap" id="shareWrap"></div>
+    <div class="login-wrap" id="loginBox"></div>
   </div>
 </header>
 
@@ -192,6 +197,9 @@ footer a{color:var(--gold-light)}
 
 <script src="plan.js"></script>
 <script src="comentarios.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 /* ================= Estado ================= */
 const LS_DONE = 'biblia365_done';
@@ -202,7 +210,7 @@ let done = new Set(JSON.parse(localStorage.getItem(LS_DONE) || '[]'));
 let startDate = localStorage.getItem(LS_START) || '';
 let currentDay = parseInt(localStorage.getItem(LS_CUR) || '0', 10) || todayPlanDay();
 
-function saveDone(){ localStorage.setItem(LS_DONE, JSON.stringify([...done])); }
+function saveDone(){ localStorage.setItem(LS_DONE, JSON.stringify([...done])); guardarNube(); }
 
 function todayPlanDay(){
   if(!startDate) return 1;
@@ -466,6 +474,7 @@ function guardarNombre(){
   localStorage.setItem(LS_NAME, nombre);
   renderShare();
   publicarAvance();
+  guardarNube();
 }
 function cambiarNombre(){
   nombre = '';
@@ -485,8 +494,80 @@ function compartirAvance(){
   }
 }
 
+/* ================= Login con Google (Firebase) ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDt3bA9HuXbIypVH_JRQMe-FGKkNfUDrv8",
+  authDomain: "biblia-en-un-ano.firebaseapp.com",
+  projectId: "biblia-en-un-ano",
+  storageBucket: "biblia-en-un-ano.firebasestorage.app",
+  messagingSenderId: "978571488009",
+  appId: "1:978571488009:web:cd9e062e57a1b9b62801d8"
+};
+let fbUser = null, fbDB = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fbDB = firebase.firestore();
+  firebase.auth().onAuthStateChanged(u => {
+    fbUser = u;
+    pintarLogin();
+    if(u) sincronizarNube();
+  });
+}catch(e){ /* sin conexión a Firebase: el sitio sigue funcionando con localStorage */ }
+
+function loginGoogle(){
+  const prov = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(prov)
+    .catch(e => { if(e && e.code !== 'auth/popup-closed-by-user') alert('No se pudo iniciar sesión. Intenta de nuevo.'); });
+}
+function logoutGoogle(){ firebase.auth().signOut(); }
+
+function pintarLogin(){
+  const el = document.getElementById('loginBox');
+  if(!el) return;
+  if(fbUser){
+    el.innerHTML = `<span class="login-info">☁️ Avance guardado en la nube — ${esc(fbUser.displayName || fbUser.email || '')}</span>
+      <button class="btn-login" onclick="logoutGoogle()">Salir</button>`;
+  } else {
+    el.innerHTML = `<button class="btn-login" onclick="loginGoogle()">🔑 Iniciar sesión con Google</button>
+      <span>para guardar tu avance en la nube y usarlo en cualquier dispositivo</span>`;
+  }
+}
+
+async function sincronizarNube(){
+  if(!fbUser || !fbDB) return;
+  try{
+    const ref = fbDB.collection('progreso').doc(fbUser.uid);
+    const snap = await ref.get();
+    if(snap.exists){
+      const d = snap.data() || {};
+      if(Array.isArray(d.dias)) d.dias.forEach(x => { if(x >= 1 && x <= 365) done.add(x); });
+      if(d.nombre && !nombre){ nombre = d.nombre; localStorage.setItem(LS_NAME, nombre); }
+      if(d.inicio && !startDate){ startDate = d.inicio; localStorage.setItem(LS_START, startDate); currentDay = todayPlanDay(); }
+      localStorage.setItem(LS_DONE, JSON.stringify([...done]));
+      renderAll();
+    }
+    if(!nombre && fbUser.displayName){ nombre = fbUser.displayName.split(' ')[0]; localStorage.setItem(LS_NAME, nombre); renderShare(); }
+    guardarNube();
+    publicarAvance();
+  }catch(e){}
+}
+
+async function guardarNube(){
+  if(!fbUser || !fbDB) return;
+  try{
+    await fbDB.collection('progreso').doc(fbUser.uid).set({
+      nombre: nombre || fbUser.displayName || '',
+      dias: [...done],
+      total: done.size,
+      inicio: startDate || null,
+      actualizado: new Date().toISOString()
+    }, { merge: true });
+  }catch(e){}
+}
+
 function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare(); }
 renderAll();
+pintarLogin();
 </script>
 </body>
 </html>
