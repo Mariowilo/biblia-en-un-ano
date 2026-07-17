@@ -61,6 +61,15 @@ header p.citas b{color:#8fa0bd;font-family:'Inter',sans-serif;font-style:normal;
 .verso-pie{margin-top:.9rem;font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft)}
 .verso-pie a{color:#1d4ed8}
 #versoCerrar{position:absolute;top:.6rem;right:.7rem;background:none;border:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft)}
+#muroForm textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;font-family:'EB Garamond',serif;font-size:1rem;resize:vertical;margin-bottom:.4rem}
+.muro-post{border-bottom:1px dashed var(--line);padding:.6rem 0}
+.muro-post:last-child{border-bottom:none}
+.muro-cab{display:flex;align-items:center;gap:.6rem;font-family:'Inter',sans-serif;font-size:.78rem;margin-bottom:.25rem}
+.muro-nom{font-weight:600;color:var(--navy)}
+.muro-fec{color:var(--ink-soft)}
+.muro-borrar{margin-left:auto;background:none;border:none;cursor:pointer;font-size:.85rem;opacity:.55}
+.muro-borrar:hover{opacity:1}
+.muro-post p{font-size:1.02rem}
 .share-btn:hover{background:#2fe375}
 .share-btn.sec{background:transparent;color:var(--navy);border:1px solid var(--line)}
 .share-btn.sec:hover{border-color:var(--gold)}
@@ -189,6 +198,11 @@ footer a{color:var(--gold-light)}
     <div class="plan-controls" id="tableroCard" style="flex-direction:column;align-items:flex-start">
       <label>🤝 Hermanos en el camino</label>
       <div id="tablero" style="width:100%"></div>
+    </div>
+    <div class="plan-controls" style="flex-direction:column;align-items:stretch;gap:.6rem">
+      <label>✍️ Muro de los hermanos</label>
+      <div id="muroForm"></div>
+      <div id="muroLista"></div>
     </div>
   </section>
 
@@ -413,7 +427,7 @@ function showView(name){
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
-  if(name === 'avance') cargarTablero();
+  if(name === 'avance'){ cargarTablero(); pintarMuroForm(); cargarMuro(); }
   if(name === 'conf') renderConf();
   window.scrollTo({top:0});
 }
@@ -613,6 +627,7 @@ try{
   firebase.auth().onAuthStateChanged(u => {
     fbUser = u;
     pintarLogin();
+    pintarMuroForm();
     if(u) sincronizarNube();
   });
 }catch(e){ /* sin conexión a Firebase: el sitio sigue funcionando con localStorage */ }
@@ -738,6 +753,55 @@ async function verVerso(ref){
   }catch(e){
     cont.innerHTML = '<em>No pude cargar el texto (revisa tu conexión). Puedes abrirlo en Bible Gateway con el enlace de abajo.</em>';
   }
+}
+
+/* ================= Muro de los hermanos ================= */
+function pintarMuroForm(){
+  const f = document.getElementById('muroForm');
+  if(!f) return;
+  if(fbUser){
+    f.innerHTML = `<textarea id="muroTexto" maxlength="2000" rows="3" placeholder="Comparte una reflexión, un versículo que te habló, una petición de oración…"></textarea>
+      <button class="mini-btn principal" onclick="publicarMuro()">Publicar</button>`;
+  } else {
+    f.innerHTML = `<span style="color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:.82rem">Inicia sesión con Google (arriba) para escribir en el muro.</span>`;
+  }
+}
+async function publicarMuro(){
+  const t = document.getElementById('muroTexto');
+  const v = t && t.value.trim();
+  if(!v || !fbUser || !fbDB) return;
+  try{
+    await fbDB.collection('muro').add({
+      uid: fbUser.uid,
+      nombre: nombre || fbUser.displayName || 'Hermano',
+      texto: v.slice(0, 2000),
+      fecha: new Date().toISOString()
+    });
+    t.value = '';
+    cargarMuro();
+  }catch(e){ alert('No se pudo publicar. Revisa tu conexión.'); }
+}
+async function cargarMuro(){
+  const el = document.getElementById('muroLista');
+  if(!el || !fbDB) return;
+  el.innerHTML = '<em>Cargando…</em>';
+  try{
+    const snap = await fbDB.collection('muro').orderBy('fecha', 'desc').limit(30).get();
+    el.innerHTML = snap.empty ? '<em>Aún no hay publicaciones. ¡Sé el primero en escribir!</em>' :
+      snap.docs.map(d => {
+        const x = d.data();
+        const f = new Date(x.fecha);
+        const mio = fbUser && x.uid === fbUser.uid;
+        return `<div class="muro-post"><div class="muro-cab"><span class="muro-nom">👤 ${esc(x.nombre || '')}</span>` +
+          `<span class="muro-fec">${f.toLocaleDateString('es', {day:'numeric', month:'short'})} · ${f.toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'})}</span>` +
+          (mio ? `<button class="muro-borrar" onclick="borrarMuro('${d.id}')" title="Eliminar mi publicación">🗑</button>` : '') +
+          `</div><p>${esc(x.texto || '')}</p></div>`;
+      }).join('');
+  }catch(e){ el.innerHTML = '<em>No se pudo cargar el muro (revisa tu conexión).</em>'; }
+}
+async function borrarMuro(id){
+  if(!fbDB || !confirm('¿Eliminar tu publicación?')) return;
+  try{ await fbDB.collection('muro').doc(id).delete(); cargarMuro(); }catch(e){}
 }
 
 /* ================= PWA: instalación y sin conexión ================= */
