@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a2b4a">
-<link rel="apple-touch-icon" href="LOGO%20MARIO%20CABALLO.png">
+<link rel="apple-touch-icon" href="Logo%20Ad%20Fontes.png">
 <title>La Biblia en un Año — Lectura Cronológica</title>
 <meta name="description" content="Plan cronológico de lectura bíblica en 365 días con contexto histórico, cultural y análisis pactual. RVR60 y LBLA.">
-<link rel="icon" type="image/png" href="LOGO%20MARIO%20CABALLO.png">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -161,9 +161,9 @@ footer a{color:var(--gold-light)}
 
 <header>
   <div class="head-bar">
-    <img class="logo-mini" src="LOGO%20MARIO%20CABALLO.png" alt="Emblema" onerror="this.style.display='none'">
+    <img class="logo-mini" src="Logo%20Ad%20Fontes.png" alt="Emblema" onerror="this.style.display='none'">
     <div>
-      <div class="kicker">Plan cronológico · 365 días</div>
+      <div class="kicker">Ad Fontes · Plan cronológico · 365 días</div>
       <h1>La Biblia en un Año</h1>
     </div>
   </div>
@@ -603,7 +603,7 @@ function compartirAvance(){
   const hoy = todayPlanDay();
   const p = PLAN[hoy - 1];
   const barra = '🟩'.repeat(Math.round(pct/10)) + '⬜'.repeat(10 - Math.round(pct/10));
-  const texto = `📖 *La Biblia en un Año*\n👤 ${nombre}\n${barra} ${pct}%\n✅ ${done.size} de 365 días leídos\n📍 Día ${hoy}: ${p.lecturas.join('; ')}\n\n«Lámpara es a mis pies tu palabra» Sal 119:105\nhttps://mariowilo.github.io/biblia-en-un-ano/`;
+  const texto = `📖 *La Biblia en un Año*\n👤 ${nombre}\n${barra} ${pct}%\n✅ ${done.size} de 365 días leídos\n📍 Día ${hoy}: ${p.lecturas.join('; ')}\n\n«Lámpara es a mis pies tu palabra» Sal 119:105\nhttps://adfontesproject.github.io/`;
   if(navigator.share){
     navigator.share({ text: texto }).catch(()=>{});
   } else {
@@ -853,7 +853,7 @@ async function probarNotif(){
     const pl = PLAN[hoy - 1];
     reg.showNotification('📖 La Biblia en un Año', {
       body: 'Día ' + hoy + ': ' + pl.lecturas.join('; ') + ' — tu lectura de hoy te espera.',
-      icon: 'LOGO MARIO CABALLO.png'
+      icon: 'Logo Ad Fontes.png'
     });
   }catch(e){ alert('Este navegador no permite notificaciones aquí.'); }
 }

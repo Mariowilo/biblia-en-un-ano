@@ -1,6 +1,6 @@
 /* Service Worker — La Biblia en un Año (PWA: sin conexión + notificaciones) */
-const CACHE = 'biblia365-v3';
-const FILES = ['./', 'index.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'manifest.json', 'LOGO MARIO CABALLO.png'];
+const CACHE = 'biblia365-v4';
+const FILES = ['./', 'index.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'manifest.json', 'Logo Ad Fontes.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -36,12 +36,12 @@ self.addEventListener('push', e => {
   const n = d.notification || d; /* FCM envía {notification:{...}}; también aceptamos formato plano */
   e.waitUntil(self.registration.showNotification(n.title || '📖 La Biblia en un Año', {
     body: n.body || 'Tu lectura de hoy te espera. «Lámpara es a mis pies tu palabra» (Sal 119:105)',
-    icon: n.icon || 'LOGO MARIO CABALLO.png',
-    badge: 'LOGO MARIO CABALLO.png'
+    icon: n.icon || 'Logo Ad Fontes.png',
+    badge: 'Logo Ad Fontes.png'
   }));
 });
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow('https://mariowilo.github.io/biblia-en-un-ano/'));
+  e.waitUntil(clients.openWindow('https://adfontesproject.github.io/'));
 });
