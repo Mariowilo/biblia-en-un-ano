@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a2b4a">
+<link rel="apple-touch-icon" href="LOGO%20MARIO%20CABALLO.png">
 <title>La Biblia en un Año — Lectura Cronológica</title>
 <meta name="description" content="Plan cronológico de lectura bíblica en 365 días con contexto histórico, cultural y análisis pactual. RVR60 y LBLA.">
 <link rel="icon" type="image/png" href="LOGO%20MARIO%20CABALLO.png">
@@ -146,6 +149,7 @@ footer a{color:var(--gold-light)}
     <div class="progress-label" id="progressLabel"></div>
     <div class="share-wrap" id="shareWrap"></div>
     <div class="login-wrap" id="loginBox"></div>
+    <div class="login-wrap" id="notifBox"></div>
   </div>
 </header>
 
@@ -616,9 +620,48 @@ async function guardarNube(){
   }catch(e){}
 }
 
+/* ================= PWA: instalación y sin conexión ================= */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* ================= Recordatorios (notificaciones) ================= */
+function pintarNotif(){
+  const el = document.getElementById('notifBox');
+  if(!el) return;
+  if(!('Notification' in window) || !('serviceWorker' in navigator)){ el.innerHTML = ''; return; }
+  if(Notification.permission === 'granted'){
+    el.innerHTML = `<span class="login-info">🔔 Notificaciones activadas en este dispositivo</span>
+      <button class="btn-login" onclick="probarNotif()">Probar</button>`;
+  } else if(Notification.permission === 'denied'){
+    el.innerHTML = '';
+  } else {
+    el.innerHTML = `<button class="btn-login" onclick="activarNotif()">🔔 Activar recordatorios de lectura</button>`;
+  }
+}
+async function activarNotif(){
+  try{
+    const p = await Notification.requestPermission();
+    pintarNotif();
+    if(p === 'granted') probarNotif();
+  }catch(e){}
+}
+async function probarNotif(){
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    const hoy = todayPlanDay();
+    const pl = PLAN[hoy - 1];
+    reg.showNotification('📖 La Biblia en un Año', {
+      body: 'Día ' + hoy + ': ' + pl.lecturas.join('; ') + ' — tu lectura de hoy te espera.',
+      icon: 'LOGO MARIO CABALLO.png'
+    });
+  }catch(e){ alert('Este navegador no permite notificaciones aquí.'); }
+}
+
 function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare(); }
 renderAll();
 pintarLogin();
+pintarNotif();
 </script>
 </body>
 </html>

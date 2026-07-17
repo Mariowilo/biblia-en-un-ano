@@ -1,0 +1,16 @@
+{
+  "name": "La Biblia en un Año",
+  "short_name": "Biblia 365",
+  "description": "Plan cronológico de lectura bíblica en 365 días con estudio histórico, cultural y pactual.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1a2e",
+  "theme_color": "#1a2b4a",
+  "lang": "es",
+  "icons": [
+    { "src": "LOGO MARIO CABALLO.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "LOGO MARIO CABALLO.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
