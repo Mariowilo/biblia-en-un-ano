@@ -155,6 +155,7 @@ footer a{color:var(--gold-light)}
     <button id="navHoy" class="active" onclick="showView('hoy')">Lectura del día</button>
     <button id="navPlan" onclick="showView('plan')">Plan completo</button>
     <button id="navAvance" onclick="showView('avance')">Mi avance</button>
+    <button id="navConf" onclick="showView('conf')">Confesiones</button>
     <button id="navAcerca" onclick="showView('acerca')">Acerca del plan</button>
   </div>
 </nav>
@@ -195,6 +196,16 @@ footer a{color:var(--gold-light)}
     <div id="planList"></div>
   </section>
 
+  <!-- ===== Confesiones ===== -->
+  <section id="view-conf" class="view">
+    <div class="plan-controls" style="gap:.5rem">
+      <button class="mini-btn principal" id="confBtnLbc" onclick="verConf('lbc')">Bautista de Londres · 1689</button>
+      <button class="mini-btn" id="confBtnWest" onclick="verConf('west')">Westminster · 1647</button>
+    </div>
+    <div class="plan-controls" id="confCaps" style="gap:.35rem"></div>
+    <div id="confTexto"></div>
+  </section>
+
   <!-- ===== Acerca ===== -->
   <section id="view-acerca" class="view">
     <div class="about">
@@ -219,6 +230,7 @@ footer a{color:var(--gold-light)}
 
 <script src="plan.js"></script>
 <script src="comentarios.js"></script>
+<script src="confesiones.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -381,6 +393,7 @@ function showView(name){
   document.getElementById('view-' + name).classList.add('active');
   document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
   if(name === 'avance') cargarTablero();
+  if(name === 'conf') renderConf();
   window.scrollTo({top:0});
 }
 
@@ -632,6 +645,27 @@ async function guardarNube(){
       actualizado: new Date().toISOString()
     }, { merge: true });
   }catch(e){}
+}
+
+/* ================= Confesiones de fe ================= */
+let confActual = 'lbc', confCap = 0;
+function verConf(id){ confActual = id; confCap = 0; renderConf(); }
+function verCap(i){ confCap = i; renderConf(); document.getElementById('confTexto').scrollIntoView({behavior:'smooth'}); }
+function renderConf(){
+  if(typeof CONFESIONES === 'undefined') return;
+  const c = CONFESIONES[confActual];
+  document.getElementById('confBtnLbc').classList.toggle('principal', confActual === 'lbc');
+  document.getElementById('confBtnWest').classList.toggle('principal', confActual === 'west');
+  document.getElementById('confCaps').innerHTML =
+    c.caps.map((cap, i) =>
+      `<button class="mini-btn ${i === confCap ? 'principal' : ''}" title="${cap.t}" onclick="verCap(${i})">${i + 1}</button>`
+    ).join('');
+  const cap = c.caps[confCap];
+  document.getElementById('confTexto').innerHTML = (cap && cap.p) ?
+    `<div class="about"><h2>Capítulo ${confCap + 1} · ${cap.t}</h2>` +
+    cap.p.map((tx, i) => `<p><strong>${i + 1}.</strong> ${tx}</p>`).join('') +
+    `<p style="color:var(--ink-soft);font-size:.8rem;font-family:'Inter',sans-serif;margin-top:1.2rem">${c.nota}</p></div>` :
+    `<div class="no-com">«${cap ? cap.t : ''}» — este capítulo estará disponible muy pronto.<br>Estamos incorporando el texto completo de ambas confesiones por partes.</div>`;
 }
 
 /* ================= PWA: instalación y sin conexión ================= */
