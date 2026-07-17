@@ -212,6 +212,7 @@ footer a{color:var(--gold-light)}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
 /* ================= Estado ================= */
 const LS_DONE = 'biblia365_done';
@@ -639,11 +640,27 @@ function pintarNotif(){
     el.innerHTML = `<button class="btn-login" onclick="activarNotif()">🔔 Activar recordatorios de lectura</button>`;
   }
 }
+const VAPID_KEY = 'BEj4NBqEYuwAPoA-Ds2nNh-ac4pGa-6NCjYo_ku3wZlM3sAQIgmqURdIs_cKzf0RWvmV1vSTytW_VOnk4CaWJRU';
+async function registrarTokenFCM(){
+  try{
+    if(!fbDB || !firebase.messaging || !firebase.messaging.isSupported()) return;
+    const reg = await navigator.serviceWorker.ready;
+    const token = await firebase.messaging().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if(token){
+      await fbDB.collection('tokens').doc(token).set({
+        token: token,
+        nombre: nombre || '',
+        uid: fbUser ? fbUser.uid : null,
+        creado: new Date().toISOString()
+      }, { merge: true });
+    }
+  }catch(e){}
+}
 async function activarNotif(){
   try{
     const p = await Notification.requestPermission();
     pintarNotif();
-    if(p === 'granted') probarNotif();
+    if(p === 'granted'){ registrarTokenFCM(); probarNotif(); }
   }catch(e){}
 }
 async function probarNotif(){
@@ -662,6 +679,7 @@ function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare()
 renderAll();
 pintarLogin();
 pintarNotif();
+if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
 </script>
 </body>
 </html>

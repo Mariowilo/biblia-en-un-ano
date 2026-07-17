@@ -1,5 +1,5 @@
 /* Service Worker — La Biblia en un Año (PWA: sin conexión + notificaciones) */
-const CACHE = 'biblia365-v1';
+const CACHE = 'biblia365-v2';
 const FILES = ['./', 'index.html', 'plan.js', 'comentarios.js', 'manifest.json', 'LOGO MARIO CABALLO.png'];
 
 self.addEventListener('install', e => {
@@ -33,9 +33,10 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) {}
-  e.waitUntil(self.registration.showNotification(d.title || '📖 La Biblia en un Año', {
-    body: d.body || 'Tu lectura de hoy te espera. «Lámpara es a mis pies tu palabra» (Sal 119:105)',
-    icon: 'LOGO MARIO CABALLO.png',
+  const n = d.notification || d; /* FCM envía {notification:{...}}; también aceptamos formato plano */
+  e.waitUntil(self.registration.showNotification(n.title || '📖 La Biblia en un Año', {
+    body: n.body || 'Tu lectura de hoy te espera. «Lámpara es a mis pies tu palabra» (Sal 119:105)',
+    icon: n.icon || 'LOGO MARIO CABALLO.png',
     badge: 'LOGO MARIO CABALLO.png'
   }));
 });
