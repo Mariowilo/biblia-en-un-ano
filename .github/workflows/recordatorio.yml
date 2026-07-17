@@ -58,9 +58,9 @@ jobs:
                       'notification': {
                           'title': 'La Biblia en un Ano - dia de lectura',
                           'body': cuerpo,
-                          'icon': 'https://mariowilo.github.io/biblia-en-un-ano/LOGO%20MARIO%20CABALLO.png'
+                          'icon': 'https://adfontesproject.github.io/Logo%20Ad%20Fontes.png'
                       },
-                      'fcm_options': {'link': 'https://mariowilo.github.io/biblia-en-un-ano/'}
+                      'fcm_options': {'link': 'https://adfontesproject.github.io/'}
                   }}}
               resp = requests.post(msg_url, headers=H, json=body)
               if resp.status_code == 200:
