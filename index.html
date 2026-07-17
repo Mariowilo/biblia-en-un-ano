@@ -49,6 +49,18 @@ header p.citas b{color:#8fa0bd;font-family:'Inter',sans-serif;font-style:normal;
 .sbt-frame-holder iframe{width:100%;height:70vh;border:0;display:block}
 .sbt-foot{padding:.4rem .6rem;font-size:.72rem;text-align:right;background:#f4efdf;border-top:1px solid #d8cfae}
 .sbt-foot a{color:#6b5d33}
+.refs{margin:-.3rem 0 .8rem;display:flex;flex-wrap:wrap;gap:.35rem}
+.ref-chip{font-family:'Inter',sans-serif;font-size:.72rem;color:#1d4ed8;background:#eef3fd;border:1px solid #c7d7f5;border-radius:14px;padding:.18rem .6rem;cursor:pointer}
+.ref-chip:hover{background:#dbe7fb}
+#versoOverlay{position:fixed;inset:0;background:rgba(15,26,46,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
+#versoOverlay.open{display:flex}
+#versoBox{position:relative;background:#fff;border-radius:12px;max-width:600px;width:100%;max-height:72vh;overflow:auto;padding:1.4rem 1.6rem;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+#versoTit{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.3rem;color:var(--navy);margin-bottom:.6rem;padding-right:1.5rem}
+#versoTxt p{margin-bottom:.5rem}
+#versoTxt sup{color:#1d4ed8;font-family:'Inter',sans-serif;font-size:.68rem;margin-right:.25rem}
+.verso-pie{margin-top:.9rem;font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft)}
+.verso-pie a{color:#1d4ed8}
+#versoCerrar{position:absolute;top:.6rem;right:.7rem;background:none;border:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft)}
 .share-btn:hover{background:#2fe375}
 .share-btn.sec{background:transparent;color:var(--navy);border:1px solid var(--line)}
 .share-btn.sec:hover{border-color:var(--gold)}
@@ -222,6 +234,15 @@ footer a{color:var(--gold-light)}
     </div>
   </section>
 </main>
+
+<div id="versoOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div id="versoBox">
+    <button id="versoCerrar" onclick="document.getElementById('versoOverlay').classList.remove('open')">✕</button>
+    <div id="versoTit"></div>
+    <div id="versoTxt"></div>
+    <div class="verso-pie">Texto: Reina-Valera 1909 (dominio público) · <a id="versoBg" target="_blank" rel="noopener">Ver en RVR60 ↗</a></div>
+  </div>
+</div>
 
 <footer>
   Plan cronológico de lectura bíblica · Textos bíblicos © Sociedades Bíblicas en América Latina (RVR60) y The Lockman Foundation (LBLA), leídos vía Bible Gateway.<br>
@@ -663,9 +684,60 @@ function renderConf(){
   const cap = c.caps[confCap];
   document.getElementById('confTexto').innerHTML = (cap && cap.p) ?
     `<div class="about"><h2>Capítulo ${confCap + 1} · ${cap.t}</h2>` +
-    cap.p.map((tx, i) => `<p><strong>${i + 1}.</strong> ${tx}</p>`).join('') +
+    cap.p.map((tx, i) => {
+      const s = confRefs(tx);
+      return `<p><strong>${i + 1}.</strong> ${s.texto}</p>` +
+        (s.refs.length ? `<div class="refs">${s.refs.map(r =>
+          `<button class="ref-chip" data-r="${r}" onclick="verVerso(this.dataset.r)">${r}</button>`).join('')}</div>` : '');
+    }).join('') +
     `<p style="color:var(--ink-soft);font-size:.8rem;font-family:'Inter',sans-serif;margin-top:1.2rem">${c.nota}</p></div>` :
     `<div class="no-com">«${cap ? cap.t : ''}» — este capítulo estará disponible muy pronto.<br>Estamos incorporando el texto completo de ambas confesiones por partes.</div>`;
+}
+function confRefs(tx){
+  const m = tx.match(/^([\s\S]*?)\s*\(([^()]+)\)\s*$/);
+  if(!m || !/\d/.test(m[2])) return { texto: tx, refs: [] };
+  return { texto: m[1], refs: m[2].split(';').map(r => r.trim()).filter(Boolean) };
+}
+
+/* ---- Visor de versículos (cajita) ---- */
+const LIBROS_NUM = {gn:1,ex:2,lv:3,nm:4,dt:5,jos:6,jue:7,rut:8,'1s':9,'2s':10,'1r':11,'2r':12,'1cr':13,'2cr':14,esd:15,neh:16,est:17,job:18,sal:19,pr:20,ec:21,cnt:22,is:23,jer:24,lm:25,ez:26,dn:27,os:28,jl:29,am:30,abd:31,jon:32,mi:33,nah:34,hab:35,sof:36,hag:37,zac:38,mal:39,mt:40,mr:41,mc:41,lc:42,jn:43,hch:44,ro:45,'1co':46,'2co':47,ga:48,ef:49,fil:50,flp:50,col:51,'1ts':52,'2ts':53,'1ti':54,'2ti':55,tit:56,flm:57,he:58,stg:59,'1p':60,'2p':61,'1jn':62,'2jn':63,'3jn':64,jud:65,ap:66};
+const LIBROS_UNICAP = {abd:1,flm:1,'2jn':1,'3jn':1,jud:1};
+const versCache = {};
+async function verVerso(ref){
+  const ov = document.getElementById('versoOverlay');
+  document.getElementById('versoTit').textContent = ref;
+  document.getElementById('versoBg').href = 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(ref) + '&version=RVR1960';
+  const cont = document.getElementById('versoTxt');
+  cont.innerHTML = '<em>Cargando…</em>';
+  ov.classList.add('open');
+  try{
+    let html = '';
+    for(const parte of ref.split(/\s+con\s+/)){
+      const m = parte.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\s+(\d+)(?::([\d,\-]+))?$/);
+      if(!m) continue;
+      const clave = m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+      const libro = LIBROS_NUM[clave];
+      if(!libro) continue;
+      let capN = parseInt(m[2],10), vv = m[3];
+      if(LIBROS_UNICAP[clave] && !vv){ vv = String(capN); capN = 1; }
+      const url = 'https://api.getbible.net/v2/valera/' + libro + '/' + capN + '.json';
+      if(!versCache[url]){
+        const r = await fetch(url);
+        if(!r.ok) throw 0;
+        versCache[url] = await r.json();
+      }
+      let nums = [];
+      if(vv){ vv.split(',').forEach(seg => { const ab = seg.split('-').map(Number); for(let i = ab[0]; i <= (ab[1] || ab[0]); i++) nums.push(i); }); }
+      const todos = versCache[url].verses || [];
+      const sel = nums.length ? todos.filter(v => nums.includes(v.verse)) : todos.slice(0, 6);
+      html += '<p><strong>' + parte.trim() + '</strong></p>' +
+        sel.map(v => '<p><sup>' + v.verse + '</sup>' + v.text + '</p>').join('') +
+        (!nums.length && todos.length > 6 ? '<p style="color:var(--ink-soft)"><em>(primeros versículos del capítulo — abre el enlace para verlo completo)</em></p>' : '');
+    }
+    cont.innerHTML = html || '<em>No pude interpretar esta referencia aquí; ábrela en Bible Gateway con el enlace de abajo.</em>';
+  }catch(e){
+    cont.innerHTML = '<em>No pude cargar el texto (revisa tu conexión). Puedes abrirlo en Bible Gateway con el enlace de abajo.</em>';
+  }
 }
 
 /* ================= PWA: instalación y sin conexión ================= */
