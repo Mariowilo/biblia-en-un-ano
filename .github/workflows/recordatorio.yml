@@ -1,0 +1,75 @@
+name: Recordatorio diario de lectura
+
+on:
+  schedule:
+    - cron: '30 10 * * *'   # 10:30 UTC = temprano en la manana en America Latina
+  workflow_dispatch:         # permite ejecutarlo a mano para probar
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip -q install google-auth requests
+
+      - name: Enviar notificaciones
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          python - <<'EOF'
+          import json, os, requests
+          from google.oauth2 import service_account
+          import google.auth.transport.requests as gtr
+
+          sa = json.loads(os.environ['FIREBASE_SA'])
+          creds = service_account.Credentials.from_service_account_info(
+              sa, scopes=['https://www.googleapis.com/auth/datastore',
+                          'https://www.googleapis.com/auth/firebase.messaging'])
+          creds.refresh(gtr.Request())
+          H = {'Authorization': 'Bearer ' + creds.token}
+          pid = sa['project_id']
+
+          # Leer los dispositivos registrados en Firestore
+          docs, page = [], None
+          base = f'https://firestore.googleapis.com/v1/projects/{pid}/databases/(default)/documents/tokens'
+          while True:
+              url = base + '?pageSize=300' + (('&pageToken=' + page) if page else '')
+              r = requests.get(url, headers=H).json()
+              for d in r.get('documents', []):
+                  t = d.get('fields', {}).get('token', {}).get('stringValue')
+                  if t:
+                      docs.append((d['name'], t))
+              page = r.get('nextPageToken')
+              if not page:
+                  break
+
+          cuerpo = ('Tu lectura de hoy te espera. '
+                    'Un dia mas caminando por toda la Escritura.')
+          msg_url = f'https://fcm.googleapis.com/v1/projects/{pid}/messages:send'
+          ok = bad = 0
+          for name, t in docs:
+              body = {'message': {
+                  'token': t,
+                  'webpush': {
+                      'notification': {
+                          'title': 'La Biblia en un Ano - dia de lectura',
+                          'body': cuerpo,
+                          'icon': 'https://mariowilo.github.io/biblia-en-un-ano/LOGO%20MARIO%20CABALLO.png'
+                      },
+                      'fcm_options': {'link': 'https://mariowilo.github.io/biblia-en-un-ano/'}
+                  }}}
+              resp = requests.post(msg_url, headers=H, json=body)
+              if resp.status_code == 200:
+                  ok += 1
+              else:
+                  bad += 1
+                  # token vencido o invalido: limpiarlo de la base
+                  if resp.status_code in (400, 404):
+                      requests.delete('https://firestore.googleapis.com/v1/' + name, headers=H)
+
+          print(f'Enviadas: {ok} | Fallidas/limpiadas: {bad} | Total dispositivos: {len(docs)}')
+          EOF
