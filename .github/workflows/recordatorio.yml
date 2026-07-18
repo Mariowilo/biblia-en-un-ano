@@ -2,8 +2,10 @@ name: Recordatorio diario de lectura
 
 on:
   schedule:
-    - cron: '30 10 * * *'   # 10:30 UTC = temprano en la manana en America Latina
-  workflow_dispatch:         # permite ejecutarlo a mano para probar
+    - cron: '0 11 * * *'   # ~7:00 am America Latina -> franja "manana"
+    - cron: '0 19 * * *'   # ~3:00 pm -> franja "tarde"
+    - cron: '0 1 * * *'    # ~9:00 pm -> franja "noche"
+  workflow_dispatch:        # ejecucion manual: envia a todos (para probar)
 
 jobs:
   enviar:
@@ -19,9 +21,10 @@ jobs:
       - name: Enviar notificaciones
         env:
           FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+          EVENTO: ${{ github.event_name }}
         run: |
           python - <<'EOF'
-          import json, os, requests
+          import json, os, requests, datetime
           from google.oauth2 import service_account
           import google.auth.transport.requests as gtr
 
@@ -33,6 +36,16 @@ jobs:
           H = {'Authorization': 'Bearer ' + creds.token}
           pid = sa['project_id']
 
+          # Franja horaria segun la hora UTC de esta corrida
+          h = datetime.datetime.now(datetime.timezone.utc).hour
+          if 6 <= h < 15:
+              franja = 'manana'
+          elif 15 <= h < 23:
+              franja = 'tarde'
+          else:
+              franja = 'noche'
+          manual = os.environ.get('EVENTO') == 'workflow_dispatch'
+
           # Leer los dispositivos registrados en Firestore
           docs, page = [], None
           base = f'https://firestore.googleapis.com/v1/projects/{pid}/databases/(default)/documents/tokens'
@@ -40,8 +53,10 @@ jobs:
               url = base + '?pageSize=300' + (('&pageToken=' + page) if page else '')
               r = requests.get(url, headers=H).json()
               for d in r.get('documents', []):
-                  t = d.get('fields', {}).get('token', {}).get('stringValue')
-                  if t:
+                  f = d.get('fields', {})
+                  t = f.get('token', {}).get('stringValue')
+                  hora = f.get('hora', {}).get('stringValue', 'manana')
+                  if t and (manual or hora == franja):
                       docs.append((d['name'], t))
               page = r.get('nextPageToken')
               if not page:
@@ -56,7 +71,7 @@ jobs:
                   'token': t,
                   'webpush': {
                       'notification': {
-                          'title': 'La Biblia en un Ano - dia de lectura',
+                          'title': 'Ad Fontes - dia de lectura',
                           'body': cuerpo,
                           'icon': 'https://adfontesproject.github.io/Logo%20Ad%20Fontes.png'
                       },
@@ -67,9 +82,8 @@ jobs:
                   ok += 1
               else:
                   bad += 1
-                  # token vencido o invalido: limpiarlo de la base
                   if resp.status_code in (400, 404):
                       requests.delete('https://firestore.googleapis.com/v1/' + name, headers=H)
 
-          print(f'Enviadas: {ok} | Fallidas/limpiadas: {bad} | Total dispositivos: {len(docs)}')
+          print(f'Franja: {franja} | Enviadas: {ok} | Fallidas/limpiadas: {bad} | Dispositivos en franja: {len(docs)}')
           EOF
