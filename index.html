@@ -482,6 +482,7 @@ function continuarDesde(n){
   startDate = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
   localStorage.setItem(LS_START, startDate);
   renderAll();
+  publicarAvance();
   goToDay(n);
 }
 
@@ -644,7 +645,7 @@ async function cargarTablero(){
       const pct = Math.min(100, Math.round((x.l||0)/365*100));
       return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}</span>` +
              `<span class="t-bar"><span style="width:${pct}%"></span></span>` +
-             `<span class="t-dat">${x.l||0} días · ${pct}%</span></div>`;
+             `<span class="t-dat">${x.l||0} día${(x.l||0) === 1 ? '' : 's'} · ${pct}%</span></div>`;
     }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: guarda tu nombre arriba y marca tu primer día!</em>';
   }catch(e){ el.innerHTML = '<em>No se pudo cargar el tablero (revisa tu conexión).</em>'; }
 }
