@@ -103,6 +103,10 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 .btn-sbt{background:#fff;color:#7a5b1e;border:1.5px solid var(--gold)}.btn-sbt:hover{background:#faf3e3}
 .btn-check{background:#fff;border:1.5px solid var(--green);color:var(--green);margin-left:auto}
 .btn-check.done{background:var(--green);color:#fff}
+.done-banner{margin-top:1rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:8px;padding:.85rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#2c4a34}
+.done-banner strong{color:var(--navy)}
+.btn-next{background:var(--green);color:#fff;border:none;margin-left:auto}
+.btn-next:hover{background:#346a43}
 
 .sec{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:1.35rem 1.5rem;margin-bottom:1.05rem}
 .sec h3{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;display:flex;align-items:center;gap:.55rem}
@@ -463,6 +467,15 @@ function renderDay(){
       ${sbtCapitulos(p.lecturas).length ? `<button class="btn btn-sbt" onclick="abrirSbt()">📖 Leer aquí (RV-SBT)</button>` : ''}
       <button class="btn btn-check ${isDone?'done':''}" onclick="toggleDone(${p.d})">${isDone ? '✓ Leído' : 'Marcar como leído'}</button>
     </div>
+    ${isDone && p.d < 365 ? `
+    <div class="done-banner">
+      <span>✅ <strong>Día ${p.d} completado.</strong> Tu próxima lectura — Día ${p.d + 1}: <strong>${PLAN[p.d].lecturas.join('; ')}</strong></span>
+      <button class="btn btn-next" onclick="goToDay(${p.d + 1})">Leer el día ${p.d + 1} →</button>
+    </div>` : ''}
+    ${isDone && p.d === 365 ? `
+    <div class="done-banner">
+      <span>🎉 <strong>¡Completaste toda la Escritura en un año!</strong> «Bendice, alma mía, a Jehová, y no olvides ninguno de sus beneficios» (Sal 103:2). Que la Palabra siga morando en abundancia en ti.</span>
+    </div>` : ''}
     ${sbtCapitulos(p.lecturas).length ? `
     <div class="sbt-reader" id="sbtReader">
       <div class="sbt-caps">${sbtCapitulos(p.lecturas).map(c =>
