@@ -103,6 +103,14 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 .btn-sbt{background:#fff;color:#7a5b1e;border:1.5px solid var(--gold)}.btn-sbt:hover{background:#faf3e3}
 .btn-check{background:#fff;border:1.5px solid var(--green);color:var(--green);margin-left:auto}
 .btn-check.done{background:var(--green);color:#fff}
+#burbuja{position:fixed;top:.7rem;right:.8rem;z-index:95;width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;color:var(--navy);overflow:hidden;font-size:1.05rem}
+#burbuja img{width:100%;height:100%;object-fit:cover}
+#ajustesPanel{position:fixed;top:62px;right:.8rem;z-index:94;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:1rem 1.1rem;width:min(330px,92vw);display:none}
+#ajustesPanel.open{display:block}
+#ajustesPanel h4{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.2rem;margin-bottom:.4rem}
+.aj-label{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);margin:.75rem 0 .35rem}
+.aj-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+#ajustesPanel .login-wrap{margin-top:.5rem}
 .done-banner{margin-top:1rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:8px;padding:.85rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#2c4a34}
 .done-banner strong{color:var(--navy)}
 .btn-next{background:var(--green);color:#fff;border:none;margin-left:auto}
@@ -175,6 +183,21 @@ footer a{color:var(--gold-light)}
   <div class="progress-slim"><div class="progress-fill" id="progressFill"></div></div>
 </header>
 
+<div id="burbuja" title="Ajustes" onclick="toggleAjustes()">👤</div>
+<div id="ajustesPanel">
+  <h4>⚙️ Ajustes</h4>
+  <div class="login-wrap" id="loginBox"></div>
+  <div class="login-wrap" id="notifBox"></div>
+  <div id="horarioBox">
+    <div class="aj-label">🕖 ¿A qué hora prefieres recibir tu recordatorio de lectura?</div>
+    <div class="aj-chips">
+      <button class="mini-btn" data-h="manana" onclick="guardarHorario('manana')">Mañana · 7 am</button>
+      <button class="mini-btn" data-h="tarde" onclick="guardarHorario('tarde')">Tarde · 3 pm</button>
+      <button class="mini-btn" data-h="noche" onclick="guardarHorario('noche')">Noche · 9 pm</button>
+    </div>
+  </div>
+</div>
+
 <nav>
   <div class="inner">
     <button id="navHoy" class="active" onclick="showView('hoy')">Lectura del día</button>
@@ -196,8 +219,7 @@ footer a{color:var(--gold-light)}
       <div class="progress-bar"><div class="progress-fill" id="progressFill2"></div></div>
       <div class="progress-label" id="progressLabel"></div>
       <div class="share-wrap" id="shareWrap"></div>
-      <div class="login-wrap" id="loginBox"></div>
-      <div class="login-wrap" id="notifBox"></div>
+      <div class="login-wrap"><button class="btn-login" onclick="toggleAjustes()">⚙️ Cuenta, notificaciones y horario</button></div>
     </div>
     <div class="plan-controls" id="tableroCard" style="flex-direction:column;align-items:flex-start">
       <label>🤝 Hermanos en el camino</label>
@@ -642,6 +664,10 @@ try{
     pintarLogin();
     pintarMuroForm();
     if(u) sincronizarNube();
+    if(u && !localStorage.getItem(LS_HORA)){
+      document.getElementById('ajustesPanel').classList.add('open');
+      pintarHorario();
+    }
   });
 }catch(e){ /* sin conexión a Firebase: el sitio sigue funcionando con localStorage */ }
 
@@ -652,7 +678,30 @@ function loginGoogle(){
 }
 function logoutGoogle(){ firebase.auth().signOut(); }
 
+/* ---- Burbuja de ajustes ---- */
+const LS_HORA = 'biblia365_hora';
+function toggleAjustes(){
+  document.getElementById('ajustesPanel').classList.toggle('open');
+  pintarHorario();
+}
+function pintarHorario(){
+  const h = localStorage.getItem(LS_HORA) || '';
+  document.querySelectorAll('#horarioBox .mini-btn').forEach(b => b.classList.toggle('principal', b.dataset.h === h));
+}
+function guardarHorario(h){
+  localStorage.setItem(LS_HORA, h);
+  pintarHorario();
+  registrarTokenFCM();
+}
+function pintarBurbuja(){
+  const b = document.getElementById('burbuja');
+  if(!b) return;
+  if(fbUser && fbUser.photoURL){ b.innerHTML = '<img src="' + fbUser.photoURL + '" alt="yo">'; }
+  else if(fbUser){ b.textContent = (fbUser.displayName || 'U').charAt(0).toUpperCase(); }
+  else { b.textContent = '👤'; }
+}
 function pintarLogin(){
+  pintarBurbuja();
   const el = document.getElementById('loginBox');
   if(!el) return;
   if(fbUser){
@@ -847,6 +896,7 @@ async function registrarTokenFCM(){
         token: token,
         nombre: nombre || '',
         uid: fbUser ? fbUser.uid : null,
+        hora: localStorage.getItem(LS_HORA) || 'manana',
         creado: new Date().toISOString()
       }, { merge: true });
     }
@@ -875,6 +925,7 @@ function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare()
 renderAll();
 pintarLogin();
 pintarNotif();
+pintarHorario();
 if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
 </script>
 </body>
