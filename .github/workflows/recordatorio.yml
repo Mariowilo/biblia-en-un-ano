@@ -2,10 +2,8 @@ name: Recordatorio diario de lectura
 
 on:
   schedule:
-    - cron: '0 11 * * *'   # ~7:00 am America Latina -> franja "manana"
-    - cron: '0 19 * * *'   # ~3:00 pm -> franja "tarde"
-    - cron: '0 1 * * *'    # ~9:00 pm -> franja "noche"
-  workflow_dispatch:        # ejecucion manual: envia a todos (para probar)
+    - cron: '0 * * * *'   # cada hora: se envia a quienes eligieron esta hora (en su zona horaria)
+  workflow_dispatch:       # ejecucion manual: envia a todos (para probar)
 
 jobs:
   enviar:
@@ -36,15 +34,9 @@ jobs:
           H = {'Authorization': 'Bearer ' + creds.token}
           pid = sa['project_id']
 
-          # Franja horaria segun la hora UTC de esta corrida
-          h = datetime.datetime.now(datetime.timezone.utc).hour
-          if 6 <= h < 15:
-              franja = 'manana'
-          elif 15 <= h < 23:
-              franja = 'tarde'
-          else:
-              franja = 'noche'
+          hora_utc = datetime.datetime.now(datetime.timezone.utc).hour
           manual = os.environ.get('EVENTO') == 'workflow_dispatch'
+          LEGADO = {'manana': 7, 'tarde': 15, 'noche': 21}
 
           # Leer los dispositivos registrados en Firestore
           docs, page = [], None
@@ -55,8 +47,21 @@ jobs:
               for d in r.get('documents', []):
                   f = d.get('fields', {})
                   t = f.get('token', {}).get('stringValue')
-                  hora = f.get('hora', {}).get('stringValue', 'manana')
-                  if t and (manual or hora == franja):
+                  if not t:
+                      continue
+                  # hora local elegida (entero) o franja antigua (texto)
+                  h = f.get('hora', {})
+                  if 'integerValue' in h:
+                      hora_local = int(h['integerValue'])
+                  elif 'stringValue' in h:
+                      hora_local = LEGADO.get(h['stringValue'], 7)
+                  else:
+                      hora_local = 7
+                  # tz: minutos de getTimezoneOffset (UTC - local); Chile invierno = 240
+                  tz = f.get('tz', {})
+                  tz_min = int(tz.get('integerValue', 240)) if tz else 240
+                  objetivo_utc = round((hora_local + tz_min / 60)) % 24
+                  if manual or objetivo_utc == hora_utc:
                       docs.append((d['name'], t))
               page = r.get('nextPageToken')
               if not page:
@@ -85,5 +90,5 @@ jobs:
                   if resp.status_code in (400, 404):
                       requests.delete('https://firestore.googleapis.com/v1/' + name, headers=H)
 
-          print(f'Franja: {franja} | Enviadas: {ok} | Fallidas/limpiadas: {bad} | Dispositivos en franja: {len(docs)}')
+          print(f'Hora UTC: {hora_utc} | Enviadas: {ok} | Fallidas/limpiadas: {bad} | Dispositivos en esta hora: {len(docs)}')
           EOF
