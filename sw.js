@@ -1,6 +1,6 @@
 /* Service Worker — La Biblia en un Año (PWA: sin conexión + notificaciones) */
-const CACHE = 'biblia365-v4';
-const FILES = ['./', 'index.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'manifest.json', 'Logo Ad Fontes.png'];
+const CACHE = 'biblia365-v5';
+const FILES = ['./', 'index.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'estudio.js', 'manifest.json', 'Logo Ad Fontes.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

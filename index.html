@@ -82,6 +82,15 @@ header p.citas b{color:#9a948a;font-family:'Inter',sans-serif;font-style:normal;
 .muro-borrar{margin-left:auto;background:none;border:none;cursor:pointer;font-size:.85rem;opacity:.55}
 .muro-borrar:hover{opacity:1}
 .muro-post p{font-size:1.02rem}
+.est-cita{border-bottom:1px dashed var(--line);padding:.55rem 0}
+.est-cita:last-of-type{border-bottom:none}
+.est-cita p{font-style:normal!important}
+.est-fuente{font-family:'Inter',sans-serif;font-size:.74rem;color:#7a5b1e;margin-top:.25rem;font-style:normal}
+.est-cruz{background:#f6f0e0;border-left:3px solid var(--gold);border-radius:6px;padding:.6rem .8rem;margin-top:.7rem;font-size:.95rem;font-style:normal}
+.est-vers{font-family:'Inter',sans-serif;font-size:.68rem;color:var(--ink-soft);font-weight:400}
+.est-res{padding:.5rem .2rem;border-bottom:1px dashed var(--line);cursor:pointer}
+.est-res:hover{background:var(--cream)}
+.est-res-et{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;color:#7a5b1e;background:#f6f0e0;border-radius:10px;padding:.1rem .5rem;margin-right:.4rem}
 .muro-resp{margin:.5rem 0 0 1.3rem;padding:.5rem .7rem;background:var(--cream);border-left:3px solid var(--gold);border-radius:6px}
 .muro-resp p{font-size:.98rem}
 .muro-replybtn{background:none;border:none;color:#7a5b1e;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;margin-top:.4rem;padding:0}
@@ -217,6 +226,8 @@ footer a{color:var(--gold-light)}
     <div class="aj-label">🕖 Hora exacta de tu recordatorio diario:</div>
     <select id="horaSel" onchange="guardarHora(this.value)"></select>
   </div>
+  <div class="aj-sec">Información</div>
+  <button class="btn-login" onclick="document.getElementById('ajustesPanel').classList.remove('open'); showView('acerca')">📜 Acerca del plan</button>
   <div class="aj-sec">Lectura</div>
   <div class="aj-label">🔠 Tamaño de letra:</div>
   <div class="aj-chips" id="fuenteChips">
@@ -230,9 +241,9 @@ footer a{color:var(--gold-light)}
   <div class="inner">
     <button id="navHoy" class="active" onclick="showView('hoy')">Lectura del día</button>
     <button id="navPlan" onclick="showView('plan')">Plan completo</button>
+    <button id="navEstudio" onclick="showView('estudio')">Estudio</button>
     <button id="navAvance" onclick="showView('avance')">Mi avance</button>
     <button id="navConf" onclick="showView('conf')">Confesiones</button>
-    <button id="navAcerca" onclick="showView('acerca')">Acerca del plan</button>
   </div>
 </nav>
 
@@ -275,6 +286,21 @@ footer a{color:var(--gold-light)}
       <span style="color:var(--ink-soft)">✦ = día con estudio profundo disponible</span>
     </div>
     <div id="planList"></div>
+  </section>
+
+  <!-- ===== Estudio ===== -->
+  <section id="view-estudio" class="view">
+    <div class="plan-controls">
+      <label for="estInput">📖 Estudiar un pasaje:</label>
+      <input type="text" id="estInput" placeholder="p. ej. Romanos 8:29" onkeydown="if(event.key==='Enter')estudiarPasaje()">
+      <button class="mini-btn principal" onclick="estudiarPasaje()">Estudiar</button>
+    </div>
+    <div class="plan-controls">
+      <label for="estPalabra">🔍 Buscar una palabra en todo el sitio:</label>
+      <input type="text" id="estPalabra" placeholder="p. ej. pacto, propiciación" onkeydown="if(event.key==='Enter')buscarPalabraEst()">
+      <button class="mini-btn principal" onclick="buscarPalabraEst()">Buscar</button>
+    </div>
+    <div id="estResultado"><div class="no-com">Escribe un pasaje (p. ej. «Romanos 8:29») para ver el texto, lo que dijeron Calvino, Owen, Watson, Bunyan, Gill, Edwards y Spurgeon, y enlaces a sus comentarios completos.<br>O busca una palabra en los 365 estudios, las confesiones y la base de autores.</div></div>
   </section>
 
   <!-- ===== Confesiones ===== -->
@@ -340,6 +366,7 @@ footer a{color:var(--gold-light)}
 <script src="plan.js"></script>
 <script src="comentarios.js"></script>
 <script src="confesiones.js"></script>
+<script src="estudio.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -502,7 +529,8 @@ function showView(name){
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  const nb = document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1));
+  if(nb) nb.classList.add('active');
   if(name === 'avance'){ cargarTablero(); pintarMuroForm(); cargarMuro(); }
   if(name === 'conf') renderConf();
   localStorage.setItem('biblia365_vista', name);
@@ -1057,6 +1085,105 @@ async function borrarResp(id){
 async function borrarMuro(id){
   if(!fbDB || !confirm('¿Eliminar tu publicación?')) return;
   try{ await fbDB.collection('muro').doc(id).delete(); cargarMuro(); }catch(e){}
+}
+
+/* ================= Estudio: pasajes, autores y buscador ================= */
+const BH_SLUG = {'Génesis':'genesis','Éxodo':'exodus','Levítico':'leviticus','Números':'numbers','Deuteronomio':'deuteronomy','Josué':'joshua','Jueces':'judges','Rut':'ruth','1 Samuel':'1_samuel','2 Samuel':'2_samuel','1 Reyes':'1_kings','2 Reyes':'2_kings','1 Crónicas':'1_chronicles','2 Crónicas':'2_chronicles','Esdras':'ezra','Nehemías':'nehemiah','Ester':'esther','Job':'job','Salmos':'psalms','Proverbios':'proverbs','Eclesiastés':'ecclesiastes','Cantares':'songs','Isaías':'isaiah','Jeremías':'jeremiah','Lamentaciones':'lamentations','Ezequiel':'ezekiel','Daniel':'daniel','Oseas':'hosea','Joel':'joel','Amós':'amos','Abdías':'obadiah','Jonás':'jonah','Miqueas':'micah','Nahúm':'nahum','Habacuc':'habakkuk','Sofonías':'zephaniah','Hageo':'haggai','Zacarías':'zechariah','Malaquías':'malachi','Mateo':'matthew','Marcos':'mark','Lucas':'luke','Juan':'john','Hechos':'acts','Romanos':'romans','1 Corintios':'1_corinthians','2 Corintios':'2_corinthians','Gálatas':'galatians','Efesios':'ephesians','Filipenses':'philippians','Colosenses':'colossians','1 Tesalonicenses':'1_thessalonians','2 Tesalonicenses':'2_thessalonians','1 Timoteo':'1_timothy','2 Timoteo':'2_timothy','Tito':'titus','Filemón':'philemon','Hebreos':'hebrews','Santiago':'james','1 Pedro':'1_peter','2 Pedro':'2_peter','1 Juan':'1_john','2 Juan':'2_john','3 Juan':'3_john','Judas':'jude','Apocalipsis':'revelation'};
+function numLibro(nombre){ return Object.keys(SBT_LIBROS).indexOf(nombre) + 1; }
+async function estudiarPasaje(refExt){
+  const raw = (refExt || document.getElementById('estInput').value).trim();
+  if(refExt) document.getElementById('estInput').value = refExt;
+  const out = document.getElementById('estResultado');
+  const m = raw.match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+?)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/);
+  if(!m){ out.innerHTML = '<div class="no-com">Escribe un pasaje como «Romanos 8:29», «Salmos 23» o «Isaías 53:4-6».</div>'; return; }
+  const libro = LIBROS_NORM[normTxt(m[1])];
+  if(!libro){ out.innerHTML = '<div class="no-com">No reconozco ese libro. Prueba con el nombre completo (p. ej. «1 Samuel», «Salmos»).</div>'; return; }
+  const cap = parseInt(m[2], 10);
+  const vIni = m[3] ? parseInt(m[3], 10) : null;
+  const vFin = m[4] ? parseInt(m[4], 10) : vIni;
+  const refBonita = libro + ' ' + cap + (vIni ? ':' + vIni + (vFin !== vIni ? '-' + vFin : '') : '');
+  out.innerHTML = '<div class="no-com"><em>Preparando el estudio de ' + refBonita + '…</em></div>';
+
+  /* 1. Texto bíblico (RV1909) */
+  let textoHtml = '';
+  try{
+    const url = 'https://api.getbible.net/v2/valera/' + numLibro(libro) + '/' + cap + '.json';
+    if(!versCache[url]){ const r = await fetch(url); if(r.ok) versCache[url] = await r.json(); }
+    const todos = (versCache[url] && versCache[url].verses) || [];
+    const sel = vIni ? todos.filter(v => v.verse >= vIni && v.verse <= vFin) : todos.slice(0, 200);
+    if(sel.length) textoHtml = '<div class="sec"><h3><span class="ico">📖</span> ' + refBonita + ' <span class="est-vers">(RV 1909)</span></h3>' +
+      sel.map(v => '<p><sup style="color:#a1802e;font-family:Inter,sans-serif;font-size:.68rem">' + v.verse + '</sup> ' + v.text + '</p>').join('') + '</div>';
+  }catch(e){}
+
+  /* 2. Citas curadas de autores */
+  const entradas = (typeof ESTUDIO !== 'undefined' ? ESTUDIO : []).filter(e =>
+    e.libro === libro && e.cap === cap && (!vIni || !e.vv || e.vv.some(v => v >= vIni && v <= vFin)));
+  const curadas = entradas.map(e =>
+    '<div class="sec voces"><h3><span class="ico">✦</span> ' + e.ref + ' — ' + e.tema + '</h3>' +
+    e.citas.map(c => '<div class="est-cita"><p>«' + c.txt + '»</p><div class="est-fuente">— ' + c.autor + ', <em>' + c.obra + '</em></div></div>').join('') +
+    (e.cruzadas ? '<div class="est-cruz"><strong>Diálogo entre autores:</strong> ' + e.cruzadas + '</div>' : '') +
+    (e.ver && e.ver.length ? '<div class="refs">' + e.ver.map(r => '<button class="ref-chip" data-r="' + r + '" onclick="verVerso(this.dataset.r)">' + r + '</button>').join('') + '</div>' : '') +
+    '</div>').join('');
+
+  /* 3. Enlaces a los comentarios completos (en inglés, dominio público) */
+  const slug = BH_SLUG[libro];
+  let enlaces = '';
+  if(slug){
+    const vSlug = vIni ? cap + '-' + vIni : cap + '-1';
+    const refEn = slug.replace(/_/g, ' ') + ' ' + cap + (vIni ? ':' + vIni : '');
+    enlaces = '<div class="sec"><h3><span class="ico">🔗</span> Comentarios completos (en inglés)</h3>' +
+      '<div class="ver-buttons" style="margin-top:.4rem">' +
+      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/gill/' + slug + '/' + cap + '.htm">Gill</a>' +
+      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/calvin/' + slug + '/' + cap + '.htm">Calvino</a>' +
+      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://www.spurgeon.org/?s=' + encodeURIComponent(refEn) + '">Spurgeon</a>' +
+      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/' + slug + '/' + vSlug + '.htm">Todos (BibleHub)</a>' +
+      '</div><p style="font-family:Inter,sans-serif;font-size:.75rem;color:var(--ink-soft);margin-top:.5rem">Obras de dominio público en su idioma original. Las citas en español de arriba provienen de nuestra base curada, que crece pasaje a pasaje.</p></div>';
+  }
+
+  /* 4. ¿Qué día del plan lo cubre? */
+  let diaPlan = '';
+  for(const p of PLAN){
+    for(const l of p.lecturas){
+      const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
+      if(lm && lm[1] === libro && cap >= parseInt(lm[2],10) && cap <= parseInt(lm[3] || lm[2],10)){
+        diaPlan = '<div class="done-banner"><span>📅 Este pasaje se lee el <strong>Día ' + p.d + '</strong> del plan' + (COMENTARIOS[p.d] ? ' — con estudio profundo disponible' : '') + '.</span><button class="btn btn-next" onclick="showView(\'hoy\');goToDay(' + p.d + ')">Ir al Día ' + p.d + ' →</button></div>';
+        break;
+      }
+    }
+    if(diaPlan) break;
+  }
+
+  out.innerHTML = (textoHtml || '<div class="no-com">No pude cargar el texto (revisa tu conexión), pero aquí está el estudio:</div>') +
+    diaPlan + curadas + enlaces;
+}
+function buscarPalabraEst(){
+  const q = normTxt(document.getElementById('estPalabra').value);
+  const out = document.getElementById('estResultado');
+  if(q.length < 3){ out.innerHTML = '<div class="no-com">Escribe al menos 3 letras.</div>'; return; }
+  const res = [];
+  if(typeof COMENTARIOS !== 'undefined'){
+    for(const d in COMENTARIOS){
+      const c = COMENTARIOS[d];
+      if(normTxt([c.t, c.h, c.c, c.n, c.p, c.v, c.q].join(' ')).includes(q))
+        res.push({ et: 'Plan · Día ' + d, tit: c.t, on: "showView('hoy');goToDay(" + d + ")" });
+    }
+  }
+  if(typeof CONFESIONES !== 'undefined'){
+    CONFESIONES.lbc.caps.forEach((cap, i) => {
+      if(cap.p && normTxt(cap.t + ' ' + cap.p.join(' ')).includes(q))
+        res.push({ et: '1689 · Cap. ' + (i + 1), tit: cap.t, on: "showView('conf');verConf('lbc');verCap(" + i + ")" });
+    });
+  }
+  if(typeof ESTUDIO !== 'undefined'){
+    ESTUDIO.forEach(e => {
+      if(normTxt(e.ref + ' ' + e.tema + ' ' + e.citas.map(c => c.txt + ' ' + c.autor).join(' ') + ' ' + (e.cruzadas || '')).includes(q))
+        res.push({ et: 'Autores · ' + e.ref, tit: e.tema, on: "estudiarPasaje('" + e.ref + "')" });
+    });
+  }
+  out.innerHTML = res.length ?
+    '<div class="sec"><h3><span class="ico">🔍</span> ' + res.length + ' resultado' + (res.length === 1 ? '' : 's') + ' para «' + esc(document.getElementById('estPalabra').value.trim()) + '»</h3>' +
+    res.slice(0, 50).map(r => '<div class="est-res" onclick="' + r.on + '"><span class="est-res-et">' + r.et + '</span> ' + esc(r.tit) + '</div>').join('') + '</div>' :
+    '<div class="no-com">Sin resultados para esa palabra en los estudios, las confesiones y la base de autores.</div>';
 }
 
 /* ================= PWA: instalación y sin conexión ================= */
