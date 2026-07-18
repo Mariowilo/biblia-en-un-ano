@@ -110,6 +110,9 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 #ajustesPanel h4{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.2rem;margin-bottom:.4rem}
 .aj-label{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);margin:.75rem 0 .35rem}
 .aj-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.aj-sec{font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border-top:1px solid var(--line);padding-top:.7rem;margin-top:.8rem}
+.aj-sec:first-of-type{border-top:none;margin-top:.2rem;padding-top:0}
+#horaSel{font-family:'Inter',sans-serif;font-size:.85rem;padding:.45rem .6rem;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);width:100%}
 #ajustesPanel .login-wrap{margin-top:.5rem}
 .done-banner{margin-top:1rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:8px;padding:.85rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#2c4a34}
 .done-banner strong{color:var(--navy)}
@@ -186,15 +189,20 @@ footer a{color:var(--gold-light)}
 <div id="burbuja" title="Ajustes" onclick="toggleAjustes()">👤</div>
 <div id="ajustesPanel">
   <h4>⚙️ Ajustes</h4>
+  <div class="aj-sec">Cuenta</div>
   <div class="login-wrap" id="loginBox"></div>
+  <div class="aj-sec">Notificaciones</div>
   <div class="login-wrap" id="notifBox"></div>
   <div id="horarioBox">
-    <div class="aj-label">🕖 ¿A qué hora prefieres recibir tu recordatorio de lectura?</div>
-    <div class="aj-chips">
-      <button class="mini-btn" data-h="manana" onclick="guardarHorario('manana')">Mañana · 7 am</button>
-      <button class="mini-btn" data-h="tarde" onclick="guardarHorario('tarde')">Tarde · 3 pm</button>
-      <button class="mini-btn" data-h="noche" onclick="guardarHorario('noche')">Noche · 9 pm</button>
-    </div>
+    <div class="aj-label">🕖 Hora exacta de tu recordatorio diario:</div>
+    <select id="horaSel" onchange="guardarHora(this.value)"></select>
+  </div>
+  <div class="aj-sec">Lectura</div>
+  <div class="aj-label">🔠 Tamaño de letra:</div>
+  <div class="aj-chips" id="fuenteChips">
+    <button class="mini-btn" data-f="16" onclick="guardarFuente('16')">Pequeña</button>
+    <button class="mini-btn" data-f="18" onclick="guardarFuente('18')">Normal</button>
+    <button class="mini-btn" data-f="20" onclick="guardarFuente('20')">Grande</button>
   </div>
 </div>
 
@@ -684,14 +692,38 @@ function toggleAjustes(){
   document.getElementById('ajustesPanel').classList.toggle('open');
   pintarHorario();
 }
-function pintarHorario(){
-  const h = localStorage.getItem(LS_HORA) || '';
-  document.querySelectorAll('#horarioBox .mini-btn').forEach(b => b.classList.toggle('principal', b.dataset.h === h));
+function horaGuardada(){
+  let v = localStorage.getItem(LS_HORA);
+  if(v === 'manana') v = '7'; else if(v === 'tarde') v = '15'; else if(v === 'noche') v = '21';
+  return v;
 }
-function guardarHorario(h){
-  localStorage.setItem(LS_HORA, h);
-  pintarHorario();
+function pintarHorario(){
+  const sel = document.getElementById('horaSel');
+  if(!sel) return;
+  if(!sel.options.length){
+    for(let h = 5; h <= 23; h++){
+      const o = document.createElement('option');
+      o.value = h;
+      o.textContent = (h % 12 || 12) + ':00 ' + (h < 12 ? 'a. m.' : 'p. m.');
+      sel.appendChild(o);
+    }
+  }
+  sel.value = horaGuardada() || '7';
+}
+function guardarHora(h){
+  localStorage.setItem(LS_HORA, String(h));
   registrarTokenFCM();
+}
+/* Tamaño de letra */
+const LS_FUENTE = 'biblia365_fuente';
+function aplicarFuente(){
+  const f = localStorage.getItem(LS_FUENTE) || '18';
+  document.body.style.fontSize = f + 'px';
+  document.querySelectorAll('#fuenteChips .mini-btn').forEach(b => b.classList.toggle('principal', b.dataset.f === f));
+}
+function guardarFuente(f){
+  localStorage.setItem(LS_FUENTE, f);
+  aplicarFuente();
 }
 function pintarBurbuja(){
   const b = document.getElementById('burbuja');
@@ -896,7 +928,8 @@ async function registrarTokenFCM(){
         token: token,
         nombre: nombre || '',
         uid: fbUser ? fbUser.uid : null,
-        hora: localStorage.getItem(LS_HORA) || 'manana',
+        hora: parseInt(horaGuardada() || '7', 10),
+        tz: new Date().getTimezoneOffset(),
         creado: new Date().toISOString()
       }, { merge: true });
     }
@@ -926,6 +959,7 @@ renderAll();
 pintarLogin();
 pintarNotif();
 pintarHorario();
+aplicarFuente();
 if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
 </script>
 </body>
