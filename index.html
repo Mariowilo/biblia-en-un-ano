@@ -70,6 +70,12 @@ header p.citas b{color:#9a948a;font-family:'Inter',sans-serif;font-style:normal;
 .muro-borrar{margin-left:auto;background:none;border:none;cursor:pointer;font-size:.85rem;opacity:.55}
 .muro-borrar:hover{opacity:1}
 .muro-post p{font-size:1.02rem}
+.muro-resp{margin:.5rem 0 0 1.3rem;padding:.5rem .7rem;background:var(--cream);border-left:3px solid var(--gold);border-radius:6px}
+.muro-resp p{font-size:.98rem}
+.muro-replybtn{background:none;border:none;color:#7a5b1e;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;margin-top:.4rem;padding:0}
+.muro-replybtn:hover{text-decoration:underline}
+.rform{display:flex;gap:.4rem;margin-top:.45rem}
+.rform input{flex:1;padding:.45rem .65rem;border:1px solid var(--line);border-radius:6px;font-family:'EB Garamond',serif;font-size:.98rem}
 .share-btn:hover{background:#2fe375}
 .share-btn.sec{background:transparent;color:var(--navy);border:1px solid var(--line)}
 .share-btn.sec:hover{border-color:var(--gold)}
@@ -463,6 +469,7 @@ function showView(name){
   document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
   if(name === 'avance'){ cargarTablero(); pintarMuroForm(); cargarMuro(); }
   if(name === 'conf') renderConf();
+  localStorage.setItem('biblia365_vista', name);
   window.scrollTo({top:0});
 }
 
@@ -875,23 +882,74 @@ async function publicarMuro(){
     cargarMuro();
   }catch(e){ alert('No se pudo publicar. Revisa tu conexión.'); }
 }
+function fechaCorta(iso){
+  const f = new Date(iso);
+  return f.toLocaleDateString('es', {day:'numeric', month:'short'}) + ' · ' +
+         f.toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'});
+}
 async function cargarMuro(){
   const el = document.getElementById('muroLista');
   if(!el || !fbDB) return;
   el.innerHTML = '<em>Cargando…</em>';
   try{
     const snap = await fbDB.collection('muro').orderBy('fecha', 'desc').limit(30).get();
+    /* respuestas: últimas 150, agrupadas por publicación */
+    const resp = {};
+    try{
+      const rs = await fbDB.collection('muroResp').orderBy('fecha', 'asc').limit(150).get();
+      rs.docs.forEach(r => {
+        const y = r.data();
+        (resp[y.padre] = resp[y.padre] || []).push({ id: r.id, ...y });
+      });
+    }catch(e){}
     el.innerHTML = snap.empty ? '<em>Aún no hay publicaciones. ¡Sé el primero en escribir!</em>' :
       snap.docs.map(d => {
         const x = d.data();
-        const f = new Date(x.fecha);
         const mio = fbUser && x.uid === fbUser.uid;
+        const rr = (resp[d.id] || []).map(y => {
+          const rmio = fbUser && y.uid === fbUser.uid;
+          return `<div class="muro-resp"><div class="muro-cab"><span class="muro-nom">↳ ${esc(y.nombre || '')}</span>` +
+            `<span class="muro-fec">${fechaCorta(y.fecha)}</span>` +
+            (rmio ? `<button class="muro-borrar" onclick="borrarResp('${y.id}')" title="Eliminar mi respuesta">🗑</button>` : '') +
+            `</div><p>${esc(y.texto || '')}</p></div>`;
+        }).join('');
         return `<div class="muro-post"><div class="muro-cab"><span class="muro-nom">👤 ${esc(x.nombre || '')}</span>` +
-          `<span class="muro-fec">${f.toLocaleDateString('es', {day:'numeric', month:'short'})} · ${f.toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'})}</span>` +
+          `<span class="muro-fec">${fechaCorta(x.fecha)}</span>` +
           (mio ? `<button class="muro-borrar" onclick="borrarMuro('${d.id}')" title="Eliminar mi publicación">🗑</button>` : '') +
-          `</div><p>${esc(x.texto || '')}</p></div>`;
+          `</div><p>${esc(x.texto || '')}</p>` + rr +
+          (fbUser ? `<button class="muro-replybtn" onclick="toggleResp('${d.id}')">💬 Responder</button>
+          <div class="rform" id="rform-${d.id}" style="display:none">
+            <input id="rtxt-${d.id}" maxlength="1000" placeholder="Escribe tu respuesta…" onkeydown="if(event.key==='Enter')publicarResp('${d.id}')">
+            <button class="mini-btn principal" onclick="publicarResp('${d.id}')">Enviar</button>
+          </div>` : '') +
+          `</div>`;
       }).join('');
   }catch(e){ el.innerHTML = '<em>No se pudo cargar el muro (revisa tu conexión).</em>'; }
+}
+function toggleResp(id){
+  const f = document.getElementById('rform-' + id);
+  if(!f) return;
+  f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  if(f.style.display === 'flex') document.getElementById('rtxt-' + id).focus();
+}
+async function publicarResp(id){
+  const t = document.getElementById('rtxt-' + id);
+  const v = t && t.value.trim();
+  if(!v || !fbUser || !fbDB) return;
+  try{
+    await fbDB.collection('muroResp').add({
+      padre: id,
+      uid: fbUser.uid,
+      nombre: nombre || fbUser.displayName || 'Hermano',
+      texto: v.slice(0, 1000),
+      fecha: new Date().toISOString()
+    });
+    cargarMuro();
+  }catch(e){ alert('No se pudo enviar la respuesta.'); }
+}
+async function borrarResp(id){
+  if(!fbDB || !confirm('¿Eliminar tu respuesta?')) return;
+  try{ await fbDB.collection('muroResp').doc(id).delete(); cargarMuro(); }catch(e){}
 }
 async function borrarMuro(id){
   if(!fbDB || !confirm('¿Eliminar tu publicación?')) return;
@@ -960,6 +1018,11 @@ pintarLogin();
 pintarNotif();
 pintarHorario();
 aplicarFuente();
+/* volver a la pestaña donde estaba el usuario */
+(function(){
+  const v0 = localStorage.getItem('biblia365_vista');
+  if(v0 && v0 !== 'hoy' && document.getElementById('view-' + v0)) showView(v0);
+})();
 if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
 </script>
 </body>
