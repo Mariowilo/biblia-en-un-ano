@@ -61,6 +61,18 @@ header p.citas b{color:#9a948a;font-family:'Inter',sans-serif;font-style:normal;
 .verso-pie{margin-top:.9rem;font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft)}
 .verso-pie a{color:#7a5b1e}
 #versoCerrar{position:absolute;top:.6rem;right:.7rem;background:none;border:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft)}
+#bienvenida{position:fixed;inset:0;background:rgba(15,15,15,.62);display:none;align-items:center;justify-content:center;z-index:120;padding:1rem}
+#bienvenida.open{display:flex}
+#bienvenidaBox{background:#fff;border-radius:14px;max-width:430px;width:100%;padding:1.6rem 1.7rem;box-shadow:0 12px 50px rgba(0,0,0,.4);text-align:center}
+.bv-logo{width:64px;height:64px;border-radius:14px;margin:0 auto .6rem;display:block}
+#bienvenidaBox h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--navy);margin-bottom:.3rem}
+.bv-sub{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--ink-soft);line-height:1.55;margin-bottom:1rem}
+.bv-google{width:100%;justify-content:center;padding:.7rem;font-size:.88rem;border:1.5px solid var(--navy)}
+.bv-saltar{background:none;border:none;color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;margin-top:.75rem;text-decoration:underline}
+#bvPaso2{text-align:left}
+#bvNombre{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:6px;font-family:'EB Garamond',serif;font-size:1rem}
+#bvPaso2 select{width:100%;font-family:'Inter',sans-serif;font-size:.85rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px}
+.bv-listo{width:100%;margin-top:1rem;padding:.65rem;font-size:.85rem}
 #muroForm textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;font-family:'EB Garamond',serif;font-size:1rem;resize:vertical;margin-bottom:.4rem}
 .muro-post{border-bottom:1px dashed var(--line);padding:.6rem 0}
 .muro-post:last-child{border-bottom:none}
@@ -288,6 +300,25 @@ footer a{color:var(--gold-light)}
     </div>
   </section>
 </main>
+
+<div id="bienvenida">
+  <div id="bienvenidaBox">
+    <img class="bv-logo" src="Logo%20Ad%20Fontes.png" alt="Ad Fontes" onerror="this.style.display='none'">
+    <h3>Bienvenido a Ad Fontes</h3>
+    <p class="bv-sub">Toda la Escritura en un año, con estudio profundo cada día. Crea tu cuenta para guardar tu avance en la nube, aparecer entre los hermanos en el camino y recibir tu recordatorio diario de lectura.</p>
+    <div id="bvPaso1">
+      <button class="btn-login bv-google" onclick="loginGoogle()">🔑 Continuar con Google</button>
+      <br><button class="bv-saltar" onclick="cerrarBienvenida()">Explorar sin cuenta →</button>
+    </div>
+    <div id="bvPaso2" style="display:none">
+      <div class="aj-label">👤 Tu nombre (aparecerá en el tablero de hermanos):</div>
+      <input id="bvNombre" maxlength="30">
+      <div class="aj-label">🕖 Hora de tu recordatorio diario:</div>
+      <select id="bvHora"></select>
+      <button class="mini-btn principal bv-listo" onclick="terminarBienvenida()">Comenzar mi lectura ✓</button>
+    </div>
+  </div>
+</div>
 
 <div id="versoOverlay" onclick="if(event.target===this)this.classList.remove('open')">
   <div id="versoBox">
@@ -590,7 +621,7 @@ const pantryUrl = () => 'https://getpantry.cloud/apiv1/pantry/' + PANTRY_ID + '/
 const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 
 async function publicarAvance(){
-  if(!PANTRY_ID || !nombre) return;
+  if(!PANTRY_ID || !nombre || !fbUser) return;
   const clave = nombre.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'_').slice(0,30);
   const opts = { headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ [clave]: { n: nombre, l: done.size, d: todayPlanDay(), t: Date.now() } }) };
@@ -624,7 +655,11 @@ let nombre = localStorage.getItem(LS_NAME) || '';
 
 function renderShare(){
   const w = document.getElementById('shareWrap');
-  if(!nombre){
+  if(!w) return;
+  if(!nombre && !fbUser){
+    w.innerHTML = `<span style="color:var(--ink-soft)">Crea tu cuenta con Google para registrar tu nombre, guardar tu avance y aparecer en el tablero.</span>
+      <button class="btn-login" onclick="abrirBienvenida()">🔑 Crear mi cuenta</button>`;
+  } else if(!nombre){
     w.innerHTML = `<input type="text" id="nombreInput" placeholder="Tu nombre" maxlength="30"
         onkeydown="if(event.key==='Enter')guardarNombre()">
       <button class="share-btn sec" onclick="guardarNombre()">Guardar</button>`;
@@ -635,6 +670,7 @@ function renderShare(){
   }
 }
 function guardarNombre(){
+  if(!fbUser) return;
   const v = document.getElementById('nombreInput').value.trim();
   if(!v) return;
   nombre = v;
@@ -678,10 +714,14 @@ try{
     fbUser = u;
     pintarLogin();
     pintarMuroForm();
+    renderShare();
     if(u) sincronizarNube();
-    if(u && !localStorage.getItem(LS_HORA)){
-      document.getElementById('ajustesPanel').classList.add('open');
-      pintarHorario();
+    const bv = document.getElementById('bienvenida');
+    if(u && bv && bv.classList.contains('open')){
+      bienvenidaPaso2();
+    } else if(u && !localStorage.getItem(LS_HORA)){
+      abrirBienvenida();
+      bienvenidaPaso2();
     }
   });
 }catch(e){ /* sin conexión a Firebase: el sitio sigue funcionando con localStorage */ }
@@ -692,6 +732,50 @@ function loginGoogle(){
     .catch(e => { if(e && e.code !== 'auth/popup-closed-by-user') alert('No se pudo iniciar sesión. Intenta de nuevo.'); });
 }
 function logoutGoogle(){ firebase.auth().signOut(); }
+
+/* ---- Bienvenida (registro de nuevos) ---- */
+const LS_BV = 'biblia365_bienvenida';
+function llenarSelHora(sel){
+  if(!sel || sel.options.length) return;
+  for(let h = 5; h <= 23; h++){
+    const o = document.createElement('option');
+    o.value = h;
+    o.textContent = (h % 12 || 12) + ':00 ' + (h < 12 ? 'a. m.' : 'p. m.');
+    sel.appendChild(o);
+  }
+}
+function abrirBienvenida(){
+  const sel = document.getElementById('bvHora');
+  llenarSelHora(sel);
+  sel.value = horaGuardada() || '7';
+  document.getElementById('bvPaso1').style.display = fbUser ? 'none' : 'block';
+  document.getElementById('bvPaso2').style.display = fbUser ? 'block' : 'none';
+  if(fbUser) prellenarNombreBv();
+  document.getElementById('bienvenida').classList.add('open');
+}
+function cerrarBienvenida(){
+  localStorage.setItem(LS_BV, '1');
+  document.getElementById('bienvenida').classList.remove('open');
+}
+function prellenarNombreBv(){
+  const n = document.getElementById('bvNombre');
+  if(n && !n.value) n.value = nombre || (fbUser && fbUser.displayName ? fbUser.displayName.split(' ').slice(0, 2).join(' ') : '');
+}
+function bienvenidaPaso2(){
+  document.getElementById('bvPaso1').style.display = 'none';
+  document.getElementById('bvPaso2').style.display = 'block';
+  prellenarNombreBv();
+}
+function terminarBienvenida(){
+  const v = document.getElementById('bvNombre').value.trim();
+  if(v){ nombre = v; localStorage.setItem(LS_NAME, nombre); renderShare(); }
+  localStorage.setItem(LS_HORA, String(document.getElementById('bvHora').value));
+  pintarHorario();
+  cerrarBienvenida();
+  activarNotif();
+  publicarAvance();
+  guardarNube();
+}
 
 /* ---- Burbuja de ajustes ---- */
 const LS_HORA = 'biblia365_hora';
@@ -1023,6 +1107,10 @@ aplicarFuente();
   const v0 = localStorage.getItem('biblia365_vista');
   if(v0 && v0 !== 'hoy' && document.getElementById('view-' + v0)) showView(v0);
 })();
+/* bienvenida para visitantes nuevos */
+setTimeout(function(){
+  if(!fbUser && !nombre && !localStorage.getItem(LS_BV)) abrirBienvenida();
+}, 1200);
 if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
 </script>
 </body>
