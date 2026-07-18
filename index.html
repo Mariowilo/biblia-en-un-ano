@@ -91,6 +91,14 @@ header p.citas b{color:#9a948a;font-family:'Inter',sans-serif;font-style:normal;
 .est-res{padding:.5rem .2rem;border-bottom:1px dashed var(--line);cursor:pointer}
 .est-res:hover{background:var(--cream)}
 .est-res-et{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;color:#7a5b1e;background:#f6f0e0;border-radius:10px;padding:.1rem .5rem;margin-right:.4rem}
+.vv{display:flex;gap:.7rem;padding:.45rem 0;border-bottom:1px dashed #efe9dc;align-items:flex-start}
+.vv:last-child{border-bottom:none}
+.vv-n{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;color:#fff;background:var(--gold);border-radius:6px;min-width:1.7rem;text-align:center;padding:.15rem 0;margin-top:.3rem;flex-shrink:0}
+.vv p{margin:0;flex:1}
+.est-amplio{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:.4rem .9rem;margin-bottom:1.05rem}
+.est-amplio summary{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;color:var(--navy);cursor:pointer;padding:.5rem 0}
+.est-amplio[open] summary{border-bottom:1px solid var(--line);margin-bottom:.8rem}
+.est-amplio .sec{border:none;border-left:4px solid var(--gold);box-shadow:none;margin-bottom:.7rem}
 .muro-resp{margin:.5rem 0 0 1.3rem;padding:.5rem .7rem;background:var(--cream);border-left:3px solid var(--gold);border-radius:6px}
 .muro-resp p{font-size:.98rem}
 .muro-replybtn{background:none;border:none;color:#7a5b1e;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;margin-top:.4rem;padding:0}
@@ -367,6 +375,7 @@ footer a{color:var(--gold-light)}
 <script src="comentarios.js"></script>
 <script src="confesiones.js"></script>
 <script src="estudio.js"></script>
+<script src="contextos.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -1104,7 +1113,7 @@ async function estudiarPasaje(refExt){
   const refBonita = libro + ' ' + cap + (vIni ? ':' + vIni + (vFin !== vIni ? '-' + vFin : '') : '');
   out.innerHTML = '<div class="no-com"><em>Preparando el estudio de ' + refBonita + '…</em></div>';
 
-  /* 1. Texto bíblico (RV1909) */
+  /* 1. Texto bíblico (RV1909), verso a verso */
   let textoHtml = '';
   try{
     const url = 'https://api.getbible.net/v2/valera/' + numLibro(libro) + '/' + cap + '.json';
@@ -1112,8 +1121,15 @@ async function estudiarPasaje(refExt){
     const todos = (versCache[url] && versCache[url].verses) || [];
     const sel = vIni ? todos.filter(v => v.verse >= vIni && v.verse <= vFin) : todos.slice(0, 200);
     if(sel.length) textoHtml = '<div class="sec"><h3><span class="ico">📖</span> ' + refBonita + ' <span class="est-vers">(RV 1909)</span></h3>' +
-      sel.map(v => '<p><sup style="color:#a1802e;font-family:Inter,sans-serif;font-size:.68rem">' + v.verse + '</sup> ' + v.text + '</p>').join('') + '</div>';
+      sel.map(v => '<div class="vv"><span class="vv-n">' + v.verse + '</span><p>' + v.text + '</p></div>').join('') + '</div>';
   }catch(e){}
+
+  /* 1b. Contexto del libro: breve y sobrio */
+  let ctxLibro = '';
+  if(typeof CONTEXTOS !== 'undefined' && CONTEXTOS[libro]){
+    const cx = CONTEXTOS[libro];
+    ctxLibro = '<div class="sec"><h3><span class="ico">🏛</span> Contexto de ' + libro + ' <span class="est-vers">· ' + cx.a + ' · ' + cx.f + '</span></h3><p>' + cx.m + '</p></div>';
+  }
 
   /* 2. Citas curadas de autores */
   const entradas = (typeof ESTUDIO !== 'undefined' ? ESTUDIO : []).filter(e =>
@@ -1147,8 +1163,12 @@ async function estudiarPasaje(refExt){
       const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
       if(lm && lm[1] === libro && cap >= parseInt(lm[2],10) && cap <= parseInt(lm[3] || lm[2],10)){
         const cd = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[p.d] : null;
-        diaPlan = '<div class="done-banner"><span>📅 Este pasaje pertenece a la lectura del <strong>Día ' + p.d + '</strong> del plan (' + p.lecturas.join('; ') + ').' + (cd ? ' Su estudio completo, aquí abajo. ↓' : '') + '</span></div>';
-        if(cd) comentarioDia = seccionesDia(p.d, cd);
+        if(cd) comentarioDia = '<details class="est-amplio"><summary>📚 Estudio amplio del bloque — Día ' + p.d + ': ' + p.lecturas.join('; ') + ' <span class="est-vers">(toca para abrir)</span></summary>' +
+          '<div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>' + cd.n + '</p></div>' +
+          '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + cd.p + '</p></div>' +
+          '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural del bloque</h3><p>' + cd.c + '</p></div>' +
+          '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + cd.q + '</p></div>' +
+          '</details>';
         break;
       }
     }
@@ -1156,7 +1176,7 @@ async function estudiarPasaje(refExt){
   }
 
   out.innerHTML = (textoHtml || '<div class="no-com">No pude cargar el texto (revisa tu conexión), pero aquí está el estudio:</div>') +
-    diaPlan + curadas + comentarioDia + enlaces;
+    ctxLibro + curadas + comentarioDia + enlaces;
 }
 function seccionesDia(d, c){
   const et = ' <span class="est-vers">· estudio del Día ' + d + '</span>';
