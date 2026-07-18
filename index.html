@@ -625,41 +625,34 @@ function renderProgress(){
   if(lb) lb.textContent = `${done.size} de 365 días leídos · ${pct}%`;
 }
 
-/* ================= Tablero compartido (Pantry) ================= */
-const PANTRY_ID = 'c60e88aa-0af7-411a-af51-1ef2a5da50c8'; /* despensa compartida del grupo */
-const pantryUrl = () => 'https://getpantry.cloud/apiv1/pantry/' + PANTRY_ID + '/basket/hermanos';
+/* ================= Tablero compartido (Firestore) ================= */
 const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 
 async function publicarAvance(){
-  if(!PANTRY_ID || !nombre || !fbUser) return;
-  const clave = nombre.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'_').slice(0,30);
-  const opts = { headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ [clave]: { n: nombre, l: done.size, d: todayPlanDay(), t: Date.now(), lh: localStorage.getItem('biblia365_lh') || '' } }) };
+  if(!fbUser || !fbDB || !nombre) return;
   try{
-    const r = await fetch(pantryUrl(), { method:'PUT', ...opts });
-    if(!r.ok) await fetch(pantryUrl(), { method:'POST', ...opts });
+    await fbDB.collection('tablero').doc(fbUser.uid).set({
+      n: nombre,
+      l: done.size,
+      d: todayPlanDay(),
+      t: Date.now(),
+      lh: localStorage.getItem('biblia365_lh') || ''
+    }, { merge: true });
   }catch(e){}
 }
-async function borrarDelTablero(clave){
-  if(!esAdminYo() || !confirm('¿Quitar este nombre del tablero?')) return;
-  try{
-    const r = await fetch(pantryUrl());
-    const data = await r.json();
-    delete data[clave];
-    await fetch(pantryUrl(), { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-    cargarTablero();
-  }catch(e){ alert('No se pudo quitar del tablero.'); }
+async function borrarDelTablero(uid){
+  if(!esAdminYo() || !fbDB || !confirm('¿Quitar este nombre del tablero?')) return;
+  try{ await fbDB.collection('tablero').doc(uid).delete(); cargarTablero(); }
+  catch(e){ alert('No se pudo quitar del tablero.'); }
 }
 async function cargarTablero(){
   const el = document.getElementById('tablero');
   if(!el) return;
-  if(!PANTRY_ID){ document.getElementById('tableroCard').style.display = 'none'; return; }
+  if(!fbDB){ el.innerHTML = '<em>No se pudo conectar. Revisa tu conexión.</em>'; return; }
   el.innerHTML = '<em>Cargando…</em>';
   try{
-    const r = await fetch(pantryUrl());
-    if(!r.ok) throw 0;
-    const data = await r.json();
-    const filas = Object.entries(data).filter(([k, x]) => x && x.n).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n), 'es'));
+    const snap = await fbDB.collection('tablero').get();
+    const filas = snap.docs.map(d => [d.id, d.data()]).filter(([k, x]) => x && x.n).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n), 'es'));
     const hoy = hoyStr();
     el.innerHTML = filas.length ? filas.map(([k, x]) => {
       const pct = Math.min(100, Math.round((x.l||0)/365*100));
