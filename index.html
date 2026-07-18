@@ -167,6 +167,8 @@ main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
 .t-bar{flex:1;height:8px;background:var(--cream);border:1px solid var(--line);border-radius:4px;overflow:hidden}
 .t-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
 .t-dat{min-width:95px;text-align:right;color:var(--ink-soft)}
+.t-verso{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;color:var(--ink-soft);line-height:1.5;margin:-.2rem 0 .4rem}
+.t-hoy{font-family:'Inter',sans-serif;font-style:normal;font-size:.64rem;font-weight:600;background:#e9f2ea;color:var(--green);border:1px solid #bcd8c0;border-radius:10px;padding:.08rem .45rem;margin-left:.3rem;vertical-align:middle}
 .etapa-block{margin-bottom:1.7rem}
 .etapa-block h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:.15rem;margin-bottom:.75rem}
 .dias-grid{display:flex;flex-wrap:wrap;gap:.45rem}
@@ -249,6 +251,7 @@ footer a{color:var(--gold-light)}
     </div>
     <div class="plan-controls" id="tableroCard" style="flex-direction:column;align-items:flex-start">
       <label>🤝 Hermanos en el camino</label>
+      <div class="t-verso">«Y considerémonos unos a otros para estimularnos al amor y a las buenas obras» — Hebreos 10:24. Cada uno corre su propio año; lo que celebramos es la constancia de cada día.</div>
       <div id="tablero" style="width:100%"></div>
     </div>
     <div class="plan-controls" style="flex-direction:column;align-items:stretch;gap:.6rem">
@@ -481,6 +484,7 @@ function continuarDesde(n){
   const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - (n - 1));
   startDate = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
   localStorage.setItem(LS_START, startDate);
+  localStorage.setItem('biblia365_lh', hoyStr());
   renderAll();
   publicarAvance();
   goToDay(n);
@@ -576,8 +580,13 @@ function renderDay(){
   document.getElementById('view-hoy').innerHTML = html;
 }
 
+function hoyStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
 function toggleDone(d){
-  if(done.has(d)) done.delete(d); else done.add(d);
+  if(done.has(d)){ done.delete(d); }
+  else { done.add(d); localStorage.setItem('biblia365_lh', hoyStr()); }
   saveDone();
   renderDay(); renderPlan(); renderProgress();
   publicarAvance();
@@ -625,7 +634,7 @@ async function publicarAvance(){
   if(!PANTRY_ID || !nombre || !fbUser) return;
   const clave = nombre.toLowerCase().replace(/[^a-z0-9áéíóúñü]+/gi,'_').slice(0,30);
   const opts = { headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ [clave]: { n: nombre, l: done.size, d: todayPlanDay(), t: Date.now() } }) };
+    body: JSON.stringify({ [clave]: { n: nombre, l: done.size, d: todayPlanDay(), t: Date.now(), lh: localStorage.getItem('biblia365_lh') || '' } }) };
   try{
     const r = await fetch(pantryUrl(), { method:'PUT', ...opts });
     if(!r.ok) await fetch(pantryUrl(), { method:'POST', ...opts });
@@ -640,13 +649,15 @@ async function cargarTablero(){
     const r = await fetch(pantryUrl());
     if(!r.ok) throw 0;
     const data = await r.json();
-    const filas = Object.values(data).filter(x => x && x.n).sort((a,b) => (b.l||0)-(a.l||0));
+    const filas = Object.values(data).filter(x => x && x.n).sort((a,b) => String(a.n).localeCompare(String(b.n), 'es'));
+    const hoy = hoyStr();
     el.innerHTML = filas.length ? filas.map(x => {
       const pct = Math.min(100, Math.round((x.l||0)/365*100));
-      return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}</span>` +
+      const leyoHoy = x.lh === hoy ? ' <span class="t-hoy">✓ leyó hoy</span>' : '';
+      return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}${leyoHoy}</span>` +
              `<span class="t-bar"><span style="width:${pct}%"></span></span>` +
              `<span class="t-dat">${x.l||0} día${(x.l||0) === 1 ? '' : 's'} · ${pct}%</span></div>`;
-    }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: guarda tu nombre arriba y marca tu primer día!</em>';
+    }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: crea tu cuenta y marca tu primer día!</em>';
   }catch(e){ el.innerHTML = '<em>No se pudo cargar el tablero (revisa tu conexión).</em>'; }
 }
 
