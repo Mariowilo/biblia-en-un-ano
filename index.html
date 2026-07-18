@@ -640,6 +640,16 @@ async function publicarAvance(){
     if(!r.ok) await fetch(pantryUrl(), { method:'POST', ...opts });
   }catch(e){}
 }
+async function borrarDelTablero(clave){
+  if(!esAdminYo() || !confirm('¿Quitar este nombre del tablero?')) return;
+  try{
+    const r = await fetch(pantryUrl());
+    const data = await r.json();
+    delete data[clave];
+    await fetch(pantryUrl(), { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+    cargarTablero();
+  }catch(e){ alert('No se pudo quitar del tablero.'); }
+}
 async function cargarTablero(){
   const el = document.getElementById('tablero');
   if(!el) return;
@@ -649,14 +659,15 @@ async function cargarTablero(){
     const r = await fetch(pantryUrl());
     if(!r.ok) throw 0;
     const data = await r.json();
-    const filas = Object.values(data).filter(x => x && x.n).sort((a,b) => String(a.n).localeCompare(String(b.n), 'es'));
+    const filas = Object.entries(data).filter(([k, x]) => x && x.n).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n), 'es'));
     const hoy = hoyStr();
-    el.innerHTML = filas.length ? filas.map(x => {
+    el.innerHTML = filas.length ? filas.map(([k, x]) => {
       const pct = Math.min(100, Math.round((x.l||0)/365*100));
       const leyoHoy = x.lh === hoy ? ' <span class="t-hoy">✓ leyó hoy</span>' : '';
+      const admin = esAdminYo() ? `<button class="muro-borrar" onclick="borrarDelTablero('${k}')" title="Quitar del tablero">✕</button>` : '';
       return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}${leyoHoy}</span>` +
              `<span class="t-bar"><span style="width:${pct}%"></span></span>` +
-             `<span class="t-dat">${x.l||0} día${(x.l||0) === 1 ? '' : 's'} · ${pct}%</span></div>`;
+             `<span class="t-dat">${x.l||0} día${(x.l||0) === 1 ? '' : 's'} · ${pct}%</span>${admin}</div>`;
     }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: crea tu cuenta y marca tu primer día!</em>';
   }catch(e){ el.innerHTML = '<em>No se pudo cargar el tablero (revisa tu conexión).</em>'; }
 }
@@ -719,6 +730,8 @@ const firebaseConfig = {
   appId: "1:978571488009:web:cd9e062e57a1b9b62801d8"
 };
 let fbUser = null, fbDB = null;
+const ADMIN_EMAIL = 'mariowillow9717@gmail.com';
+function esAdminYo(){ return !!(fbUser && fbUser.email === ADMIN_EMAIL); }
 try{
   firebase.initializeApp(firebaseConfig);
   fbDB = firebase.firestore();
@@ -840,8 +853,9 @@ function pintarLogin(){
   const el = document.getElementById('loginBox');
   if(!el) return;
   if(fbUser){
-    el.innerHTML = `<span class="login-info">☁️ Avance guardado en la nube — ${esc(fbUser.displayName || fbUser.email || '')}</span>
-      <button class="btn-login" onclick="logoutGoogle()">Salir</button>`;
+    el.innerHTML = `<span class="login-info">☁️ Avance guardado en la nube — ${esc(fbUser.displayName || fbUser.email || '')}</span>` +
+      (esAdminYo() ? ` <span class="login-info">🛡 Administrador</span>` : '') +
+      ` <button class="btn-login" onclick="logoutGoogle()">Salir</button>`;
   } else {
     el.innerHTML = `<button class="btn-login" onclick="loginGoogle()">🔑 Iniciar sesión con Google</button>
       <span>para guardar tu avance en la nube y usarlo en cualquier dispositivo</span>`;
@@ -1001,9 +1015,9 @@ async function cargarMuro(){
     el.innerHTML = snap.empty ? '<em>Aún no hay publicaciones. ¡Sé el primero en escribir!</em>' :
       snap.docs.map(d => {
         const x = d.data();
-        const mio = fbUser && x.uid === fbUser.uid;
+        const mio = fbUser && (x.uid === fbUser.uid || esAdminYo());
         const rr = (resp[d.id] || []).map(y => {
-          const rmio = fbUser && y.uid === fbUser.uid;
+          const rmio = fbUser && (y.uid === fbUser.uid || esAdminYo());
           return `<div class="muro-resp"><div class="muro-cab"><span class="muro-nom">↳ ${esc(y.nombre || '')}</span>` +
             `<span class="muro-fec">${fechaCorta(y.fecha)}</span>` +
             (rmio ? `<button class="muro-borrar" onclick="borrarResp('${y.id}')" title="Eliminar mi respuesta">🗑</button>` : '') +
