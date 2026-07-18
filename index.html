@@ -1131,7 +1131,7 @@ async function estudiarPasaje(refExt){
   if(slug){
     const vSlug = vIni ? cap + '-' + vIni : cap + '-1';
     const refEn = slug.replace(/_/g, ' ') + ' ' + cap + (vIni ? ':' + vIni : '');
-    enlaces = '<div class="sec"><h3><span class="ico">🔗</span> Comentarios completos (en inglés)</h3>' +
+    enlaces = '<div class="sec"><h3><span class="ico">🔗</span> Para profundizar: comentarios completos (en inglés)</h3>' +
       '<div class="ver-buttons" style="margin-top:.4rem">' +
       '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/gill/' + slug + '/' + cap + '.htm">Gill</a>' +
       '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/calvin/' + slug + '/' + cap + '.htm">Calvino</a>' +
@@ -1140,13 +1140,15 @@ async function estudiarPasaje(refExt){
       '</div><p style="font-family:Inter,sans-serif;font-size:.75rem;color:var(--ink-soft);margin-top:.5rem">Obras de dominio público en su idioma original. Las citas en español de arriba provienen de nuestra base curada, que crece pasaje a pasaje.</p></div>';
   }
 
-  /* 4. ¿Qué día del plan lo cubre? */
-  let diaPlan = '';
+  /* 4. Análisis en español: el estudio del día del plan que cubre este pasaje */
+  let diaPlan = '', comentarioDia = '';
   for(const p of PLAN){
     for(const l of p.lecturas){
       const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
       if(lm && lm[1] === libro && cap >= parseInt(lm[2],10) && cap <= parseInt(lm[3] || lm[2],10)){
-        diaPlan = '<div class="done-banner"><span>📅 Este pasaje se lee el <strong>Día ' + p.d + '</strong> del plan' + (COMENTARIOS[p.d] ? ' — con estudio profundo disponible' : '') + '.</span><button class="btn btn-next" onclick="showView(\'hoy\');goToDay(' + p.d + ')">Ir al Día ' + p.d + ' →</button></div>';
+        const cd = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[p.d] : null;
+        diaPlan = '<div class="done-banner"><span>📅 Este pasaje pertenece a la lectura del <strong>Día ' + p.d + '</strong> del plan (' + p.lecturas.join('; ') + ').' + (cd ? ' Su estudio completo, aquí abajo. ↓' : '') + '</span></div>';
+        if(cd) comentarioDia = seccionesDia(p.d, cd);
         break;
       }
     }
@@ -1154,7 +1156,30 @@ async function estudiarPasaje(refExt){
   }
 
   out.innerHTML = (textoHtml || '<div class="no-com">No pude cargar el texto (revisa tu conexión), pero aquí está el estudio:</div>') +
-    diaPlan + curadas + enlaces;
+    diaPlan + curadas + comentarioDia + enlaces;
+}
+function seccionesDia(d, c){
+  const et = ' <span class="est-vers">· estudio del Día ' + d + '</span>';
+  return '<div class="sec"><h3><span class="ico">🏛</span> Contexto histórico' + et + '</h3><p>' + c.h + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>' + c.c + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>' + c.n + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + c.p + '</p></div>' +
+    '<div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>' + c.v + '</p></div>' +
+    '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + c.q + '</p></div>';
+}
+function enfocarDia(d){
+  const p = PLAN[d - 1];
+  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[d] : null;
+  const out = document.getElementById('estResultado');
+  out.innerHTML =
+    '<div class="day-head" style="margin-top:.3rem"><div class="etapa-tag">' + p.etapa + '</div>' +
+    '<div class="day-num">Día ' + d + ' de 365 · modo enfoque</div>' +
+    '<h2 class="day-title">' + (c ? c.t : p.lecturas.join(' · ')) + '</h2></div>' +
+    '<div class="lecturas-card"><h3>Pasaje</h3><div class="lect-list">' +
+    p.lecturas.map(l => '<span class="lect-chip" style="cursor:pointer" title="Leer el texto (RV 1909) aquí mismo" onclick="estudiarPasaje(\'' + l.replace(/-\d+\s*$/, '').trim() + '\')">' + l + ' 📖</span>').join('') +
+    '</div><p style="font-family:Inter,sans-serif;font-size:.75rem;color:var(--ink-soft);margin-top:.4rem">Toca un pasaje para leer su texto aquí mismo. Tu día actual del plan no se mueve.</p></div>' +
+    (c ? seccionesDia(d, c) : '<div class="no-com">Este día aún no tiene estudio profundo.</div>');
+  window.scrollTo({ top: 0 });
 }
 function buscarPalabraEst(){
   const q = normTxt(document.getElementById('estPalabra').value);
@@ -1165,7 +1190,7 @@ function buscarPalabraEst(){
     for(const d in COMENTARIOS){
       const c = COMENTARIOS[d];
       if(normTxt([c.t, c.h, c.c, c.n, c.p, c.v, c.q].join(' ')).includes(q))
-        res.push({ et: 'Plan · Día ' + d, tit: c.t, on: "showView('hoy');goToDay(" + d + ")" });
+        res.push({ et: 'Plan · Día ' + d, tit: c.t, on: 'enfocarDia(' + d + ')' });
     }
   }
   if(typeof CONFESIONES !== 'undefined'){
