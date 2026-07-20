@@ -691,8 +691,30 @@ document.addEventListener('keydown', e => {
 });
 
 /* ================= Arranque ================= */
+/* Sin dirección explícita, la Biblia abre en la lectura de hoy del plan */
+function diaDelPlanHoy(){
+  const s0 = localStorage.getItem('biblia365_start');
+  if(!s0) return parseInt(localStorage.getItem('biblia365_current') || '0', 10) || 0;
+  const s = new Date(s0 + 'T00:00:00'), n = new Date(); n.setHours(0,0,0,0);
+  return Math.min(Math.max(Math.floor((n - s) / 86400000) + 1, 1), 365);
+}
+function abrirLecturaDeHoy(){
+  const d = diaDelPlanHoy();
+  if(!d || typeof PLAN === 'undefined') return false;
+  const m = PLAN[d - 1].lecturas[0].match(/^(.+?)\s+(\d+)/);
+  if(!m) return false;
+  const idx = IDX_LIBRO[normTxt(m[1])];
+  if(idx === undefined) return false;
+  L = idx; C = parseInt(m[2], 10);
+  location.hash = encodeURIComponent(LIBROS[L][0]) + '/' + C;
+  return true;
+}
 const v0 = leerHash();
-cargarCapitulo(v0);
+if(!location.hash && abrirLecturaDeHoy()){
+  cargarCapitulo(null);
+} else {
+  cargarCapitulo(v0);
+}
 </script>
 </body>
 </html>
