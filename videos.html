@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Videos — Ad Fontes</title>
+<meta name="description" content="Ad Fontes · Videos de estudio bíblico: pactos, tipología, cómo leer la Biblia y las confesiones.">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#262626">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
+
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.enlaces{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
+.enlace-top{font-family:'Inter',sans-serif;font-size:.72rem;color:#cfcac2;text-decoration:none;border:1px solid #4a4a4a;border-radius:8px;padding:.4rem .7rem;white-space:nowrap}
+.enlace-top:hover{border-color:var(--gold);color:#fff}
+
+.pagina{max-width:1060px;margin:0 auto;padding:1.6rem 1rem 5rem}
+.hero{text-align:center;margin-bottom:1.6rem}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.6rem);font-weight:600;color:var(--carbon)}
+.hero p{color:var(--ink-soft);font-style:italic;max-width:620px;margin:.3rem auto .9rem;font-size:1rem}
+.btn-yt{display:inline-flex;align-items:center;gap:.45rem;background:#c4302b;color:#fff;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;padding:.6rem 1.1rem;border-radius:10px}
+.btn-yt:hover{background:#a82722}
+
+.filtros{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem;align-items:center}
+.pill{font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:9px;padding:.42rem .85rem;cursor:pointer;color:var(--carbon)}
+.pill:hover{border-color:var(--gold)}
+.pill.act{background:var(--carbon);color:#fff;border-color:var(--carbon)}
+.buscar-v{margin-left:auto;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:180px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s;display:flex;flex-direction:column}
+.card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.card .thumb{position:relative;background:#eee;aspect-ratio:16/9;overflow:hidden}
+.card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.card .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6);opacity:.9}
+.card .cuerpo{padding:.8rem .9rem 1rem;flex:1;display:flex;flex-direction:column}
+.card h3{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--carbon);line-height:1.25;margin-bottom:.25rem}
+.card .meta{font-family:'Inter',sans-serif;font-size:.68rem;color:var(--ink-soft);margin-top:auto;padding-top:.5rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.serie-tag{font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:10px;padding:.1rem .5rem}
+.card p.res{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.vacio{background:var(--paper);border:1px dashed var(--line);border-radius:14px;padding:2.4rem 1.6rem;text-align:center}
+.vacio h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--carbon);margin-bottom:.4rem}
+.vacio p{color:var(--ink-soft);font-size:.95rem;max-width:520px;margin:0 auto .8rem}
+.series-lista{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.8rem;margin-top:1.4rem;text-align:left}
+.serie-card{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem}
+.serie-card b{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--carbon);display:block}
+.serie-card span{font-family:'Inter',sans-serif;font-size:.76rem;color:var(--ink-soft)}
+
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:150;padding:1rem}
+.overlay.abierto{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.modal .thumb{aspect-ratio:16/9;background:#000}
+.modal .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.modal .cuerpo{padding:1.2rem 1.4rem 1.4rem}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--carbon);line-height:1.25;margin-bottom:.3rem}
+.modal .meta{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);margin-bottom:.9rem}
+.modal .texto{font-size:1rem;margin-bottom:1rem;white-space:pre-line}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
+.chip{font-family:'Inter',sans-serif;font-size:.74rem;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:14px;padding:.25rem .65rem;text-decoration:none}
+.chip:hover{background:#efe4c8}
+.modal .acciones{display:flex;gap:.5rem;flex-wrap:wrap}
+.cerrar{background:none;border:1px solid var(--line);border-radius:10px;font-family:'Inter',sans-serif;font-size:.82rem;padding:.6rem 1rem;cursor:pointer;color:var(--ink-soft)}
+
+@media(max-width:680px){
+  html,body{overflow-x:hidden;max-width:100%}
+  body{font-size:17px}
+  .topbar{flex-wrap:wrap;gap:.45rem;padding:.5rem .7rem}
+  .brand{font-size:1rem}.brand img{width:26px;height:26px}
+  .enlaces{flex:1 0 100%;margin-left:0;justify-content:space-between}
+  .enlace-top{font-size:.66rem;padding:.33rem .45rem;flex:1;text-align:center}
+  .pagina{padding:1.2rem .8rem 4rem}
+  .hero h1{font-size:1.8rem}
+  .buscar-v{margin-left:0;flex:1 0 100%}
+  .grid{grid-template-columns:1fr}
+  .modal .cuerpo{padding:1rem 1.1rem 1.2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>VIDEOS</small></div></a>
+  <div class="enlaces">
+    <a class="enlace-top" href="biblia.html">📖 Biblia</a>
+    <a class="enlace-top" href="plan.html">📅 Plan</a>
+    <a class="enlace-top" href="biblioteca.html">📚 Biblioteca</a>
+    <a class="enlace-top" href="comunidad.html">👥 Comunidad</a>
+  </div>
+</div>
+
+<div class="pagina">
+  <div class="hero">
+    <h1>Videos</h1>
+    <p>Conceptos bíblicos explicados con claridad y fidelidad: pactos, tipología, cómo leer cada género, la ley y el evangelio, las confesiones.</p>
+    <a class="btn-yt" href="https://www.youtube.com/@AdFontesProject" target="_blank" rel="noopener">▶ Suscribirse en YouTube</a>
+  </div>
+
+  <div class="filtros" id="filtros"></div>
+  <div id="lista"></div>
+</div>
+
+<div class="overlay" id="ov" onclick="if(event.target===this)cerrar()">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script src="videos.js"></script>
+<script src="recursos.js"></script>
+<script>
+function normTxt(s){ return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+const NOMBRES = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías','Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
+const IDXL = {}; NOMBRES.forEach(n => IDXL[normTxt(n)] = n);
+function urlPasaje(ref){
+  const m = String(ref).match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+  if(!m || !IDXL[normTxt(m[1])]) return 'biblia.html';
+  return 'biblia.html#' + encodeURIComponent(IDXL[normTxt(m[1])]) + '/' + m[2] + (m[3] ? '/' + m[3] : '');
+}
+function fechaBonita(iso){
+  if(!iso) return '';
+  const f = new Date(iso);
+  return isNaN(f) ? '' : f.toLocaleDateString('es', { day:'numeric', month:'long', year:'numeric' });
+}
+/* Une lo automático (YouTube) con lo curado (tu texto y pasajes) */
+function todos(){
+  const cur = (typeof CURADOS !== 'undefined') ? CURADOS : {};
+  const auto = (typeof VIDEOS !== 'undefined') ? VIDEOS : [];
+  const vistos = new Set();
+  const lista = auto.map(v => {
+    vistos.add(v.yt);
+    const c = cur[v.yt] || {};
+    return { yt: v.yt, titulo: v.titulo, fecha: v.fecha, ytDesc: v.desc || '', serie: c.serie || '', texto: c.texto || '', pasajes: c.pasajes || [] };
+  });
+  Object.keys(cur).forEach(k => {
+    if(vistos.has(k)) return;
+    const c = cur[k];
+    lista.push({ yt: k, titulo: c.titulo || c.serie || 'Video', fecha: '', ytDesc: '', serie: c.serie || '', texto: c.texto || '', pasajes: c.pasajes || [] });
+  });
+  return lista;
+}
+let filtro = '', busca = '';
+function pintar(){
+  const lista = todos();
+  const series = [...new Set(lista.map(v => v.serie).filter(Boolean))].sort();
+  document.getElementById('filtros').innerHTML = (lista.length ?
+    '<button class="pill' + (filtro === '' ? ' act' : '') + '" onclick="setF(\'\')">Todos (' + lista.length + ')</button>' +
+    series.map(s => '<button class="pill' + (filtro === s ? ' act' : '') + '" onclick="setF(\'' + s.replace(/'/g,"\\'") + '\')">' + s + '</button>').join('') +
+    '<input class="buscar-v" placeholder="Buscar video…" value="' + busca + '" oninput="setB(this.value)">' : '');
+
+  const vis = lista.filter(v => (!filtro || v.serie === filtro) &&
+    (!busca || normTxt(v.titulo + ' ' + v.texto + ' ' + v.ytDesc + ' ' + v.serie).includes(normTxt(busca))));
+
+  document.getElementById('lista').innerHTML = lista.length ? (vis.length ?
+    '<div class="grid">' + vis.map((v, i) =>
+      '<div class="card" onclick="abrir(' + i + ')">' +
+      '<div class="thumb"><img loading="lazy" src="https://img.youtube.com/vi/' + v.yt + '/mqdefault.jpg" alt=""><div class="play">▶</div></div>' +
+      '<div class="cuerpo"><h3>' + v.titulo + '</h3>' +
+      (v.texto || v.ytDesc ? '<p class="res">' + (v.texto || v.ytDesc) + '</p>' : '') +
+      '<div class="meta">' + (v.serie ? '<span class="serie-tag">' + v.serie + '</span>' : '') +
+      (v.fecha ? '<span>' + fechaBonita(v.fecha) + '</span>' : '') +
+      (v.pasajes.length ? '<span>📖 ' + v.pasajes.length + ' pasaje' + (v.pasajes.length === 1 ? '' : 's') + '</span>' : '') +
+      '</div></div></div>').join('') + '</div>'
+    : '<div class="vacio"><h3>Sin resultados</h3><p>Prueba con otra palabra o quita el filtro.</p></div>')
+    :
+    '<div class="vacio"><h3>Los primeros videos están en camino</h3>' +
+    '<p>En cuanto publiques en el canal, aparecerán aquí automáticamente — con su miniatura, su fecha y un enlace para verlos. Estas son las series planeadas:</p>' +
+    '<a class="btn-yt" href="https://www.youtube.com/@AdFontesProject" target="_blank" rel="noopener">▶ Ver el canal</a>' +
+    '<div class="series-lista">' + ((typeof SERIES !== 'undefined' ? SERIES : []).map(s =>
+      '<div class="serie-card"><b>' + s.t + '</b><span>' + s.d + '</span></div>').join('')) + '</div></div>';
+  window.__vis = vis;
+}
+function setF(s){ filtro = s; pintar(); }
+function setB(v){ busca = v; pintar(); }
+function abrir(i){
+  const v = window.__vis[i];
+  const txt = v.texto || v.ytDesc || '';
+  document.getElementById('modal').innerHTML =
+    '<div class="thumb"><img src="https://img.youtube.com/vi/' + v.yt + '/hqdefault.jpg" alt=""></div>' +
+    '<div class="cuerpo"><h2>' + v.titulo + '</h2>' +
+    '<div class="meta">' + (v.serie ? v.serie + ' · ' : '') + (fechaBonita(v.fecha) || 'Ad Fontes Project') + '</div>' +
+    (txt ? '<div class="texto">' + txt + '</div>' : '') +
+    (v.pasajes.length ? '<div class="chips">' + v.pasajes.map(p => '<a class="chip" href="' + urlPasaje(p) + '">📖 ' + p + '</a>').join('') + '</div>' : '') +
+    '<div class="acciones">' +
+    '<a class="btn-yt" href="https://www.youtube.com/watch?v=' + v.yt + '" target="_blank" rel="noopener">▶ Ver en YouTube</a>' +
+    '<button class="cerrar" onclick="cerrar()">Cerrar</button>' +
+    '</div></div>';
+  document.getElementById('ov').classList.add('abierto');
+}
+function cerrar(){ document.getElementById('ov').classList.remove('abierto'); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') cerrar(); });
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+pintar();
+</script>
+</body>
+</html>
