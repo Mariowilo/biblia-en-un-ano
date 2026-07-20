@@ -77,6 +77,27 @@ h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weigh
 .rec small{color:var(--ink-soft);display:block;font-size:.66rem}
 .cita-p{border-bottom:1px dashed var(--line);padding:.45rem 0}
 .cita-p:last-of-type{border-bottom:none}
+.acciones-v{display:flex;gap:.3rem;padding:.6rem 1.1rem;border-bottom:1px solid #f0ebe0;flex-wrap:wrap}
+.acc{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.4rem .6rem;cursor:pointer;color:var(--carbon);display:inline-flex;align-items:center;gap:.25rem}
+.acc:hover{border-color:var(--gold)}
+.acc.on{background:#fdf3d8;border-color:var(--gold);color:#7a5b1e}
+.nota-caja{padding:0 1.1rem .8rem;display:none}
+.nota-caja.abierta{display:block}
+.nota-caja textarea{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;font-family:'EB Garamond',serif;font-size:.95rem;resize:vertical}
+.nota-caja .fila-n{display:flex;gap:.35rem;margin-top:.35rem}
+.verso.marcado{background:#fdf3d8;box-shadow:inset 3px 0 0 var(--gold)}
+.verso.con-nota .n::after{content:'📝';font-size:.6rem;display:block}
+.cx{display:block;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.45rem .6rem;margin-top:.35rem;cursor:pointer;text-decoration:none}
+.cx:hover{border-color:var(--gold)}
+.cx b{color:#7a5b1e}
+.cx small{display:block;color:var(--ink-soft);font-size:.68rem;margin-top:.1rem}
+.vid{display:block;text-decoration:none;color:inherit;background:var(--cream);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:.5rem}
+.vid:hover{border-color:var(--gold)}
+.vid img{width:100%;display:block}
+.vid .vt{font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;padding:.5rem .7rem .1rem;color:var(--carbon)}
+.vid .vd{font-family:'Inter',sans-serif;font-size:.7rem;color:var(--ink-soft);padding:0 .7rem .5rem}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:var(--carbon);color:#fff;font-family:'Inter',sans-serif;font-size:.78rem;padding:.6rem 1.1rem;border-radius:10px;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.ver{opacity:1}
 
 .overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:7vh 1rem 1rem}
 .overlay.abierto{display:flex}
@@ -193,10 +214,14 @@ h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weigh
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script src="plan.js"></script>
 <script src="comentarios.js"></script>
 <script src="estudio.js"></script>
 <script src="contextos.js"></script>
+<script src="referencias.js"></script>
+<script src="recursos.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -261,6 +286,15 @@ try{
         s.data().dias.forEach(x => done.add(x));
         localStorage.setItem('biblia365_done', JSON.stringify([...done]));
         pintarCinta();
+      }
+      const pr = await fbDB.collection('personal').doc(u.uid).get();
+      if(pr.exists){
+        const d = pr.data() || {};
+        marcas = Object.assign({}, d.marcas || {}, marcas);
+        notas = Object.assign({}, d.notas || {}, notas);
+        localStorage.setItem('af_marcas', JSON.stringify(marcas));
+        localStorage.setItem('af_notas', JSON.stringify(notas));
+        pintarMarcas();
       }
     }catch(e){}
   });
@@ -363,6 +397,7 @@ async function cargarCapitulo(versoSel){
     cont.innerHTML = vv.map(v =>
       '<div class="verso" id="v' + v.verse + '" onclick="abrirPanel(' + v.verse + ')"><span class="n">' + v.verse + '</span><p>' + v.text + '</p></div>'
     ).join('');
+    pintarMarcas();
     if(versoSel){
       abrirPanel(versoSel);
       const el = document.getElementById('v' + versoSel);
@@ -372,6 +407,110 @@ async function cargarCapitulo(versoSel){
     cont.innerHTML = '<div class="cargando">No pude cargar el texto. Revisa tu conexión e intenta de nuevo.</div>';
   }
   window.scrollTo({ top: 0 });
+}
+
+/* ================= Marcas y notas personales ================= */
+let marcas = JSON.parse(localStorage.getItem('af_marcas') || '{}');
+let notas = JSON.parse(localStorage.getItem('af_notas') || '{}');
+function claveV(v){ return LIBROS[L][0] + '/' + C + '/' + v; }
+function guardarPersonal(){
+  localStorage.setItem('af_marcas', JSON.stringify(marcas));
+  localStorage.setItem('af_notas', JSON.stringify(notas));
+  if(fbUser && fbDB){
+    fbDB.collection('personal').doc(fbUser.uid).set({ marcas: marcas, notas: notas, act: new Date().toISOString() }, { merge: true }).catch(()=>{});
+  }
+}
+function pintarMarcas(){
+  document.querySelectorAll('.verso').forEach(el => {
+    const n = el.id.slice(1), k = claveV(n);
+    el.classList.toggle('marcado', !!marcas[k]);
+    el.classList.toggle('con-nota', !!notas[k]);
+  });
+}
+function toast(t){
+  const el = document.getElementById('toast');
+  el.textContent = t; el.classList.add('ver');
+  setTimeout(() => el.classList.remove('ver'), 1900);
+}
+function textoVerso(v){
+  const el = document.getElementById('v' + v);
+  return el ? el.querySelector('p').textContent.trim() : '';
+}
+function copiarVerso(v){
+  const ref = LIBROS[L][0] + ' ' + C + ':' + v;
+  const t = '«' + textoVerso(v) + '»\n— ' + ref + ' (RV 1909)\nadfontesproject.github.io/biblia.html#' + encodeURIComponent(LIBROS[L][0]) + '/' + C + '/' + v;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast('Versículo copiado ✓')).catch(() => toast('No se pudo copiar'));
+  else toast('Tu navegador no permite copiar aquí');
+}
+function compartirVerso(v){
+  const ref = LIBROS[L][0] + ' ' + C + ':' + v;
+  const t = '«' + textoVerso(v) + '»\n— ' + ref + '\n\nhttps://adfontesproject.github.io/biblia.html#' + encodeURIComponent(LIBROS[L][0]) + '/' + C + '/' + v;
+  if(navigator.share) navigator.share({ text: t }).catch(()=>{});
+  else window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
+}
+function marcarVerso(v){
+  const k = claveV(v);
+  if(marcas[k]) delete marcas[k]; else marcas[k] = 1;
+  guardarPersonal(); pintarMarcas(); abrirPanel(v);
+  toast(marcas[k] ? 'Versículo marcado 🖍' : 'Marca quitada');
+}
+function toggleNota(){ document.getElementById('notaCaja').classList.toggle('abierta'); }
+function guardarNota(v){
+  const k = claveV(v), t = document.getElementById('notaTxt').value.trim();
+  if(t) notas[k] = t; else delete notas[k];
+  guardarPersonal(); pintarMarcas(); abrirPanel(v);
+  toast(t ? 'Nota guardada 📝' : 'Nota eliminada');
+}
+
+/* ================= Conexiones: quién cita este pasaje ================= */
+function parseRef(r){
+  const m = r.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\.?\s+(\d+)(?::(\d+)(?:-(\d+))?)?/);
+  if(!m) return null;
+  const clave = m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+  const idx = ABREV[clave] !== undefined ? ABREV[clave] : IDX_LIBRO[normTxt(m[1])];
+  if(idx === undefined) return null;
+  return { l: idx, c: parseInt(m[2],10), v1: m[3] ? parseInt(m[3],10) : null, v2: m[4] ? parseInt(m[4],10) : (m[3] ? parseInt(m[3],10) : null) };
+}
+function refTocaVerso(r, v){
+  const p = parseRef(r);
+  if(!p || p.l !== L || p.c !== C) return false;
+  return !p.v1 || (v >= p.v1 && v <= p.v2);
+}
+function quienCita(v){
+  const out = [];
+  /* Confesiones: pruebas bíblicas que apuntan a este versículo */
+  if(typeof CONFESIONES !== 'undefined'){
+    ['lbc','west'].forEach(id => {
+      CONFESIONES[id].caps.forEach((cap, i) => {
+        if(!cap.p) return;
+        cap.p.forEach((tx, j) => {
+          const m = tx.match(/\(([^()]+)\)\s*$/);
+          if(!m || !/\d/.test(m[1])) return;
+          if(m[1].split(';').some(r => refTocaVerso(r, v))){
+            const nom = id === 'lbc' ? 'Confesión 1689' : 'Westminster';
+            out.push({ t: nom + ' · Cap. ' + (i+1) + '.' + (j+1), s: cap.t, u: 'biblioteca.html#confesiones' });
+          }
+        });
+      });
+    });
+  }
+  /* Base de autores: pasajes cuyas referencias relacionadas apuntan aquí */
+  if(typeof ESTUDIO !== 'undefined'){
+    ESTUDIO.forEach(e => {
+      if(e.ver && e.ver.some(r => refTocaVerso(r, v)))
+        out.push({ t: 'Autores · ' + e.ref, s: e.tema + ' — lo conecta con este pasaje', u: 'biblioteca.html#autores' });
+    });
+  }
+  return out;
+}
+function recursosDe(v){
+  if(typeof RECURSOS === 'undefined') return [];
+  return RECURSOS.filter(x => (x.pasajes || []).some(p => {
+    const q = parseRef(p);
+    if(!q || q.l !== L) return false;
+    if(q.c !== C) return false;
+    return !q.v1 || (v >= q.v1 && v <= q.v2);
+  }));
 }
 
 /* ================= Panel de estudio ================= */
@@ -393,7 +532,19 @@ function abrirPanel(v){
   const entradas = (typeof ESTUDIO !== 'undefined' ? ESTUDIO : []).filter(e =>
     e.libro === nombre && e.cap === C && (!e.vv || e.vv.includes(v)));
 
+  const k = claveV(v);
   let h = '';
+  /* 0. Acciones sobre el versículo */
+  h += '<div class="acciones-v">' +
+    '<button class="acc" onclick="copiarVerso(' + v + ')">📋 Copiar</button>' +
+    '<button class="acc" onclick="compartirVerso(' + v + ')">📱 Compartir</button>' +
+    '<button class="acc ' + (marcas[k] ? 'on' : '') + '" onclick="marcarVerso(' + v + ')">🖍 ' + (marcas[k] ? 'Marcado' : 'Marcar') + '</button>' +
+    '<button class="acc ' + (notas[k] ? 'on' : '') + '" onclick="toggleNota()">📝 ' + (notas[k] ? 'Mi nota' : 'Nota') + '</button>' +
+    '</div>' +
+    '<div class="nota-caja ' + (notas[k] ? 'abierta' : '') + '" id="notaCaja">' +
+    '<textarea id="notaTxt" rows="3" placeholder="Tu nota sobre este versículo…">' + (notas[k] || '') + '</textarea>' +
+    '<div class="fila-n"><button class="acc" onclick="guardarNota(' + v + ')">Guardar</button>' +
+    '<span style="font-family:Inter,sans-serif;font-size:.68rem;color:var(--ink-soft);align-self:center">Tus notas y marcas son privadas y se guardan en tu cuenta.</span></div></div>';
   /* 1. ¿Qué significa? */
   h += '<details class="capa" open><summary>✒ ¿Qué significa? <span class="flecha">›</span></summary><div class="cuerpo">' +
     (cd ? cd.n + '<div class="fuente">Análisis del bloque · Día ' + p.d + ' del plan</div>' :
@@ -401,11 +552,25 @@ function abrirPanel(v){
   /* 2. Teología pactual */
   if(cd) h += '<details class="capa"><summary>✝ Teología bíblica y pactual <span class="flecha">›</span></summary><div class="cuerpo">' + cd.p +
     '<div class="fuente">Del Día ' + p.d + ' del plan</div></div></details>';
-  /* 3. ¿Dónde más? */
-  const refs = entradas.length && entradas[0].ver ? entradas[0].ver : null;
-  h += '<details class="capa" ' + (refs ? 'open' : '') + '><summary>🔗 ¿Dónde más aparece esta idea? <span class="flecha">›</span></summary><div class="cuerpo">' +
-    (refs ? '<div class="chips">' + refs.map(r => '<span class="chip" onclick="irARef(\'' + r + '\')">' + r + '</span>').join('') + '</div><div class="fuente">Toca una referencia para ir al pasaje</div>' :
-    '<span class="aviso">Las referencias cruzadas verso a verso para toda la Biblia llegan en la Fase 2. Por ahora existen en los pasajes de la base de autores.</span>') + '</div></details>';
+  /* 3. Conexiones: referencias cruzadas + quién cita este pasaje */
+  let refs = [];
+  if(typeof REFS !== 'undefined'){
+    const nom = nombre + ' ' + C;
+    Object.keys(REFS).forEach(clave => {
+      const p = parseRef(clave);
+      if(p && p.l === L && p.c === C && (!p.v1 || (v >= p.v1 && v <= p.v2))) refs = refs.concat(REFS[clave]);
+    });
+  }
+  if(entradas.length && entradas[0].ver) refs = refs.concat(entradas[0].ver);
+  refs = [...new Set(refs)];
+  const citan = quienCita(v);
+  h += '<details class="capa" ' + (refs.length || citan.length ? 'open' : '') + '><summary>🔗 Conexiones <span class="flecha">›</span></summary><div class="cuerpo">' +
+    (refs.length ? '<div class="fuente" style="margin:0 0 .3rem">Referencias cruzadas</div><div class="chips">' +
+      refs.map(r => '<span class="chip" onclick="irARef(\'' + r + '\')">' + r + '</span>').join('') + '</div>' : '') +
+    (citan.length ? '<div class="fuente" style="margin:.7rem 0 .1rem">Quién cita este pasaje</div>' +
+      citan.map(c => '<a class="cx" href="' + c.u + '"><b>' + c.t + '</b><small>' + c.s + '</small></a>').join('') : '') +
+    (!refs.length && !citan.length ? '<span class="aviso">Aún no hay conexiones registradas para este versículo. La red de referencias crece por lotes.</span>' : '') +
+    '</div></details>';
   /* 4. La Iglesia */
   h += '<details class="capa" ' + (entradas.length ? 'open' : '') + '><summary>📜 ¿Cómo lo entendió la Iglesia? <span class="flecha">›</span></summary><div class="cuerpo">' +
     (entradas.length ? entradas.map(e =>
@@ -415,6 +580,12 @@ function abrirPanel(v){
     '<span class="aviso">Este pasaje aún no está en la base curada de autores. La base crece pasaje a pasaje — como todo en Ad Fontes.</span>') + '</div></details>';
   /* 5. Recursos */
   const slug = BH_SLUG_B[L];
+  const vids = recursosDe(v);
+  if(vids.length) h += '<details class="capa" open><summary>🎬 Videos sobre este pasaje <span class="flecha">›</span></summary><div class="cuerpo">' +
+    vids.map(x => '<a class="vid" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=' + x.yt + '">' +
+      '<img src="https://img.youtube.com/vi/' + x.yt + '/mqdefault.jpg" alt="">' +
+      '<div class="vt">' + x.titulo + (x.dur ? ' · ' + x.dur : '') + '</div><div class="vd">' + (x.desc || '') + '</div></a>').join('') +
+    '</div></details>';
   h += '<details class="capa"><summary>📚 Recursos para profundizar <span class="flecha">›</span></summary><div class="cuerpo">' +
     '<a class="rec" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/gill/' + slug + '/' + C + '.htm">📖 Gill sobre ' + nombre + ' ' + C + '<small>Comentario completo · inglés</small></a>' +
     '<a class="rec" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/calvin/' + slug + '/' + C + '.htm">📖 Calvino sobre ' + nombre + ' ' + C + '<small>Comentario completo · inglés</small></a>' +
