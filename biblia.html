@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblia — Ad Fontes</title>
+<meta name="description" content="Ad Fontes · Lectura y estudio de la Escritura, capítulo a capítulo, con panel de estudio confesional.">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#262626">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
+
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.buscador{flex:1;max-width:560px;margin:0 auto}
+.buscador>button{width:100%;display:flex;align-items:center;gap:.6rem;background:#333;border:1px solid #4a4a4a;border-radius:9px;padding:.5rem .8rem;color:#9a948a;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;text-align:left}
+.buscador>button:hover{border-color:var(--gold)}
+.buscador .atajo{margin-left:auto;font-size:.62rem;border:1px solid #555;border-radius:4px;padding:.05rem .35rem;color:#777}
+.volver{font-family:'Inter',sans-serif;font-size:.72rem;color:#cfcac2;text-decoration:none;border:1px solid #4a4a4a;border-radius:8px;padding:.4rem .7rem;white-space:nowrap}
+.volver:hover{border-color:var(--gold);color:#fff}
+
+.pagina{max-width:1200px;margin:0 auto;padding:1.4rem 1rem 5rem;display:flex;gap:2rem;justify-content:center}
+.columna-texto{max-width:660px;flex:1;min-width:0}
+
+.selector-linea{display:flex;align-items:center;gap:.45rem;margin-bottom:.9rem;font-family:'Inter',sans-serif;flex-wrap:wrap}
+.sel-chip{background:#fff;border:1px solid var(--line);border-radius:9px;padding:.45rem .9rem;font-size:.88rem;font-weight:600;color:var(--carbon);cursor:pointer;display:flex;align-items:center;gap:.4rem}
+.sel-chip:hover{border-color:var(--gold)}
+.sel-chip span{color:var(--ink-soft);font-size:.7rem}
+.nav-cap{display:flex;gap:.3rem}
+.nav-cap button{background:#fff;border:1px solid var(--line);border-radius:9px;width:34px;height:34px;cursor:pointer;color:var(--ink-soft);font-size:.9rem}
+.nav-cap button:hover{border-color:var(--gold)}
+.nav-cap button:disabled{opacity:.3;cursor:default}
+
+.cinta-plan{display:flex;align-items:center;gap:.7rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:9px;padding:.6rem .9rem;margin-bottom:1.4rem;font-family:'Inter',sans-serif;font-size:.8rem;color:#2c4a34;flex-wrap:wrap}
+.cinta-plan button{margin-left:auto;background:var(--green);color:#fff;border:none;border-radius:7px;padding:.45rem .9rem;font-size:.76rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.cinta-plan button.hecho{background:#fff;color:var(--green);border:1.5px solid var(--green)}
+
+h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:600;color:var(--carbon);margin-bottom:.2rem}
+.cap-sub{font-family:'Inter',sans-serif;font-size:.7rem;color:var(--ink-soft);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.4rem;line-height:1.8}
+
+.verso{display:flex;gap:.8rem;padding:.48rem .6rem;border-radius:9px;cursor:pointer;transition:background .15s}
+.verso:hover{background:#f3eee3}
+.verso.activo{background:#f6f0e0;outline:1px solid var(--gold)}
+.verso .n{font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;color:var(--gold);min-width:1.5rem;text-align:right;padding-top:.45rem;flex-shrink:0}
+.verso p{flex:1}
+.cargando{text-align:center;color:var(--ink-soft);font-style:italic;padding:3rem 0}
+
+.panel{width:400px;flex-shrink:0;position:sticky;top:70px;align-self:flex-start;max-height:calc(100vh - 90px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.08);display:none}
+.panel.abierto{display:block}
+.panel-cab{display:flex;align-items:center;padding:.9rem 1.1rem;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);border-radius:14px 14px 0 0;z-index:2}
+.panel-cab h2{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--carbon)}
+.panel-cab button{margin-left:auto;background:none;border:none;font-size:1rem;cursor:pointer;color:var(--ink-soft)}
+.capa{border-bottom:1px solid #f0ebe0}
+.capa summary{list-style:none;display:flex;align-items:center;gap:.55rem;padding:.85rem 1.1rem;cursor:pointer;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;color:var(--carbon)}
+.capa summary::-webkit-details-marker{display:none}
+.capa summary .flecha{margin-left:auto;color:var(--ink-soft);font-size:.7rem;transition:transform .2s}
+.capa[open] summary .flecha{transform:rotate(90deg)}
+.capa .cuerpo{padding:.2rem 1.1rem 1rem;font-size:.97rem}
+.capa .fuente{font-family:'Inter',sans-serif;font-size:.68rem;color:#7a5b1e;margin-top:.3rem}
+.capa .aviso{font-family:'Inter',sans-serif;font-size:.75rem;color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.chip{font-family:'Inter',sans-serif;font-size:.7rem;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:14px;padding:.2rem .6rem;cursor:pointer;border-style:solid}
+.chip:hover{background:#efe4c8}
+.rec{display:block;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem;margin-top:.4rem;text-decoration:none;cursor:pointer}
+.rec:hover{border-color:var(--gold)}
+.rec small{color:var(--ink-soft);display:block;font-size:.66rem}
+.cita-p{border-bottom:1px dashed var(--line);padding:.45rem 0}
+.cita-p:last-of-type{border-bottom:none}
+
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:7vh 1rem 1rem}
+.overlay.abierto{display:flex}
+.tarjeta{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:700px;max-height:80vh;overflow:auto}
+.tarjeta-cab{padding:.9rem 1.3rem;border-bottom:1px solid var(--line);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;color:var(--ink-soft);display:flex;align-items:center;gap:.6rem;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0}
+.tarjeta-cab input{flex:1;border:none;outline:none;font-family:'EB Garamond',serif;font-size:1.15rem;color:var(--ink);background:transparent}
+.libros{display:grid;grid-template-columns:1fr 1fr;padding:.6rem 0}
+.libros h4{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .3rem}
+.col-libros{display:flex;flex-direction:column;padding-bottom:.6rem}
+.libro{font-family:'EB Garamond',serif;font-size:1rem;padding:.3rem 1.3rem;cursor:pointer;color:var(--ink)}
+.libro:hover{background:var(--cream);color:#7a5b1e}
+.libro.actual{color:#7a5b1e;font-weight:700}
+.caps-grid{display:flex;flex-wrap:wrap;gap:.4rem;padding:1rem 1.3rem 1.3rem}
+.caps-grid button{font-family:'Inter',sans-serif;font-size:.8rem;width:44px;height:40px;background:var(--cream);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink)}
+.caps-grid button:hover{border-color:var(--gold)}
+.caps-grid button.actual{background:var(--carbon);color:#fff;border-color:var(--carbon)}
+.grupo-res h5{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .2rem}
+.res{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 1.3rem;cursor:pointer}
+.res:hover{background:var(--cream)}
+.res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
+.res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+
+@media(max-width:1020px){
+  .pagina{flex-direction:column}
+  .panel{position:fixed;inset:auto 0 0 0;width:100%;max-height:70vh;border-radius:16px 16px 0 0;z-index:120;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+  .buscador .atajo{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html" title="Ir al plan de lectura"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>BIBLIA</small></div></a>
+  <div class="buscador"><button onclick="abrirBuscar()">🔍 Buscar pasaje, palabra o tema… <span class="atajo">Ctrl K</span></button></div>
+  <a class="volver" href="index.html">📅 Mi plan</a>
+</div>
+
+<div class="pagina">
+  <div class="columna-texto">
+    <div class="selector-linea">
+      <button class="sel-chip" onclick="abrirLibros()"><span id="selLibro">Romanos</span> <span>▾</span></button>
+      <button class="sel-chip" onclick="abrirCaps()"><span id="selCap">8</span> <span>▾</span></button>
+      <div class="nav-cap">
+        <button id="btnPrev" onclick="capVecino(-1)" title="Capítulo anterior">‹</button>
+        <button id="btnNext" onclick="capVecino(1)" title="Capítulo siguiente">›</button>
+      </div>
+      <button class="sel-chip" style="margin-left:auto;font-size:.72rem;color:#7a5b1e" title="Versión del texto">RV 1909</button>
+    </div>
+
+    <div id="cinta"></div>
+    <h1 class="cap-titulo" id="titulo">…</h1>
+    <div class="cap-sub" id="subtitulo"></div>
+    <div id="versos"><div class="cargando">Cargando la Escritura…</div></div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <div class="panel-cab"><h2 id="panelRef">—</h2><button onclick="cerrarPanel()">✕</button></div>
+    <div id="panelCapas"></div>
+  </aside>
+</div>
+
+<!-- Selector de libros -->
+<div class="overlay" id="ovLibros" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">ELEGIR LIBRO</div>
+    <div class="libros" id="listaLibros"></div>
+  </div>
+</div>
+
+<!-- Selector de capítulos -->
+<div class="overlay" id="ovCaps" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab" id="capsTitulo">CAPÍTULO</div>
+    <div class="caps-grid" id="gridCaps"></div>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">🔍 <input id="qInput" placeholder="Un pasaje (Romanos 8:29), una palabra (pacto)…" oninput="buscar(this.value)" autocomplete="off"></div>
+    <div id="qResultados"><div class="sin-res">Escribe un pasaje o una palabra. La búsqueda recorre la Escritura, los 365 estudios, la Confesión de 1689 y la base de autores.</div></div>
+  </div>
+</div>
+
+<script src="plan.js"></script>
+<script src="comentarios.js"></script>
+<script src="estudio.js"></script>
+<script src="contextos.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+/* ================= Datos de libros ================= */
+const LIBROS = [
+['Génesis',50],['Éxodo',40],['Levítico',27],['Números',36],['Deuteronomio',34],['Josué',24],['Jueces',21],['Rut',4],
+['1 Samuel',31],['2 Samuel',24],['1 Reyes',22],['2 Reyes',25],['1 Crónicas',29],['2 Crónicas',36],['Esdras',10],['Nehemías',13],
+['Ester',10],['Job',42],['Salmos',150],['Proverbios',31],['Eclesiastés',12],['Cantares',8],['Isaías',66],['Jeremías',52],
+['Lamentaciones',5],['Ezequiel',48],['Daniel',12],['Oseas',14],['Joel',3],['Amós',9],['Abdías',1],['Jonás',4],
+['Miqueas',7],['Nahúm',3],['Habacuc',3],['Sofonías',3],['Hageo',2],['Zacarías',14],['Malaquías',4],
+['Mateo',28],['Marcos',16],['Lucas',24],['Juan',21],['Hechos',28],['Romanos',16],['1 Corintios',16],['2 Corintios',13],
+['Gálatas',6],['Efesios',6],['Filipenses',4],['Colosenses',4],['1 Tesalonicenses',5],['2 Tesalonicenses',3],
+['1 Timoteo',6],['2 Timoteo',4],['Tito',3],['Filemón',1],['Hebreos',13],['Santiago',5],['1 Pedro',5],['2 Pedro',3],
+['1 Juan',5],['2 Juan',1],['3 Juan',1],['Judas',1],['Apocalipsis',22]
+];
+function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+const IDX_LIBRO = {};
+LIBROS.forEach((l, i) => IDX_LIBRO[normTxt(l[0])] = i);
+Object.assign(IDX_LIBRO, {'salmo':18,'psalmos':18,'cantar de los cantares':21,'cantar':21,'apocalipsis de juan':65,'hechos de los apostoles':43});
+const ABREV = {gn:0,ex:1,lv:2,nm:3,dt:4,jos:5,jue:6,rut:7,'1s':8,'2s':9,'1r':10,'2r':11,'1cr':12,'2cr':13,esd:14,neh:15,est:16,job:17,sal:18,pr:19,ec:20,cnt:21,is:22,jer:23,lm:24,ez:25,dn:26,os:27,jl:28,am:29,abd:30,jon:31,mi:32,nah:33,hab:34,sof:35,hag:36,zac:37,mal:38,mt:39,mr:40,mc:40,lc:41,jn:42,hch:43,ro:44,'1co':45,'2co':46,ga:47,ef:48,fil:49,flp:49,col:50,'1ts':51,'2ts':52,'1ti':53,'2ti':54,tit:55,flm:56,he:57,stg:58,'1p':59,'2p':60,'1jn':61,'2jn':62,'3jn':63,jud:64,ap:65};
+const BH_SLUG_B = ['genesis','exodus','leviticus','numbers','deuteronomy','joshua','judges','ruth','1_samuel','2_samuel','1_kings','2_kings','1_chronicles','2_chronicles','ezra','nehemiah','esther','job','psalms','proverbs','ecclesiastes','songs','isaiah','jeremiah','lamentations','ezekiel','daniel','hosea','joel','amos','obadiah','jonah','micah','nahum','habakkuk','zephaniah','haggai','zechariah','malachi','matthew','mark','luke','john','acts','romans','1_corinthians','2_corinthians','galatians','ephesians','philippians','colossians','1_thessalonians','2_thessalonians','1_timothy','2_timothy','titus','philemon','hebrews','james','1_peter','2_peter','1_john','2_john','3_john','jude','revelation'];
+
+/* ================= Estado ================= */
+let L = 44, C = 8, versoActivo = null;
+const cache = {};
+let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
+let fbUser = null, fbDB = null;
+
+/* ================= Firebase (sincronía silenciosa) ================= */
+try{
+  firebase.initializeApp({
+    apiKey: "AIzaSyDt3bA9HuXbIypVH_JRQMe-FGKkNfUDrv8",
+    authDomain: "biblia-en-un-ano.firebaseapp.com",
+    projectId: "biblia-en-un-ano",
+    storageBucket: "biblia-en-un-ano.firebasestorage.app",
+    messagingSenderId: "978571488009",
+    appId: "1:978571488009:web:cd9e062e57a1b9b62801d8"
+  });
+  fbDB = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async u => {
+    fbUser = u;
+    if(!u || !fbDB) return;
+    try{
+      const s = await fbDB.collection('progreso').doc(u.uid).get();
+      if(s.exists && Array.isArray(s.data().dias)){
+        s.data().dias.forEach(x => done.add(x));
+        localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+        pintarCinta();
+      }
+    }catch(e){}
+  });
+}catch(e){}
+async function empujarNube(){
+  if(!fbUser || !fbDB) return;
+  try{
+    const nombre = localStorage.getItem('biblia365_nombre') || fbUser.displayName || '';
+    await fbDB.collection('progreso').doc(fbUser.uid).set({
+      nombre: nombre, dias: [...done], total: done.size,
+      inicio: localStorage.getItem('biblia365_start') || null,
+      actualizado: new Date().toISOString()
+    }, { merge: true });
+    if(nombre) await fbDB.collection('tablero').doc(fbUser.uid).set({
+      n: nombre, l: done.size, d: done.size, t: Date.now(),
+      lh: localStorage.getItem('biblia365_lh') || ''
+    }, { merge: true });
+  }catch(e){}
+}
+
+/* ================= Navegación ================= */
+function irA(l, c, v){
+  L = l; C = Math.min(Math.max(1, c), LIBROS[l][1]);
+  location.hash = encodeURIComponent(LIBROS[L][0]) + '/' + C + (v ? '/' + v : '');
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('abierto'));
+  cargarCapitulo(v || null);
+}
+function capVecino(d){
+  let l = L, c = C + d;
+  if(c < 1){ if(l > 0){ l--; c = LIBROS[l][1]; } else c = 1; }
+  if(c > LIBROS[l][1]){ if(l < 65){ l++; c = 1; } else c = LIBROS[l][1]; }
+  irA(l, c);
+}
+function leerHash(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  const m = h.match(/^(.+?)\/(\d+)(?:\/(\d+))?$/);
+  if(m && IDX_LIBRO[normTxt(m[1])] !== undefined){
+    L = IDX_LIBRO[normTxt(m[1])]; C = parseInt(m[2], 10);
+    return m[3] ? parseInt(m[3], 10) : null;
+  }
+  return null;
+}
+window.addEventListener('hashchange', () => { const v = leerHash(); cargarCapitulo(v); });
+
+/* ================= Render del capítulo ================= */
+function diaDeCapitulo(){
+  const nombre = LIBROS[L][0];
+  for(const p of PLAN){
+    for(const lec of p.lecturas){
+      const m = lec.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
+      if(m && m[1] === nombre && C >= parseInt(m[2],10) && C <= parseInt(m[3] || m[2],10)) return p;
+    }
+  }
+  return null;
+}
+function pintarCinta(){
+  const p = diaDeCapitulo();
+  const el = document.getElementById('cinta');
+  if(!p){ el.innerHTML = ''; return; }
+  const hecho = done.has(p.d);
+  el.innerHTML = '<div class="cinta-plan">📅 Este capítulo es parte del <strong>&nbsp;Día ' + p.d + '&nbsp;</strong> del plan (' + p.lecturas.join('; ') + ') ' +
+    '<button class="' + (hecho ? 'hecho' : '') + '" onclick="marcarDia(' + p.d + ')">' + (hecho ? '✓ Leído' : '✓ Marcar como leído') + '</button></div>';
+}
+function marcarDia(d){
+  if(done.has(d)) done.delete(d);
+  else { done.add(d); localStorage.setItem('biblia365_lh', (function(){const x=new Date();return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');})()); }
+  localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+  pintarCinta();
+  empujarNube();
+}
+async function cargarCapitulo(versoSel){
+  const nombre = LIBROS[L][0];
+  document.getElementById('selLibro').textContent = nombre;
+  document.getElementById('selCap').textContent = C;
+  document.getElementById('titulo').textContent = nombre + ' ' + C;
+  const cx = (typeof CONTEXTOS !== 'undefined') ? CONTEXTOS[nombre] : null;
+  document.getElementById('subtitulo').textContent = cx ? (cx.a + ' · ' + cx.f) : '';
+  document.getElementById('btnPrev').disabled = (L === 0 && C === 1);
+  document.getElementById('btnNext').disabled = (L === 65 && C === LIBROS[65][1]);
+  pintarCinta();
+  cerrarPanel();
+  const cont = document.getElementById('versos');
+  cont.innerHTML = '<div class="cargando">Cargando la Escritura…</div>';
+  try{
+    const url = 'https://api.getbible.net/v2/valera/' + (L + 1) + '/' + C + '.json';
+    if(!cache[url]){ const r = await fetch(url); if(!r.ok) throw 0; cache[url] = await r.json(); }
+    const vv = cache[url].verses || [];
+    cont.innerHTML = vv.map(v =>
+      '<div class="verso" id="v' + v.verse + '" onclick="abrirPanel(' + v.verse + ')"><span class="n">' + v.verse + '</span><p>' + v.text + '</p></div>'
+    ).join('');
+    if(versoSel){
+      abrirPanel(versoSel);
+      const el = document.getElementById('v' + versoSel);
+      if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }catch(e){
+    cont.innerHTML = '<div class="cargando">No pude cargar el texto. Revisa tu conexión e intenta de nuevo.</div>';
+  }
+  window.scrollTo({ top: 0 });
+}
+
+/* ================= Panel de estudio ================= */
+function cerrarPanel(){
+  document.getElementById('panel').classList.remove('abierto');
+  document.querySelectorAll('.verso').forEach(v => v.classList.remove('activo'));
+  versoActivo = null;
+}
+function abrirPanel(v){
+  versoActivo = v;
+  const nombre = LIBROS[L][0];
+  document.querySelectorAll('.verso').forEach(x => x.classList.remove('activo'));
+  const ve = document.getElementById('v' + v);
+  if(ve) ve.classList.add('activo');
+  document.getElementById('panelRef').textContent = nombre + ' ' + C + ':' + v;
+
+  const p = diaDeCapitulo();
+  const cd = (p && typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[p.d] : null;
+  const entradas = (typeof ESTUDIO !== 'undefined' ? ESTUDIO : []).filter(e =>
+    e.libro === nombre && e.cap === C && (!e.vv || e.vv.includes(v)));
+
+  let h = '';
+  /* 1. ¿Qué significa? */
+  h += '<details class="capa" open><summary>✒ ¿Qué significa? <span class="flecha">›</span></summary><div class="cuerpo">' +
+    (cd ? cd.n + '<div class="fuente">Análisis del bloque · Día ' + p.d + ' del plan</div>' :
+    '<span class="aviso">El estudio de este bloque llega con el plan de lectura.</span>') + '</div></details>';
+  /* 2. Teología pactual */
+  if(cd) h += '<details class="capa"><summary>✝ Teología bíblica y pactual <span class="flecha">›</span></summary><div class="cuerpo">' + cd.p +
+    '<div class="fuente">Del Día ' + p.d + ' del plan</div></div></details>';
+  /* 3. ¿Dónde más? */
+  const refs = entradas.length && entradas[0].ver ? entradas[0].ver : null;
+  h += '<details class="capa" ' + (refs ? 'open' : '') + '><summary>🔗 ¿Dónde más aparece esta idea? <span class="flecha">›</span></summary><div class="cuerpo">' +
+    (refs ? '<div class="chips">' + refs.map(r => '<span class="chip" onclick="irARef(\'' + r + '\')">' + r + '</span>').join('') + '</div><div class="fuente">Toca una referencia para ir al pasaje</div>' :
+    '<span class="aviso">Las referencias cruzadas verso a verso para toda la Biblia llegan en la Fase 2. Por ahora existen en los pasajes de la base de autores.</span>') + '</div></details>';
+  /* 4. La Iglesia */
+  h += '<details class="capa" ' + (entradas.length ? 'open' : '') + '><summary>📜 ¿Cómo lo entendió la Iglesia? <span class="flecha">›</span></summary><div class="cuerpo">' +
+    (entradas.length ? entradas.map(e =>
+      e.citas.map(ci => '<div class="cita-p">«' + ci.txt + '»<div class="fuente">— ' + ci.autor + ', <em>' + ci.obra + '</em></div></div>').join('') +
+      (e.cruzadas ? '<div class="cita-p" style="font-size:.9rem"><strong>Diálogo entre autores:</strong> ' + e.cruzadas + '</div>' : '')
+    ).join('') :
+    '<span class="aviso">Este pasaje aún no está en la base curada de autores. La base crece pasaje a pasaje — como todo en Ad Fontes.</span>') + '</div></details>';
+  /* 5. Recursos */
+  const slug = BH_SLUG_B[L];
+  h += '<details class="capa"><summary>📚 Recursos para profundizar <span class="flecha">›</span></summary><div class="cuerpo">' +
+    '<a class="rec" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/gill/' + slug + '/' + C + '.htm">📖 Gill sobre ' + nombre + ' ' + C + '<small>Comentario completo · inglés</small></a>' +
+    '<a class="rec" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/calvin/' + slug + '/' + C + '.htm">📖 Calvino sobre ' + nombre + ' ' + C + '<small>Comentario completo · inglés</small></a>' +
+    (p ? '<a class="rec" href="index.html">📅 Día ' + p.d + ' del plan: ' + p.lecturas.join('; ') + '<small>Estudio completo del bloque en el plan</small></a>' : '') +
+    '</div></details>';
+
+  document.getElementById('panelCapas').innerHTML = h;
+  document.getElementById('panel').classList.add('abierto');
+  location.hash = encodeURIComponent(nombre) + '/' + C + '/' + v;
+}
+function irARef(r){
+  const m = r.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\s+(\d+)(?::(\d+))?/);
+  if(!m) return;
+  const clave = m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
+  const idx = ABREV[clave] !== undefined ? ABREV[clave] : IDX_LIBRO[normTxt(m[1])];
+  if(idx === undefined) return;
+  irA(idx, parseInt(m[2],10), m[3] ? parseInt(m[3],10) : null);
+}
+
+/* ================= Selectores ================= */
+function abrirLibros(){
+  const at = LIBROS.slice(0,39).map((l,i) => '<span class="libro' + (i===L?' actual':'') + '" onclick="elegirLibro(' + i + ')">' + l[0] + '</span>').join('');
+  const nt = LIBROS.slice(39).map((l,j) => { const i = j+39; return '<span class="libro' + (i===L?' actual':'') + '" onclick="elegirLibro(' + i + ')">' + l[0] + '</span>'; }).join('');
+  document.getElementById('listaLibros').innerHTML =
+    '<div><h4>Antiguo Testamento</h4><div class="col-libros">' + at + '</div></div>' +
+    '<div><h4>Nuevo Testamento</h4><div class="col-libros">' + nt + '</div></div>';
+  document.getElementById('ovLibros').classList.add('abierto');
+}
+function elegirLibro(i){
+  document.getElementById('ovLibros').classList.remove('abierto');
+  L = i;
+  abrirCaps();
+}
+function abrirCaps(){
+  document.getElementById('capsTitulo').textContent = LIBROS[L][0].toUpperCase() + ' · ELEGIR CAPÍTULO';
+  let h = '';
+  for(let c = 1; c <= LIBROS[L][1]; c++) h += '<button class="' + (c===C?'actual':'') + '" onclick="irA(' + L + ',' + c + ')">' + c + '</button>';
+  document.getElementById('gridCaps').innerHTML = h;
+  document.getElementById('ovCaps').classList.add('abierto');
+}
+
+/* ================= Búsqueda federada ================= */
+function abrirBuscar(){
+  document.getElementById('ovBuscar').classList.add('abierto');
+  setTimeout(() => document.getElementById('qInput').focus(), 50);
+}
+function buscar(q){
+  const out = document.getElementById('qResultados');
+  q = q.trim();
+  if(q.length < 2){ out.innerHTML = '<div class="sin-res">Escribe un pasaje o una palabra…</div>'; return; }
+  let h = '';
+  /* ¿Es una referencia? */
+  const m = q.match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+?)\s+(\d+)(?::(\d+))?$/);
+  if(m){
+    const nq = normTxt(m[1]);
+    const clave = nq.replace(/\s+/g,'');
+    const idx = IDX_LIBRO[nq] !== undefined ? IDX_LIBRO[nq] : ABREV[clave];
+    if(idx !== undefined){
+      h += '<div class="grupo-res"><h5>Ir al pasaje</h5><div class="res" onclick="irA(' + idx + ',' + parseInt(m[2],10) + (m[3] ? ',' + parseInt(m[3],10) : ',null') + ')"><b>' +
+        LIBROS[idx][0] + ' ' + m[2] + (m[3] ? ':' + m[3] : '') + '</b><span>Abrir en la Biblia</span></div></div>';
+    }
+  }
+  const nq2 = normTxt(q);
+  if(nq2.length >= 3){
+    /* Estudios del plan */
+    let rp = [];
+    if(typeof COMENTARIOS !== 'undefined'){
+      for(const d in COMENTARIOS){
+        const c = COMENTARIOS[d];
+        if(normTxt([c.t,c.h,c.c,c.n,c.p,c.v,c.q].join(' ')).includes(nq2)){
+          const p = PLAN[d-1];
+          const lm = p.lecturas[0].match(/^(.+?)\s+(\d+)/);
+          const idx2 = lm ? IDX_LIBRO[normTxt(lm[1])] : undefined;
+          rp.push({ d: d, t: c.t, l: idx2, c: lm ? parseInt(lm[2],10) : 1 });
+          if(rp.length >= 6) break;
+        }
+      }
+    }
+    if(rp.length) h += '<div class="grupo-res"><h5>Estudios del plan</h5>' + rp.map(r =>
+      '<div class="res" onclick="irA(' + r.l + ',' + r.c + ')"><b>Día ' + r.d + '</b><span>' + r.t + '</span></div>').join('') + '</div>';
+    /* Base de autores */
+    if(typeof ESTUDIO !== 'undefined'){
+      const re = ESTUDIO.filter(e => normTxt(e.ref + ' ' + e.tema + ' ' + e.citas.map(x => x.txt + ' ' + x.autor).join(' ')).includes(nq2)).slice(0,4);
+      if(re.length) h += '<div class="grupo-res"><h5>Base de autores</h5>' + re.map(e => {
+        const idx3 = IDX_LIBRO[normTxt(e.libro)];
+        return '<div class="res" onclick="irA(' + idx3 + ',' + e.cap + (e.vv ? ',' + e.vv[0] : ',null') + ')"><b>' + e.ref + '</b><span>' + e.tema + '</span></div>';
+      }).join('') + '</div>';
+    }
+    /* Confesión (enlace al sitio del plan) */
+    h += '<div class="grupo-res"><h5>Más</h5><div class="res" onclick="localStorage.setItem(\'biblia365_vista\',\'conf\');location.href=\'index.html\'"><b>Confesión 1689</b><span>Buscar «' + q + '» en las confesiones (en el sitio del plan)</span></div></div>';
+  }
+  out.innerHTML = h || '<div class="sin-res">Sin resultados. Prueba con otra palabra o una referencia como «Romanos 8:29».</div>';
+}
+
+/* ================= Teclado ================= */
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); abrirBuscar(); }
+  if(e.key === 'Escape'){ document.querySelectorAll('.overlay.abierto').forEach(o => o.classList.remove('abierto')); cerrarPanel(); }
+  if(e.key === 'ArrowLeft' && !e.target.closest('input')) capVecino(-1);
+  if(e.key === 'ArrowRight' && !e.target.closest('input')) capVecino(1);
+});
+
+/* ================= Arranque ================= */
+const v0 = leerHash();
+cargarCapitulo(v0);
+</script>
+</body>
+</html>
