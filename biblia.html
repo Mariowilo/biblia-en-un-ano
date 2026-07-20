@@ -112,7 +112,8 @@ h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weigh
 <div class="topbar">
   <a class="brand" href="index.html" title="Ir al plan de lectura"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>BIBLIA</small></div></a>
   <div class="buscador"><button onclick="abrirBuscar()">🔍 Buscar pasaje, palabra o tema… <span class="atajo">Ctrl K</span></button></div>
-  <a class="volver" href="index.html">📅 Mi plan</a>
+  <a class="volver" href="plan.html">📅 Mi plan</a>
+  <a class="volver" href="index.html">👥 Comunidad</a>
 </div>
 
 <div class="pagina">
@@ -124,7 +125,7 @@ h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weigh
         <button id="btnPrev" onclick="capVecino(-1)" title="Capítulo anterior">‹</button>
         <button id="btnNext" onclick="capVecino(1)" title="Capítulo siguiente">›</button>
       </div>
-      <button class="sel-chip" style="margin-left:auto;font-size:.72rem;color:#7a5b1e" title="Versión del texto">RV 1909</button>
+      <button class="sel-chip" style="margin-left:auto;font-size:.72rem;color:#7a5b1e" title="Cambiar versión" id="btnVersion" onclick="cambiarVersion()">RV 1909 ⇄</button>
     </div>
 
     <div id="cinta"></div>
@@ -191,8 +192,23 @@ const ABREV = {gn:0,ex:1,lv:2,nm:3,dt:4,jos:5,jue:6,rut:7,'1s':8,'2s':9,'1r':10,
 const BH_SLUG_B = ['genesis','exodus','leviticus','numbers','deuteronomy','joshua','judges','ruth','1_samuel','2_samuel','1_kings','2_kings','1_chronicles','2_chronicles','ezra','nehemiah','esther','job','psalms','proverbs','ecclesiastes','songs','isaiah','jeremiah','lamentations','ezekiel','daniel','hosea','joel','amos','obadiah','jonah','micah','nahum','habakkuk','zephaniah','haggai','zechariah','malachi','matthew','mark','luke','john','acts','romans','1_corinthians','2_corinthians','galatians','ephesians','philippians','colossians','1_thessalonians','2_thessalonians','1_timothy','2_timothy','titus','philemon','hebrews','james','1_peter','2_peter','1_john','2_john','3_john','jude','revelation'];
 
 /* ================= Estado ================= */
+const USFM = ['GEN','EXO','LEV','NUM','DEU','JOS','JDG','RUT','1SA','2SA','1KI','2KI','1CH','2CH','EZR','NEH','EST','JOB','PSA','PRO','ECC','SNG','ISA','JER','LAM','EZK','DAN','HOS','JOL','AMO','OBA','JON','MIC','NAM','HAB','ZEP','HAG','ZEC','MAL','MAT','MRK','LUK','JHN','ACT','ROM','1CO','2CO','GAL','EPH','PHP','COL','1TH','2TH','1TI','2TI','TIT','PHM','HEB','JAS','1PE','2PE','1JN','2JN','3JN','JUD','REV'];
 let L = 44, C = 8, versoActivo = null;
+let VERSION = localStorage.getItem('af_version') || 'rv1909';
 const cache = {};
+function cambiarVersion(){
+  VERSION = VERSION === 'rv1909' ? 'sbt' : 'rv1909';
+  localStorage.setItem('af_version', VERSION);
+  cargarCapitulo(null);
+}
+/* Altura automática del lector SBT (doc oficial TBS v1.3) */
+window.addEventListener('message', function(ev){
+  if(ev.origin !== 'https://www.tbsonlinebible.com') return;
+  if(ev.data && ev.data.action === 'report' && ev.data.size && ev.data.size.height){
+    const f = document.getElementById('sbtFrame');
+    if(f) f.style.height = Math.max(450, ev.data.size.height + 40) + 'px';
+  }
+}, false);
 let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
 let fbUser = null, fbDB = null;
 
@@ -298,6 +314,18 @@ async function cargarCapitulo(versoSel){
   pintarCinta();
   cerrarPanel();
   const cont = document.getElementById('versos');
+  document.getElementById('btnVersion').textContent = (VERSION === 'sbt' ? 'RV-SBT' : 'RV 1909') + ' ⇄';
+  if(VERSION === 'sbt'){
+    cont.innerHTML =
+      '<iframe id="sbtFrame" name="OBA" src="https://www.tbsonlinebible.com#es_' + USFM[L] + '_' + C + '" ' +
+      'allow="clipboard-read; clipboard-write; fullscreen; screen-wake-lock; web-share" loading="lazy" ' +
+      'style="width:100%;height:70vh;border:0;border-radius:10px;background:#fff"></iframe>' +
+      '<div style="font-family:Inter,sans-serif;font-size:.72rem;color:var(--ink-soft);margin-top:.5rem">' +
+      'Reina Valera SBT © Sociedad Bíblica Trinitaria. Si ves un mensaje de error, la SBT aún está autorizando este dominio. ' +
+      'Para el panel de estudio por versículo, cambia a RV 1909.</div>';
+    window.scrollTo({ top: 0 });
+    return;
+  }
   cont.innerHTML = '<div class="cargando">Cargando la Escritura…</div>';
   try{
     const url = 'https://api.getbible.net/v2/valera/' + (L + 1) + '/' + C + '.json';

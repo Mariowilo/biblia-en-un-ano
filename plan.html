@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de lectura — Ad Fontes</title>
+<meta name="description" content="Ad Fontes · La Biblia en un año: lectura cronológica con estudio histórico, cultural y pactual.">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#262626">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
+
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.buscador{flex:1;max-width:560px;margin:0 auto}
+.buscador>button{width:100%;display:flex;align-items:center;gap:.6rem;background:#333;border:1px solid #4a4a4a;border-radius:9px;padding:.5rem .8rem;color:#9a948a;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;text-align:left}
+.buscador>button:hover{border-color:var(--gold)}
+.buscador .atajo{margin-left:auto;font-size:.62rem;border:1px solid #555;border-radius:4px;padding:.05rem .35rem;color:#777}
+.enlace-top{font-family:'Inter',sans-serif;font-size:.72rem;color:#cfcac2;text-decoration:none;border:1px solid #4a4a4a;border-radius:8px;padding:.4rem .7rem;white-space:nowrap}
+.enlace-top:hover{border-color:var(--gold);color:#fff}
+.progreso-linea{height:4px;background:#4a4a4a}
+.progreso-linea div{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;transition:width .5s}
+
+.pagina{max-width:720px;margin:0 auto;padding:1.8rem 1rem 5rem}
+.dia-cab{text-align:center;margin-bottom:1.4rem}
+.etapa-tag{display:inline-block;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:.3rem .9rem;border-radius:2rem;margin-bottom:.7rem}
+.dia-num{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);letter-spacing:.14em;text-transform:uppercase}
+h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5vw,2.3rem);font-weight:600;color:var(--carbon);line-height:1.2;margin:.3rem 0}
+.dia-fecha{font-style:italic;color:var(--ink-soft);font-size:.95rem}
+
+.lect-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;margin-bottom:1.2rem;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.lect-card h3{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.7rem}
+.lect-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.lect-chip{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.1rem;background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:.4rem .9rem;color:var(--carbon);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.lect-chip:hover{border-color:var(--gold);color:#7a5b1e}
+.botones{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+.btn{font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;padding:.6rem 1.1rem;border-radius:9px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-pri{background:var(--carbon);color:#fff}.btn-pri:hover{background:var(--carbon2)}
+.btn-sec{background:#fff;color:var(--carbon);border:1.5px solid var(--line)}.btn-sec:hover{border-color:var(--gold)}
+.btn-ok{background:#fff;border:1.5px solid var(--green);color:var(--green);margin-left:auto}
+.btn-ok.hecho{background:var(--green);color:#fff}
+.banner-ok{margin-top:1rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:9px;padding:.8rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-family:'Inter',sans-serif;font-size:.82rem;color:#2c4a34}
+.banner-ok button{margin-left:auto;background:var(--green);color:#fff;border:none;border-radius:7px;padding:.5rem .9rem;font-size:.76rem;font-weight:600;cursor:pointer}
+
+.sec{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:1.25rem 1.4rem;margin-bottom:1rem}
+.sec h3{font-family:'Cormorant Garamond',serif;font-size:1.28rem;font-weight:700;color:var(--carbon);margin-bottom:.5rem;display:flex;align-items:center;gap:.55rem}
+.sec h3 .ico{font-size:.95rem;color:var(--gold)}
+.sec p{text-align:justify}
+.sec.voces{border-left-color:var(--carbon);background:#f6f3ec}
+.sec.voces p{font-style:italic;font-size:1.02rem}
+.sec.pregunta{border-left-color:var(--green);background:#f2f6f2}
+.sec.pregunta p{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:600;color:#2c4a34;text-align:left}
+.sin-est{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:1.6rem;text-align:center;color:var(--ink-soft);font-style:italic}
+
+.dia-nav{display:flex;justify-content:space-between;gap:.7rem;margin-top:1.6rem;font-family:'Inter',sans-serif}
+.dia-nav button{font-size:.82rem;font-weight:500;background:#fff;border:1px solid var(--line);border-radius:9px;padding:.6rem 1rem;cursor:pointer;color:var(--carbon)}
+.dia-nav button:hover{border-color:var(--gold)}
+.dia-nav button:disabled{opacity:.35;cursor:default}
+
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:7vh 1rem 1rem}
+.overlay.abierto{display:flex}
+.tarjeta{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:700px;max-height:80vh;overflow:auto}
+.tarjeta-cab{padding:.9rem 1.3rem;border-bottom:1px solid var(--line);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;color:var(--ink-soft);display:flex;align-items:center;gap:.6rem;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0}
+.tarjeta-cab input{flex:1;border:none;outline:none;font-family:'EB Garamond',serif;font-size:1.15rem;color:var(--ink);background:transparent}
+.grupo-res h5{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .2rem}
+.res{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 1.3rem;cursor:pointer}
+.res:hover{background:var(--cream)}
+.res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
+.res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="plan.html"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>PLAN</small></div></a>
+  <div class="buscador"><button onclick="abrirBuscar()">🔍 Buscar pasaje, palabra o tema… <span class="atajo">Ctrl K</span></button></div>
+  <a class="enlace-top" href="biblia.html">📖 Biblia</a>
+  <a class="enlace-top" href="index.html">👥 Comunidad</a>
+</div>
+<div class="progreso-linea"><div id="progFill"></div></div>
+
+<div class="pagina">
+  <div class="dia-cab">
+    <div class="etapa-tag" id="etapa">…</div>
+    <div class="dia-num" id="diaNum"></div>
+    <h1 class="dia-titulo" id="titulo">Cargando…</h1>
+    <div class="dia-fecha" id="fecha"></div>
+  </div>
+
+  <div class="lect-card">
+    <h3>Lectura de hoy</h3>
+    <div class="lect-chips" id="chips"></div>
+    <div class="botones">
+      <a class="btn btn-pri" id="btnBiblia" href="#">📖 Leer en la Biblia Ad Fontes</a>
+      <a class="btn btn-sec" id="btnRVR" target="_blank" rel="noopener" href="#">RVR60</a>
+      <a class="btn btn-sec" id="btnNTV" target="_blank" rel="noopener" href="#">NTV</a>
+      <button class="btn btn-ok" id="btnLeido" onclick="marcar()">✓ Marcar como leído</button>
+    </div>
+    <div id="bannerOk"></div>
+  </div>
+
+  <div id="estudio"></div>
+
+  <div class="dia-nav">
+    <button id="navPrev" onclick="irDia(D-1)">← Anterior</button>
+    <button onclick="irDia(diaHoy())">Ir al día de hoy</button>
+    <button id="navNext" onclick="irDia(D+1)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">🔍 <input id="qInput" placeholder="Un pasaje (Romanos 8:29), una palabra (pacto)…" oninput="buscar(this.value)" autocomplete="off"></div>
+    <div id="qResultados"><div class="sin-res">Escribe un pasaje o una palabra…</div></div>
+  </div>
+</div>
+
+<script src="plan.js"></script>
+<script src="comentarios.js"></script>
+<script src="estudio.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+/* ===== utilidades de libro (compartidas con biblia.html) ===== */
+function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+const NOMBRES = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías','Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
+const IDX = {}; NOMBRES.forEach((n,i) => IDX[normTxt(n)] = i);
+Object.assign(IDX, {'salmo':18,'cantar de los cantares':21,'cantar':21});
+function urlBiblia(lectura, verso){
+  const m = lectura.match(/^(.+?)\s+(\d+)/);
+  if(!m || IDX[normTxt(m[1])] === undefined) return 'biblia.html';
+  return 'biblia.html#' + encodeURIComponent(NOMBRES[IDX[normTxt(m[1])]]) + '/' + m[2] + (verso ? '/' + verso : '');
+}
+function bgUrl(lecturas, version){
+  return 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(lecturas.join('; ')) + '&version=' + version;
+}
+
+/* ===== estado del plan (mismos datos que todo el sitio) ===== */
+let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
+const startDate = localStorage.getItem('biblia365_start') || '';
+function diaHoy(){
+  if(!startDate) return 1;
+  const s = new Date(startDate + 'T00:00:00');
+  const n = new Date(); n.setHours(0,0,0,0);
+  return Math.min(Math.max(Math.floor((n - s) / 86400000) + 1, 1), 365);
+}
+let D = parseInt(localStorage.getItem('biblia365_current') || '0', 10) || diaHoy();
+
+/* ===== firebase: sincronía silenciosa ===== */
+let fbUser = null, fbDB = null;
+try{
+  firebase.initializeApp({ apiKey: "AIzaSyDt3bA9HuXbIypVH_JRQMe-FGKkNfUDrv8", authDomain: "biblia-en-un-ano.firebaseapp.com", projectId: "biblia-en-un-ano", storageBucket: "biblia-en-un-ano.firebasestorage.app", messagingSenderId: "978571488009", appId: "1:978571488009:web:cd9e062e57a1b9b62801d8" });
+  fbDB = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async u => {
+    fbUser = u;
+    if(!u || !fbDB) return;
+    try{
+      const s = await fbDB.collection('progreso').doc(u.uid).get();
+      if(s.exists && Array.isArray(s.data().dias)){
+        s.data().dias.forEach(x => done.add(x));
+        localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+        pintarDia();
+      }
+    }catch(e){}
+  });
+}catch(e){}
+async function empujarNube(){
+  if(!fbUser || !fbDB) return;
+  try{
+    const nombre = localStorage.getItem('biblia365_nombre') || fbUser.displayName || '';
+    await fbDB.collection('progreso').doc(fbUser.uid).set({ nombre: nombre, dias: [...done], total: done.size, inicio: startDate || null, actualizado: new Date().toISOString() }, { merge: true });
+    if(nombre) await fbDB.collection('tablero').doc(fbUser.uid).set({ n: nombre, l: done.size, d: D, t: Date.now(), lh: localStorage.getItem('biblia365_lh') || '' }, { merge: true });
+  }catch(e){}
+}
+
+/* ===== render del día ===== */
+function irDia(d){
+  D = Math.min(Math.max(1, d), 365);
+  localStorage.setItem('biblia365_current', D);
+  pintarDia();
+  window.scrollTo({ top: 0 });
+}
+function marcar(){
+  if(done.has(D)){ done.delete(D); }
+  else {
+    done.add(D);
+    const x = new Date();
+    localStorage.setItem('biblia365_lh', x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0'));
+  }
+  localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+  empujarNube();
+  pintarDia();
+}
+function fechaDelDia(d){
+  if(!startDate) return '';
+  const s = new Date(startDate + 'T00:00:00');
+  s.setDate(s.getDate() + d - 1);
+  return s.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+function pintarDia(){
+  const p = PLAN[D - 1];
+  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[D] : null;
+  document.getElementById('etapa').textContent = p.etapa;
+  document.getElementById('diaNum').textContent = 'Día ' + D + ' de 365';
+  document.getElementById('titulo').textContent = c ? c.t : p.lecturas.join(' · ');
+  document.getElementById('fecha').textContent = fechaDelDia(D);
+  document.getElementById('chips').innerHTML = p.lecturas.map(l =>
+    '<a class="lect-chip" href="' + urlBiblia(l) + '" title="Leer en la Biblia Ad Fontes">' + l + ' <span style="font-size:.75rem">→</span></a>').join('');
+  document.getElementById('btnBiblia').href = urlBiblia(p.lecturas[0]);
+  document.getElementById('btnRVR').href = bgUrl(p.lecturas, 'RVR1960');
+  document.getElementById('btnNTV').href = bgUrl(p.lecturas, 'NTV');
+  const hecho = done.has(D);
+  const b = document.getElementById('btnLeido');
+  b.textContent = hecho ? '✓ Leído' : '✓ Marcar como leído';
+  b.classList.toggle('hecho', hecho);
+  document.getElementById('bannerOk').innerHTML = (hecho && D < 365) ?
+    '<div class="banner-ok"><span>✅ <strong>Día ' + D + ' completado.</strong> Siguiente — Día ' + (D+1) + ': <strong>' + PLAN[D].lecturas.join('; ') + '</strong></span><button onclick="irDia(' + (D+1) + ')">Día ' + (D+1) + ' →</button></div>' :
+    (hecho && D === 365 ? '<div class="banner-ok"><span>🎉 <strong>¡Completaste toda la Escritura en un año!</strong> «Bendice, alma mía, a Jehová» (Sal 103:2).</span></div>' : '');
+  document.getElementById('estudio').innerHTML = c ?
+    '<div class="sec"><h3><span class="ico">🏛</span> Contexto histórico</h3><p>' + c.h + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>' + c.c + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>' + c.n + '</p></div>' +
+    '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + c.p + '</p></div>' +
+    '<div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>' + c.v + '</p></div>' +
+    '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + c.q + '</p></div>' :
+    '<div class="sin-est">El estudio profundo de este día está en preparación. La Palabra misma es el pan.</div>';
+  document.getElementById('navPrev').disabled = (D === 1);
+  document.getElementById('navNext').disabled = (D === 365);
+  document.getElementById('progFill').style.width = Math.round(done.size / 365 * 100) + '%';
+}
+
+/* ===== búsqueda federada ===== */
+function abrirBuscar(){
+  document.getElementById('ovBuscar').classList.add('abierto');
+  setTimeout(() => document.getElementById('qInput').focus(), 50);
+}
+function buscar(q){
+  const out = document.getElementById('qResultados');
+  q = q.trim();
+  if(q.length < 2){ out.innerHTML = '<div class="sin-res">Escribe un pasaje o una palabra…</div>'; return; }
+  let h = '';
+  const m = q.match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+?)\s+(\d+)(?::(\d+))?$/);
+  if(m && IDX[normTxt(m[1])] !== undefined){
+    const nom = NOMBRES[IDX[normTxt(m[1])]];
+    h += '<div class="grupo-res"><h5>Ir al pasaje</h5><div class="res" onclick="location.href=\'biblia.html#' + encodeURIComponent(nom) + '/' + parseInt(m[2],10) + (m[3] ? '/' + parseInt(m[3],10) : '') + '\'"><b>' + nom + ' ' + m[2] + (m[3] ? ':' + m[3] : '') + '</b><span>Abrir en la Biblia</span></div></div>';
+  }
+  const nq = normTxt(q);
+  if(nq.length >= 3 && typeof COMENTARIOS !== 'undefined'){
+    let rp = [];
+    for(const d in COMENTARIOS){
+      const c = COMENTARIOS[d];
+      if(normTxt([c.t,c.h,c.c,c.n,c.p,c.v,c.q].join(' ')).includes(nq)){
+        rp.push({ d: d, t: c.t });
+        if(rp.length >= 8) break;
+      }
+    }
+    if(rp.length) h += '<div class="grupo-res"><h5>Estudios del plan</h5>' + rp.map(r =>
+      '<div class="res" onclick="cerrarBuscarYIr(' + r.d + ')"><b>Día ' + r.d + '</b><span>' + r.t + '</span></div>').join('') + '</div>';
+  }
+  out.innerHTML = h || '<div class="sin-res">Sin resultados.</div>';
+}
+function cerrarBuscarYIr(d){
+  document.getElementById('ovBuscar').classList.remove('abierto');
+  irDia(d);
+}
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); abrirBuscar(); }
+  if(e.key === 'Escape') document.querySelectorAll('.overlay.abierto').forEach(o => o.classList.remove('abierto'));
+  if(e.key === 'ArrowLeft' && !e.target.closest('input')) irDia(D - 1);
+  if(e.key === 'ArrowRight' && !e.target.closest('input')) irDia(D + 1);
+});
+
+pintarDia();
+</script>
+</body>
+</html>
