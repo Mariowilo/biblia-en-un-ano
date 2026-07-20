@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca — Ad Fontes</title>
+<meta name="description" content="Ad Fontes · Confesiones, autores puritanos e introducciones a los libros de la Biblia.">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#262626">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
+
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.buscador{flex:1;max-width:560px;margin:0 auto}
+.buscador>button{width:100%;display:flex;align-items:center;gap:.6rem;background:#333;border:1px solid #4a4a4a;border-radius:9px;padding:.5rem .8rem;color:#9a948a;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;text-align:left}
+.buscador>button:hover{border-color:var(--gold)}
+.buscador .atajo{margin-left:auto;font-size:.62rem;border:1px solid #555;border-radius:4px;padding:.05rem .35rem;color:#777}
+.enlace-top{font-family:'Inter',sans-serif;font-size:.72rem;color:#cfcac2;text-decoration:none;border:1px solid #4a4a4a;border-radius:8px;padding:.4rem .7rem;white-space:nowrap}
+.enlace-top:hover{border-color:var(--gold);color:#fff}
+
+.pagina{max-width:1080px;margin:0 auto;padding:1.6rem 1rem 5rem}
+
+/* Portada de biblioteca */
+.hero{text-align:center;margin-bottom:2rem}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.6rem);font-weight:600;color:var(--carbon)}
+.hero p{color:var(--ink-soft);font-style:italic;max-width:600px;margin:.4rem auto 0;font-size:1.02rem}
+.estantes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+.estante{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;cursor:pointer;transition:border-color .15s,transform .15s;text-decoration:none;color:inherit;display:block}
+.estante:hover{border-color:var(--gold);transform:translateY(-2px)}
+.estante .ic{font-size:1.5rem}
+.estante h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--carbon);margin:.4rem 0 .2rem}
+.estante p{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--ink-soft);line-height:1.55}
+.estante .meta{font-family:'Inter',sans-serif;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-top:.6rem}
+
+/* Vistas internas */
+.vista{display:none}
+.vista.activa{display:block}
+.miga{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);margin-bottom:1rem}
+.miga a{color:#7a5b1e;text-decoration:none;cursor:pointer}
+.miga a:hover{text-decoration:underline}
+
+.filas{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.3rem}
+.pill{font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:9px;padding:.45rem .9rem;cursor:pointer;color:var(--carbon)}
+.pill:hover{border-color:var(--gold)}
+.pill.act{background:var(--carbon);color:#fff;border-color:var(--carbon)}
+.num-grid{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1.4rem}
+.num-grid button{font-family:'Inter',sans-serif;font-size:.78rem;width:40px;height:36px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink)}
+.num-grid button:hover{border-color:var(--gold)}
+.num-grid button.act{background:var(--carbon);color:#fff;border-color:var(--carbon)}
+
+.doc{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.8rem;max-width:760px;margin:0 auto}
+.doc h2{font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:var(--carbon);margin-bottom:.3rem}
+.doc .doc-sub{font-family:'Inter',sans-serif;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1.3rem}
+.doc p.par{margin-bottom:.5rem}
+.doc p.par strong.n{color:var(--gold);font-family:'Inter',sans-serif;font-size:.8rem;margin-right:.2rem}
+.refs{display:flex;flex-wrap:wrap;gap:.3rem;margin:-.2rem 0 1rem}
+.ref-chip{font-family:'Inter',sans-serif;font-size:.7rem;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:14px;padding:.15rem .55rem;cursor:pointer;text-decoration:none}
+.ref-chip:hover{background:#efe4c8}
+.nota-pie{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:.8rem;margin-top:1.3rem}
+
+.tarjeta-lib{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:.8rem}
+.tarjeta-lib h4{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--carbon)}
+.tarjeta-lib .met{font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.tarjeta-lib .abrir{font-family:'Inter',sans-serif;font-size:.74rem;color:#7a5b1e;cursor:pointer;text-decoration:none;display:inline-block;margin-top:.5rem}
+
+.cita-b{border-bottom:1px dashed var(--line);padding:.7rem 0}
+.cita-b:last-child{border-bottom:none}
+.cita-b .fuente{font-family:'Inter',sans-serif;font-size:.72rem;color:#7a5b1e;margin-top:.3rem}
+.dialogo{background:#f6f0e0;border-left:3px solid var(--gold);border-radius:8px;padding:.7rem .9rem;margin-top:.8rem;font-size:.96rem}
+
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:7vh 1rem 1rem}
+.overlay.abierto{display:flex}
+.tarjeta{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:700px;max-height:80vh;overflow:auto}
+.tarjeta-cab{padding:.9rem 1.3rem;border-bottom:1px solid var(--line);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;color:var(--ink-soft);display:flex;align-items:center;gap:.6rem;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0}
+.tarjeta-cab input{flex:1;border:none;outline:none;font-family:'EB Garamond',serif;font-size:1.15rem;color:var(--ink);background:transparent}
+.grupo-res h5{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .2rem}
+.res{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 1.3rem;cursor:pointer}
+.res:hover{background:var(--cream)}
+.res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
+.res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="biblioteca.html"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>BIBLIOTECA</small></div></a>
+  <div class="buscador"><button onclick="abrirBuscar()">🔍 Buscar en la biblioteca… <span class="atajo">Ctrl K</span></button></div>
+  <a class="enlace-top" href="biblia.html">📖 Biblia</a>
+  <a class="enlace-top" href="plan.html">📅 Plan</a>
+</div>
+
+<div class="pagina">
+
+  <!-- Portada -->
+  <div class="vista activa" id="v-portada">
+    <div class="hero">
+      <h1>Biblioteca</h1>
+      <p>Los testigos de la fe al servicio del texto. Todo lo que aquí vive está conectado con la Escritura — y desde la Escritura se vuelve aquí.</p>
+    </div>
+    <div class="estantes">
+      <a class="estante" onclick="verConfesiones()">
+        <div class="ic">📜</div><h3>Confesiones y credos</h3>
+        <p>La Confesión Bautista de Londres (1689) completa, con sus pruebas bíblicas clicables. Westminster en preparación.</p>
+        <div class="meta">32 capítulos · 160 párrafos</div>
+      </a>
+      <a class="estante" onclick="verAutores()">
+        <div class="ic">🖋</div><h3>Autores</h3>
+        <p>Calvino, Owen, Watson, Bunyan, Gill, Edwards y Spurgeon sobre los grandes pasajes, con el diálogo entre ellos.</p>
+        <div class="meta" id="metaAutores">Base curada · crece por lotes</div>
+      </a>
+      <a class="estante" onclick="verLibros()">
+        <div class="ic">📚</div><h3>Introducciones a los libros</h3>
+        <p>Autor, fecha y marco histórico de los 66 libros — la dosis justa antes de leer.</p>
+        <div class="meta">66 libros</div>
+      </a>
+      <a class="estante" href="plan.html">
+        <div class="ic">📅</div><h3>Estudios del plan</h3>
+        <p>365 estudios diarios: contexto histórico y cultural, análisis narrativo, teología pactual y voces de la iglesia.</p>
+        <div class="meta">365 días · toda la Escritura</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Confesiones -->
+  <div class="vista" id="v-conf">
+    <div class="miga"><a onclick="portada()">Biblioteca</a> › Confesiones</div>
+    <div class="filas">
+      <button class="pill act" id="pLbc" onclick="setConf('lbc')">Bautista de Londres · 1689</button>
+      <button class="pill" id="pWest" onclick="setConf('west')">Westminster · 1647</button>
+    </div>
+    <div class="num-grid" id="capsConf"></div>
+    <div id="docConf"></div>
+  </div>
+
+  <!-- Autores -->
+  <div class="vista" id="v-autores">
+    <div class="miga"><a onclick="portada()">Biblioteca</a> › Autores</div>
+    <div class="filas" id="filtroAutores"></div>
+    <div id="listaAutores"></div>
+  </div>
+
+  <!-- Libros -->
+  <div class="vista" id="v-libros">
+    <div class="miga"><a onclick="portada()">Biblioteca</a> › Introducciones a los libros</div>
+    <div class="filas">
+      <button class="pill act" id="pAT" onclick="setTest('at')">Antiguo Testamento</button>
+      <button class="pill" id="pNT" onclick="setTest('nt')">Nuevo Testamento</button>
+    </div>
+    <div id="listaLibros"></div>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">🔍 <input id="qInput" placeholder="Una palabra (justificación), un autor (Owen), un libro (Hebreos)…" oninput="buscar(this.value)" autocomplete="off"></div>
+    <div id="qResultados"><div class="sin-res">Busca en las confesiones, los autores y las introducciones.</div></div>
+  </div>
+</div>
+
+<script src="confesiones.js"></script>
+<script src="estudio.js"></script>
+<script src="contextos.js"></script>
+<script>
+function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+const NOMBRES = Object.keys(typeof CONTEXTOS !== 'undefined' ? CONTEXTOS : {});
+const IDX = {}; NOMBRES.forEach((n,i) => IDX[normTxt(n)] = n);
+const ABREV = {gn:'Génesis',ex:'Éxodo',lv:'Levítico',nm:'Números',dt:'Deuteronomio',jos:'Josué',jue:'Jueces',rut:'Rut','1s':'1 Samuel','2s':'2 Samuel','1r':'1 Reyes','2r':'2 Reyes','1cr':'1 Crónicas','2cr':'2 Crónicas',esd:'Esdras',neh:'Nehemías',est:'Ester',job:'Job',sal:'Salmos',pr:'Proverbios',ec:'Eclesiastés',cnt:'Cantares',is:'Isaías',jer:'Jeremías',lm:'Lamentaciones',ez:'Ezequiel',dn:'Daniel',os:'Oseas',jl:'Joel',am:'Amós',abd:'Abdías',jon:'Jonás',mi:'Miqueas',nah:'Nahúm',hab:'Habacuc',sof:'Sofonías',hag:'Hageo',zac:'Zacarías',mal:'Malaquías',mt:'Mateo',mr:'Marcos',mc:'Marcos',lc:'Lucas',jn:'Juan',hch:'Hechos',ro:'Romanos','1co':'1 Corintios','2co':'2 Corintios',ga:'Gálatas',ef:'Efesios',fil:'Filipenses',flp:'Filipenses',col:'Colosenses','1ts':'1 Tesalonicenses','2ts':'2 Tesalonicenses','1ti':'1 Timoteo','2ti':'2 Timoteo',tit:'Tito',flm:'Filemón',he:'Hebreos',stg:'Santiago','1p':'1 Pedro','2p':'2 Pedro','1jn':'1 Juan','2jn':'2 Juan','3jn':'3 Juan',jud:'Judas',ap:'Apocalipsis'};
+function urlPasaje(ref){
+  const m = ref.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\s+(\d+)(?::(\d+))?/);
+  if(!m) return 'biblia.html';
+  const clave = normTxt(m[1]).replace(/\s+/g,'');
+  const libro = IDX[normTxt(m[1])] || ABREV[clave];
+  if(!libro) return 'biblia.html';
+  return 'biblia.html#' + encodeURIComponent(libro) + '/' + m[2] + (m[3] ? '/' + m[3] : '');
+}
+function vista(id){
+  document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+  document.getElementById(id).classList.add('activa');
+  window.scrollTo({ top: 0 });
+}
+function portada(){ vista('v-portada'); location.hash = ''; }
+
+/* ===== Confesiones ===== */
+let confId = 'lbc', confCap = 0;
+function verConfesiones(){ vista('v-conf'); location.hash = 'confesiones'; pintarConf(); }
+function setConf(id){ confId = id; confCap = 0; pintarConf(); }
+function verCapConf(i){ confCap = i; pintarConf(); document.getElementById('docConf').scrollIntoView({behavior:'smooth', block:'start'}); }
+function partirRefs(tx){
+  const m = tx.match(/^([\s\S]*?)\s*\(([^()]+)\)\s*$/);
+  if(!m || !/\d/.test(m[2])) return { t: tx, refs: [] };
+  return { t: m[1], refs: m[2].split(';').map(r => r.trim()).filter(Boolean) };
+}
+function pintarConf(){
+  if(typeof CONFESIONES === 'undefined') return;
+  const c = CONFESIONES[confId];
+  document.getElementById('pLbc').classList.toggle('act', confId === 'lbc');
+  document.getElementById('pWest').classList.toggle('act', confId === 'west');
+  document.getElementById('capsConf').innerHTML = c.caps.map((cap, i) =>
+    '<button class="' + (i === confCap ? 'act' : '') + '" title="' + cap.t + '" onclick="verCapConf(' + i + ')">' + (i+1) + '</button>').join('');
+  const cap = c.caps[confCap];
+  document.getElementById('docConf').innerHTML = (cap && cap.p) ?
+    '<div class="doc"><h2>Capítulo ' + (confCap+1) + ' · ' + cap.t + '</h2><div class="doc-sub">' + c.titulo + '</div>' +
+    cap.p.map((tx, i) => {
+      const s = partirRefs(tx);
+      return '<p class="par"><strong class="n">' + (i+1) + '.</strong> ' + s.t + '</p>' +
+        (s.refs.length ? '<div class="refs">' + s.refs.map(r => '<a class="ref-chip" href="' + urlPasaje(r) + '">' + r + '</a>').join('') + '</div>' : '');
+    }).join('') +
+    '<div class="nota-pie">' + c.nota + ' · Toca una referencia para leerla en la Biblia.</div></div>' :
+    '<div class="doc"><h2>' + (cap ? cap.t : '') + '</h2><p class="par">Este capítulo estará disponible pronto. Estamos incorporando el texto por partes.</p></div>';
+}
+
+/* ===== Autores ===== */
+let filtroAutor = '';
+function verAutores(){ vista('v-autores'); location.hash = 'autores'; pintarAutores(); }
+function setAutor(a){ filtroAutor = (filtroAutor === a) ? '' : a; pintarAutores(); }
+function pintarAutores(){
+  if(typeof ESTUDIO === 'undefined') return;
+  const autores = [...new Set(ESTUDIO.flatMap(e => e.citas.map(c => c.autor)))].sort();
+  document.getElementById('filtroAutores').innerHTML =
+    '<button class="pill' + (filtroAutor === '' ? ' act' : '') + '" onclick="setAutor(\'\')">Todos</button>' +
+    autores.map(a => '<button class="pill' + (filtroAutor === a ? ' act' : '') + '" onclick="setAutor(\'' + a + '\')">' + a + '</button>').join('');
+  const lista = ESTUDIO.filter(e => !filtroAutor || e.citas.some(c => c.autor === filtroAutor));
+  document.getElementById('listaAutores').innerHTML = lista.map(e =>
+    '<div class="tarjeta-lib"><div class="met">' + e.ref + '</div><h4>' + e.tema + '</h4>' +
+    e.citas.filter(c => !filtroAutor || c.autor === filtroAutor).map(c =>
+      '<div class="cita-b">«' + c.txt + '»<div class="fuente">— ' + c.autor + ', <em>' + c.obra + '</em></div></div>').join('') +
+    (e.cruzadas && !filtroAutor ? '<div class="dialogo"><strong>Diálogo entre autores:</strong> ' + e.cruzadas + '</div>' : '') +
+    '<a class="abrir" href="' + urlPasaje(e.ref) + '">📖 Leer ' + e.ref + ' en la Biblia →</a></div>').join('') ||
+    '<div class="doc"><p class="par">Sin resultados para ese autor.</p></div>';
+  document.getElementById('metaAutores').textContent = ESTUDIO.length + ' pasajes · ' + ESTUDIO.reduce((a,e) => a + e.citas.length, 0) + ' citas';
+}
+
+/* ===== Libros ===== */
+let testamento = 'at';
+function verLibros(){ vista('v-libros'); location.hash = 'libros'; pintarLibros(); }
+function setTest(t){ testamento = t; pintarLibros(); }
+function pintarLibros(){
+  if(typeof CONTEXTOS === 'undefined') return;
+  document.getElementById('pAT').classList.toggle('act', testamento === 'at');
+  document.getElementById('pNT').classList.toggle('act', testamento === 'nt');
+  const libros = NOMBRES.slice(testamento === 'at' ? 0 : 39, testamento === 'at' ? 39 : 66);
+  document.getElementById('listaLibros').innerHTML = libros.map(n => {
+    const x = CONTEXTOS[n];
+    return '<div class="tarjeta-lib"><div class="met">' + x.a + ' · ' + x.f + '</div><h4>' + n + '</h4><p style="font-size:.98rem">' + x.m + '</p>' +
+      '<a class="abrir" href="biblia.html#' + encodeURIComponent(n) + '/1">📖 Abrir ' + n + ' 1 →</a></div>';
+  }).join('');
+}
+
+/* ===== Búsqueda ===== */
+function abrirBuscar(){
+  document.getElementById('ovBuscar').classList.add('abierto');
+  setTimeout(() => document.getElementById('qInput').focus(), 50);
+}
+function buscar(q){
+  const out = document.getElementById('qResultados');
+  const nq = normTxt(q);
+  if(nq.length < 3){ out.innerHTML = '<div class="sin-res">Escribe al menos 3 letras…</div>'; return; }
+  let h = '';
+  if(typeof CONFESIONES !== 'undefined'){
+    const rc = [];
+    ['lbc','west'].forEach(id => CONFESIONES[id].caps.forEach((cap, i) => {
+      if(cap.p && normTxt(cap.t + ' ' + cap.p.join(' ')).includes(nq))
+        rc.push({ id: id, i: i, t: cap.t, c: CONFESIONES[id].titulo.split('(')[0].trim() });
+    }));
+    if(rc.length) h += '<div class="grupo-res"><h5>Confesiones</h5>' + rc.slice(0,8).map(r =>
+      '<div class="res" onclick="cerrarYConf(\'' + r.id + '\',' + r.i + ')"><b>Cap. ' + (r.i+1) + '</b><span>' + r.t + '</span></div>').join('') + '</div>';
+  }
+  if(typeof ESTUDIO !== 'undefined'){
+    const re = ESTUDIO.filter(e => normTxt(e.ref + ' ' + e.tema + ' ' + e.citas.map(c => c.txt + ' ' + c.autor + ' ' + c.obra).join(' ') + ' ' + (e.cruzadas||'')).includes(nq));
+    if(re.length) h += '<div class="grupo-res"><h5>Autores</h5>' + re.slice(0,8).map(e =>
+      '<div class="res" onclick="cerrarYAutores()"><b>' + e.ref + '</b><span>' + e.tema + '</span></div>').join('') + '</div>';
+  }
+  if(typeof CONTEXTOS !== 'undefined'){
+    const rl = NOMBRES.filter(n => normTxt(n + ' ' + CONTEXTOS[n].a + ' ' + CONTEXTOS[n].m).includes(nq));
+    if(rl.length) h += '<div class="grupo-res"><h5>Libros</h5>' + rl.slice(0,8).map(n =>
+      '<div class="res" onclick="location.href=\'biblia.html#' + encodeURIComponent(n) + '/1\'"><b>' + n + '</b><span>' + CONTEXTOS[n].a + ' · ' + CONTEXTOS[n].f + '</span></div>').join('') + '</div>';
+  }
+  out.innerHTML = h || '<div class="sin-res">Sin resultados.</div>';
+}
+function cerrarYConf(id, i){
+  document.getElementById('ovBuscar').classList.remove('abierto');
+  confId = id; confCap = i; verConfesiones();
+}
+function cerrarYAutores(){
+  document.getElementById('ovBuscar').classList.remove('abierto');
+  filtroAutor = ''; verAutores();
+}
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); abrirBuscar(); }
+  if(e.key === 'Escape') document.querySelectorAll('.overlay.abierto').forEach(o => o.classList.remove('abierto'));
+});
+
+/* Arranque por hash */
+const h0 = location.hash.slice(1);
+if(h0 === 'confesiones') verConfesiones();
+else if(h0 === 'autores') verAutores();
+else if(h0 === 'libros') verLibros();
+else if(typeof ESTUDIO !== 'undefined') document.getElementById('metaAutores').textContent = ESTUDIO.length + ' pasajes · ' + ESTUDIO.reduce((a,e) => a + e.citas.length, 0) + ' citas';
+</script>
+</body>
+</html>
