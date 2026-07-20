@@ -1,0 +1,92 @@
+name: Sincronizar videos de YouTube
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # cada 6 horas
+  workflow_dispatch:         # o cuando lo ejecutes a mano
+
+permissions:
+  contents: write
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip -q install requests
+
+      - name: Leer el canal y regenerar videos.js
+        run: |
+          python - <<'EOF'
+          import json, re, requests, xml.etree.ElementTree as ET
+
+          CANAL = 'UCrGLP-OxqZ4GezOt4uiylUQ'
+          URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + CANAL
+          NS = {'a':'http://www.w3.org/2005/Atom','yt':'http://www.youtube.com/xml/schemas/2015','media':'http://search.yahoo.com/mrss/'}
+
+          videos = []
+          try:
+              r = requests.get(URL, timeout=30, headers={'User-Agent':'AdFontesBot/1.0'})
+              r.raise_for_status()
+              root = ET.fromstring(r.content)
+              for e in root.findall('a:entry', NS):
+                  vid = e.find('yt:videoId', NS)
+                  tit = e.find('a:title', NS)
+                  pub = e.find('a:published', NS)
+                  grp = e.find('media:group', NS)
+                  des = grp.find('media:description', NS) if grp is not None else None
+                  if vid is None or tit is None:
+                      continue
+                  texto = (des.text or '') if des is not None else ''
+                  texto = texto.strip().replace('\r', '')
+                  videos.append({
+                      'yt': vid.text,
+                      'titulo': (tit.text or '').strip(),
+                      'fecha': (pub.text or '')[:10] if pub is not None else '',
+                      'desc': texto[:600]
+                  })
+          except Exception as ex:
+              print('No se pudo leer el canal:', ex)
+              raise SystemExit(0)   # no rompemos el sitio si YouTube falla
+
+          # Conservar los que ya estaban (el RSS solo trae los 15 más recientes)
+          try:
+              with open('videos.js', 'r', encoding='utf-8') as f:
+                  viejo = f.read()
+              m = re.search(r'const VIDEOS = (\[.*?\]);', viejo, re.S)
+              if m:
+                  previos = json.loads(m.group(1))
+                  ids = {v['yt'] for v in videos}
+                  for v in previos:
+                      if v.get('yt') and v['yt'] not in ids:
+                          videos.append(v)
+          except Exception:
+              pass
+
+          videos.sort(key=lambda v: v.get('fecha',''), reverse=True)
+
+          salida = (
+              '/* Videos del canal Ad Fontes Project - ACTUALIZADO AUTOMATICAMENTE.\n'
+              '   No edites este archivo a mano: se regenera solo desde YouTube.\n'
+              '   Para anadir texto explicativo o pasajes a un video, usa recursos.js */\n'
+              'const VIDEOS = ' + json.dumps(videos, ensure_ascii=False, indent=1) + ';\n'
+              "const CANAL = { id: '" + CANAL + "', url: 'https://www.youtube.com/@AdFontesProject' };\n"
+          )
+          with open('videos.js', 'w', encoding='utf-8') as f:
+              f.write(salida)
+          print('Videos sincronizados:', len(videos))
+          EOF
+
+      - name: Publicar si hubo cambios
+        run: |
+          git config user.name "Ad Fontes Bot"
+          git config user.email "actions@github.com"
+          git add videos.js
+          git diff --staged --quiet || git commit -m "Sincronizar videos de YouTube"
+          git push
