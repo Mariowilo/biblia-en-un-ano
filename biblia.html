@@ -105,6 +105,34 @@ h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weigh
   .panel{position:fixed;inset:auto 0 0 0;width:100%;max-height:70vh;border-radius:16px 16px 0 0;z-index:120;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
   .buscador .atajo{display:none}
 }
+@media(max-width:680px){
+  html,body{overflow-x:hidden;max-width:100%}
+  body{font-size:17px}
+  .topbar{flex-wrap:wrap;gap:.45rem;padding:.5rem .7rem}
+  .brand{font-size:1rem}.brand img{width:26px;height:26px}
+  .brand small{font-size:.48rem;letter-spacing:.16em}
+  .buscador{order:5;flex:1 0 100%;max-width:none;margin:0}
+  .buscador>button{padding:.45rem .7rem;font-size:.76rem}
+  .volver{font-size:.66rem;padding:.32rem .5rem;margin-left:auto}
+  .volver + .volver{margin-left:0}
+  .pagina{padding:1rem .8rem 6rem;gap:1rem}
+  .columna-texto{max-width:100%}
+  .selector-linea{gap:.3rem}
+  .sel-chip{padding:.4rem .7rem;font-size:.8rem}
+  .nav-cap button{width:32px;height:32px}
+  .cinta-plan{font-size:.75rem;padding:.55rem .7rem}
+  .cinta-plan button{margin-left:0;width:100%;justify-content:center}
+  h1.cap-titulo{font-size:1.6rem}
+  .verso{gap:.5rem;padding:.4rem .25rem}
+  .verso .n{min-width:1.2rem}
+  .panel{max-height:76vh}
+  .capa .cuerpo{font-size:.94rem}
+  .tarjeta{max-height:84vh}
+  .libros{grid-template-columns:1fr}
+  .caps-grid{padding:.8rem 1rem}
+  .caps-grid button{width:38px;height:36px;font-size:.75rem}
+  .overlay{padding:4vh .7rem 1rem}
+}
 </style>
 </head>
 <body>

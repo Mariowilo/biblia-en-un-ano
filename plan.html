@@ -79,6 +79,29 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 .res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
 .res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+@media(max-width:680px){
+  html,body{overflow-x:hidden;max-width:100%}
+  body{font-size:17px}
+  .topbar{flex-wrap:wrap;gap:.45rem;padding:.5rem .7rem}
+  .brand{font-size:1rem}.brand img{width:26px;height:26px}
+  .brand small{font-size:.48rem;letter-spacing:.16em}
+  .buscador{order:5;flex:1 0 100%;max-width:none;margin:0}
+  .buscador>button{padding:.45rem .7rem;font-size:.76rem}
+  .enlace-top{font-size:.66rem;padding:.32rem .5rem}
+  .enlace-top:first-of-type{margin-left:auto}
+  .pagina{padding:1.2rem .8rem 4rem}
+  h1.dia-titulo{font-size:1.5rem}
+  .lect-card,.sec{padding:1rem 1.1rem}
+  .sec p{text-align:left}
+  .btn{font-size:.78rem;padding:.55rem .85rem}
+  .btn-ok{margin-left:0;width:100%;justify-content:center}
+  .banner-ok{font-size:.78rem}
+  .banner-ok button{margin-left:0;width:100%}
+  .dia-nav{gap:.4rem}
+  .dia-nav button{font-size:.74rem;padding:.5rem .55rem;flex:1}
+  .overlay{padding:4vh .7rem 1rem}
+  .tarjeta{max-height:84vh}
+}
 </style>
 </head>
 <body>

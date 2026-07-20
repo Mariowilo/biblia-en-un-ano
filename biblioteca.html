@@ -91,6 +91,28 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 .res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
 .res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+@media(max-width:680px){
+  html,body{overflow-x:hidden;max-width:100%}
+  body{font-size:17px}
+  .topbar{flex-wrap:wrap;gap:.45rem;padding:.5rem .7rem}
+  .brand{font-size:1rem}.brand img{width:26px;height:26px}
+  .brand small{font-size:.48rem;letter-spacing:.16em}
+  .buscador{order:5;flex:1 0 100%;max-width:none;margin:0}
+  .buscador>button{padding:.45rem .7rem;font-size:.76rem}
+  .enlace-top{font-size:.66rem;padding:.32rem .5rem}
+  .enlace-top:first-of-type{margin-left:auto}
+  .pagina{padding:1.2rem .8rem 4rem}
+  .hero h1{font-size:1.8rem}
+  .estantes{grid-template-columns:1fr}
+  .estante{padding:1.1rem 1.2rem}
+  .doc{padding:1.2rem 1.2rem}
+  .doc h2{font-size:1.45rem}
+  .pill{font-size:.75rem;padding:.4rem .7rem}
+  .num-grid button{width:36px;height:34px;font-size:.73rem}
+  .tarjeta-lib{padding:.95rem 1.1rem}
+  .overlay{padding:4vh .7rem 1rem}
+  .tarjeta{max-height:84vh}
+}
 </style>
 </head>
 <body>
