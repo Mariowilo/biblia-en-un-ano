@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAQUETA · Ad Fontes — Fase 1</title>
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
+  --line:#e6dfd2; --green:#3e7a4e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
+
+/* ---- Aviso maqueta ---- */
+.maqueta-tag{position:fixed;bottom:14px;left:14px;z-index:200;background:#b33;color:#fff;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.1em;padding:.35rem .7rem;border-radius:6px;box-shadow:0 3px 12px rgba(0,0,0,.3)}
+
+/* ---- Barra superior ---- */
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.buscador{flex:1;max-width:560px;margin:0 auto}
+.buscador button{width:100%;display:flex;align-items:center;gap:.6rem;background:#333;border:1px solid #4a4a4a;border-radius:9px;padding:.5rem .8rem;color:#9a948a;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;text-align:left}
+.buscador button:hover{border-color:var(--gold)}
+.buscador .atajo{margin-left:auto;font-size:.62rem;border:1px solid #555;border-radius:4px;padding:.05rem .35rem;color:#777}
+.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);background:#555 url('Logo%20Ad%20Fontes.png') center/cover;flex-shrink:0;cursor:pointer}
+
+/* ---- Página de capítulo ---- */
+.pagina{max-width:1200px;margin:0 auto;padding:1.6rem 1rem 5rem;display:flex;gap:2rem;justify-content:center}
+.columna-texto{max-width:660px;flex:1;min-width:0}
+
+.selector-linea{display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;font-family:'Inter',sans-serif}
+.sel-chip{background:#fff;border:1px solid var(--line);border-radius:9px;padding:.45rem .9rem;font-size:.88rem;font-weight:600;color:var(--carbon);cursor:pointer;display:flex;align-items:center;gap:.4rem}
+.sel-chip:hover{border-color:var(--gold)}
+.sel-chip span{color:var(--ink-soft);font-size:.7rem}
+.sel-version{margin-left:auto;background:var(--cream);border:1px solid var(--line);border-radius:9px;padding:.45rem .8rem;font-size:.74rem;color:#7a5b1e;cursor:pointer}
+.nav-cap{display:flex;gap:.3rem}
+.nav-cap button{background:#fff;border:1px solid var(--line);border-radius:9px;width:34px;height:34px;cursor:pointer;color:var(--ink-soft);font-size:.9rem}
+.nav-cap button:hover{border-color:var(--gold)}
+
+.cinta-plan{display:flex;align-items:center;gap:.7rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:9px;padding:.6rem .9rem;margin-bottom:1.4rem;font-family:'Inter',sans-serif;font-size:.8rem;color:#2c4a34}
+.cinta-plan button{margin-left:auto;background:var(--green);color:#fff;border:none;border-radius:7px;padding:.45rem .9rem;font-size:.76rem;font-weight:600;cursor:pointer;white-space:nowrap}
+
+h1.cap-titulo{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:600;color:var(--carbon);margin-bottom:.2rem}
+.cap-sub{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);letter-spacing:.14em;text-transform:uppercase;margin-bottom:1.5rem}
+
+.verso{display:flex;gap:.8rem;padding:.5rem .6rem;border-radius:9px;cursor:pointer;transition:background .15s}
+.verso:hover{background:#f3eee3}
+.verso.activo{background:#f6f0e0;outline:1px solid var(--gold)}
+.verso .n{font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;color:var(--gold);min-width:1.4rem;text-align:right;padding-top:.45rem;flex-shrink:0}
+.verso p{flex:1}
+.pista{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);text-align:center;margin-top:1.6rem;opacity:.8}
+
+/* ---- Panel de estudio ---- */
+.panel{width:400px;flex-shrink:0;position:sticky;top:70px;align-self:flex-start;max-height:calc(100vh - 90px);overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.08);display:none}
+.panel.abierto{display:block}
+.panel-cab{display:flex;align-items:center;padding:.9rem 1.1rem;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);border-radius:14px 14px 0 0}
+.panel-cab h2{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--carbon)}
+.panel-cab button{margin-left:auto;background:none;border:none;font-size:1rem;cursor:pointer;color:var(--ink-soft)}
+.capa{border-bottom:1px solid #f0ebe0}
+.capa summary{list-style:none;display:flex;align-items:center;gap:.55rem;padding:.85rem 1.1rem;cursor:pointer;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;color:var(--carbon)}
+.capa summary::-webkit-details-marker{display:none}
+.capa summary .flecha{margin-left:auto;color:var(--ink-soft);font-size:.7rem;transition:transform .2s}
+.capa[open] summary .flecha{transform:rotate(90deg)}
+.capa .cuerpo{padding:.2rem 1.1rem 1rem;font-size:.98rem}
+.capa .fuente{font-family:'Inter',sans-serif;font-size:.68rem;color:#7a5b1e;margin-top:.3rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.chip{font-family:'Inter',sans-serif;font-size:.7rem;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:14px;padding:.2rem .6rem;cursor:pointer}
+.chip:hover{background:#efe4c8}
+.rec{display:block;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem;margin-top:.4rem;text-decoration:none;cursor:pointer}
+.rec:hover{border-color:var(--gold)}
+.rec small{color:var(--ink-soft);display:block;font-size:.66rem}
+
+/* ---- Overlays: libros y ⌘K ---- */
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:8vh 1rem 1rem}
+.overlay.abierto{display:flex}
+.tarjeta{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:680px;max-height:78vh;overflow:auto}
+.tarjeta-cab{padding:1rem 1.3rem;border-bottom:1px solid var(--line);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;color:var(--ink-soft);display:flex;align-items:center}
+.tarjeta-cab input{flex:1;border:none;outline:none;font-family:'EB Garamond',serif;font-size:1.15rem;color:var(--ink)}
+.libros{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:.6rem 0}
+.libros h4{grid-column:span 1;font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .3rem}
+.col-libros{display:flex;flex-direction:column;padding-bottom:.6rem}
+.libro{font-family:'EB Garamond',serif;font-size:1rem;padding:.32rem 1.3rem;cursor:pointer;color:var(--ink);border-radius:6px}
+.libro:hover{background:var(--cream);color:#7a5b1e}
+.libro.actual{color:#7a5b1e;font-weight:700}
+.grupo-res{padding:.5rem 0}
+.grupo-res h5{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding:.5rem 1.3rem .2rem}
+.res{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 1.3rem;cursor:pointer}
+.res:hover{background:var(--cream)}
+.res b{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--carbon)}
+.res span{font-size:.85rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(max-width:1020px){
+  .pagina{flex-direction:column}
+  .panel{position:fixed;inset:auto 0 0 0;width:100%;max-height:72vh;border-radius:16px 16px 0 0;z-index:120;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+}
+</style>
+</head>
+<body>
+
+<div class="maqueta-tag">MAQUETA · FASE 1 · NADA CONECTADO</div>
+
+<!-- Barra superior: marca + búsqueda omnipresente + yo -->
+<div class="topbar">
+  <div class="brand"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>SCRIPTURA</small></div></div>
+  <div class="buscador"><button onclick="abrir('ovBuscar')">🔍 Buscar pasaje, palabra o tema… <span class="atajo">⌘K</span></button></div>
+  <div class="avatar" title="Yo: plan, hermanos, ajustes"></div>
+</div>
+
+<div class="pagina">
+  <div class="columna-texto">
+
+    <!-- Selector de libro/capítulo + versión -->
+    <div class="selector-linea">
+      <button class="sel-chip" onclick="abrir('ovLibros')">Romanos <span>▾</span></button>
+      <button class="sel-chip" onclick="abrir('ovLibros')">8 <span>▾</span></button>
+      <div class="nav-cap"><button title="Capítulo anterior">‹</button><button title="Capítulo siguiente">›</button></div>
+      <button class="sel-version">RV-SBT ▾</button>
+    </div>
+
+    <!-- Cinta del plan: el plan como ruta, no como país -->
+    <div class="cinta-plan">📅 Este capítulo es parte de tu <strong>&nbsp;Día 339&nbsp;</strong> del plan <button>✓ Marcar como leído</button></div>
+
+    <h1 class="cap-titulo">Romanos 8</h1>
+    <div class="cap-sub">La carta de Pablo a los Romanos · 57 d.C.</div>
+
+    <!-- El texto: protagonista absoluto. Tocar un versículo abre el panel -->
+    <div class="verso" onclick="verso(this, 28)"><span class="n">28</span><p>Y sabemos que á los que á Dios aman, todas las cosas les ayudan á bien, es á saber, á los que conforme al propósito son llamados.</p></div>
+    <div class="verso activo" onclick="verso(this, 29)"><span class="n">29</span><p>Porque á los que antes conoció, también predestinó para que fuesen hechos conformes á la imagen de su Hijo, para que él sea el primogénito entre muchos hermanos;</p></div>
+    <div class="verso" onclick="verso(this, 30)"><span class="n">30</span><p>Y á los que predestinó, á éstos también llamó; y á los que llamó, á éstos también justificó; y á los que justificó, á éstos también glorificó.</p></div>
+    <div class="verso" onclick="verso(this, 31)"><span class="n">31</span><p>¿Pues qué diremos á esto? Si Dios por nosotros, ¿quién contra nosotros?</p></div>
+    <div class="verso" onclick="verso(this, 32)"><span class="n">32</span><p>El que aun á su propio Hijo no perdonó, antes le entregó por todos nosotros, ¿cómo no nos dará también con él todas las cosas?</p></div>
+    <div class="verso" onclick="verso(this, 33)"><span class="n">33</span><p>¿Quién acusará á los escogidos de Dios? Dios es el que justifica.</p></div>
+
+    <div class="pista">Toca cualquier versículo para estudiarlo · El texto siempre es el protagonista</div>
+  </div>
+
+  <!-- Panel de estudio: las 5 preguntas de la filosofía, en capas -->
+  <aside class="panel abierto" id="panel">
+    <div class="panel-cab"><h2>Romanos 8:29</h2><button onclick="document.getElementById('panel').classList.remove('abierto')">✕</button></div>
+
+    <details class="capa" open>
+      <summary>✒ ¿Qué significa? <span class="flecha">›</span></summary>
+      <div class="cuerpo">
+        La presciencia aquí no es previsión de nuestra fe, sino amor que conoce de antemano («conoció Jehová a los suyos»). Y nótese el fin de la predestinación: no meramente escapar del juicio, sino <em>ser conformes a la imagen del Hijo</em> — la elección es cristológica antes que escatológica.
+        <div class="fuente">Del estudio del Día 339 · Ad Fontes</div>
+      </div>
+    </details>
+
+    <details class="capa" open>
+      <summary>🔗 ¿Dónde más aparece esta idea? <span class="flecha">›</span></summary>
+      <div class="cuerpo">
+        <div class="chips"><span class="chip">Ef 1:4-5</span><span class="chip">2 Ti 1:9</span><span class="chip">Jn 6:37</span><span class="chip">1 P 1:2</span><span class="chip">Fil 1:6</span><span class="chip">1 Jn 3:2</span></div>
+        <div class="fuente">Referencias cruzadas · toca una para leerla sin salir</div>
+      </div>
+    </details>
+
+    <details class="capa">
+      <summary>📜 ¿Cómo lo entendió la Iglesia? <span class="flecha">›</span></summary>
+      <div class="cuerpo">
+        «Los eslabones no se mezclan ni se pierden: los mismos, los mismos, los mismos. Toda la cadena cuelga del propósito eterno.»
+        <div class="fuente">— John Owen, <em>La muerte de la muerte</em></div>
+        <div style="margin-top:.6rem">«El fin de la elección no es solo escapar del infierno, sino parecerse a Cristo.»</div>
+        <div class="fuente">— John Gill, <em>Exposición del NT</em></div>
+        <div class="chips" style="margin-top:.6rem"><span class="chip">Confesión 1689 · Cap. 3</span><span class="chip">+ 2 autores más</span></div>
+      </div>
+    </details>
+
+    <details class="capa">
+      <summary>📚 Recursos para profundizar <span class="flecha">›</span></summary>
+      <div class="cuerpo">
+        <a class="rec">📖 Comentario completo de Gill sobre Romanos 8<small>Biblioteca · en inglés</small></a>
+        <a class="rec">🎙 Spurgeon: «Llamamiento eficaz»<small>Sermón relacionado</small></a>
+        <a class="rec">📅 Día 339 del plan: Romanos 8-10<small>Estudio amplio del bloque</small></a>
+      </div>
+    </details>
+  </aside>
+</div>
+
+<!-- Overlay: selector de libros -->
+<div class="overlay" id="ovLibros" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">ELEGIR LIBRO Y CAPÍTULO</div>
+    <div class="libros">
+      <div><h4>Antiguo Testamento</h4><div class="col-libros">
+        <span class="libro">Génesis</span><span class="libro">Éxodo</span><span class="libro">Salmos</span><span class="libro">Isaías</span><span class="libro">Jeremías</span><span class="libro">Ezequiel</span><span class="libro" style="color:#bbb">… los 39</span>
+      </div></div>
+      <div><h4>Nuevo Testamento</h4><div class="col-libros">
+        <span class="libro">Mateo</span><span class="libro">Juan</span><span class="libro">Hechos</span><span class="libro actual">Romanos · cap. 8</span><span class="libro">Efesios</span><span class="libro">Hebreos</span><span class="libro" style="color:#bbb">… los 27</span>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay: búsqueda ⌘K -->
+<div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">🔍&nbsp;<input placeholder="Escribe: un pasaje, una palabra, un tema…" value="gracia"></div>
+    <div class="grupo-res"><h5>Ir al pasaje</h5>
+      <div class="res"><b>Efesios 2:8</b><span>Porque por gracia sois salvos por la fe…</span></div>
+    </div>
+    <div class="grupo-res"><h5>Estudios del plan · 47 resultados</h5>
+      <div class="res"><b>Día 1</b><span>La creación, el pacto de obras y la caída</span></div>
+      <div class="res"><b>Día 339</b><span>La cadena de oro y la seguridad del creyente</span></div>
+    </div>
+    <div class="grupo-res"><h5>Confesión de 1689</h5>
+      <div class="res"><b>Cap. 11</b><span>De la justificación — «solamente de gracia gratuita…»</span></div>
+    </div>
+    <div class="grupo-res"><h5>Autores</h5>
+      <div class="res"><b>Spurgeon</b><span>«Toda de gracia» — sobre Efesios 2:8-10</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function abrir(id){ document.getElementById(id).classList.add('abierto'); }
+function verso(el, n){
+  document.querySelectorAll('.verso').forEach(v => v.classList.remove('activo'));
+  el.classList.add('activo');
+  const p = document.getElementById('panel');
+  p.classList.add('abierto');
+  p.querySelector('h2').textContent = 'Romanos 8:' + n;
+}
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); abrir('ovBuscar'); }
+  if(e.key === 'Escape') document.querySelectorAll('.overlay.abierto').forEach(o => o.classList.remove('abierto'));
+});
+</script>
+</body>
+</html>
