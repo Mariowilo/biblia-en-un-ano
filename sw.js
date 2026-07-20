@@ -1,6 +1,6 @@
 /* Service Worker — La Biblia en un Año (PWA: sin conexión + notificaciones) */
-const CACHE = 'biblia365-v9';
-const FILES = ['./', 'index.html', 'biblia.html', 'plan.html', 'biblioteca.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'estudio.js', 'contextos.js', 'manifest.json', 'Logo Ad Fontes.png'];
+const CACHE = 'adfontes-v10';
+const FILES = ['./', 'index.html', 'biblia.html', 'plan.html', 'biblioteca.html', 'comunidad.html', 'plan.js', 'comentarios.js', 'confesiones.js', 'estudio.js', 'contextos.js', 'manifest.json', 'Logo Ad Fontes.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

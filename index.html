@@ -3,1308 +3,218 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ad Fontes — Estudio de la Escritura</title>
+<meta name="description" content="Ad Fontes · La mejor plataforma en español para el estudio serio de la Escritura desde una perspectiva histórico-gramatical y confesional reformada.">
+<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#262626">
 <link rel="apple-touch-icon" href="Logo%20Ad%20Fontes.png">
-<title>La Biblia en un Año — Lectura Cronológica</title>
-<meta name="description" content="Ad Fontes · Plan cronológico de lectura bíblica en 365 días con contexto histórico, cultural y análisis pactual. RVR60, NTV y RV-SBT.">
-<link rel="icon" type="image/png" href="Logo%20Ad%20Fontes.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#262626; --navy2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
-  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#5a5a5a;
+  --carbon:#262626; --carbon2:#383838; --gold:#b98d3e; --gold-light:#d8b571;
+  --cream:#faf7f1; --paper:#ffffff; --ink:#2b2b2b; --ink-soft:#6a6a6a;
   --line:#e6dfd2; --green:#3e7a4e;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:18px;line-height:1.65}
-.sans{font-family:'Inter',system-ui,sans-serif}
+body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.7}
 
-/* ---------- Header (compacto) ---------- */
-header{background:var(--navy);color:#fff;padding:1.1rem 1rem .9rem;text-align:center;border-bottom:3px solid var(--gold)}
-.head-bar{display:flex;justify-content:center;align-items:center;gap:.8rem}
-.logo-mini{width:44px;height:44px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
-header .kicker{font-family:'Inter',sans-serif;font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-light);text-align:left}
-header h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(1.35rem,3.5vw,1.8rem);line-height:1.1;text-align:left}
-header p.citas{font-family:'Cormorant Garamond',serif;font-style:italic;color:#cfc8bb;font-size:.86rem;max-width:820px;margin:.55rem auto 0;line-height:1.45}
-header p.citas b{color:#9a948a;font-family:'Inter',sans-serif;font-style:normal;font-weight:500;font-size:.62rem;letter-spacing:.08em}
-.progress-slim{max-width:520px;height:4px;background:#4a4a4a;border-radius:3px;overflow:hidden;margin:.75rem auto 0}
-.progress-bar{height:10px;background:#e8e2d5;border-radius:5px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;transition:width .5s}
-.progress-label{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--ink-soft);margin-top:.45rem}
-.share-wrap{margin-top:.4rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-family:'Inter',sans-serif;font-size:.8rem}
-.share-wrap input{padding:.45rem .7rem;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:'Inter',sans-serif;font-size:.8rem;width:170px}
-.share-wrap input::placeholder{color:#9a9a9a}
-.share-btn{background:#25d366;color:#0b3d1f;border:none;border-radius:6px;padding:.5rem .9rem;font-weight:600;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
-.login-wrap{margin-top:.4rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft)}
-.btn-login{background:#fff;color:var(--navy);border:1px solid var(--line);border-radius:6px;padding:.45rem .9rem;font-weight:600;font-size:.76rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem}
-.btn-login:hover{border-color:var(--gold);background:#faf6ec}
-.login-info{color:var(--green);font-weight:600}
-.sbt-reader{margin-top:1rem;display:none;border:1px solid #d8cfae;border-radius:10px;overflow:hidden;background:#fff}
-.sbt-reader.open{display:block}
-.sbt-caps{display:flex;gap:.4rem;flex-wrap:wrap;padding:.6rem;background:#f4efdf;border-bottom:1px solid #d8cfae}
-.sbt-cap{border:1px solid #b3a677;background:#fff;border-radius:20px;padding:.25rem .7rem;font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif}
-.sbt-cap.act{background:var(--navy);color:#fff;border-color:var(--navy)}
-.sbt-frame-holder iframe{width:100%;height:70vh;border:0;display:block}
-.sbt-foot{padding:.4rem .6rem;font-size:.72rem;text-align:right;background:#f4efdf;border-top:1px solid #d8cfae}
-.sbt-foot a{color:#6b5d33}
-.refs{margin:-.3rem 0 .8rem;display:flex;flex-wrap:wrap;gap:.35rem}
-.ref-chip{font-family:'Inter',sans-serif;font-size:.72rem;color:#7a5b1e;background:#f6f0e0;border:1px solid #dcc9a0;border-radius:14px;padding:.18rem .6rem;cursor:pointer}
-.ref-chip:hover{background:#efe4c8}
-#versoOverlay{position:fixed;inset:0;background:rgba(15,26,46,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
-#versoOverlay.open{display:flex}
-#versoBox{position:relative;background:#fff;border-radius:12px;max-width:600px;width:100%;max-height:72vh;overflow:auto;padding:1.4rem 1.6rem;box-shadow:0 10px 40px rgba(0,0,0,.35)}
-#versoTit{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.3rem;color:var(--navy);margin-bottom:.6rem;padding-right:1.5rem}
-#versoTxt p{margin-bottom:.5rem}
-#versoTxt sup{color:#a1802e;font-family:'Inter',sans-serif;font-size:.68rem;margin-right:.25rem}
-.verso-pie{margin-top:.9rem;font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft)}
-.verso-pie a{color:#7a5b1e}
-#versoCerrar{position:absolute;top:.6rem;right:.7rem;background:none;border:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft)}
-#bienvenida{position:fixed;inset:0;background:rgba(15,15,15,.62);display:none;align-items:center;justify-content:center;z-index:120;padding:1rem}
-#bienvenida.open{display:flex}
-#bienvenidaBox{background:#fff;border-radius:14px;max-width:430px;width:100%;padding:1.6rem 1.7rem;box-shadow:0 12px 50px rgba(0,0,0,.4);text-align:center}
-.bv-logo{width:64px;height:64px;border-radius:14px;margin:0 auto .6rem;display:block}
-#bienvenidaBox h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--navy);margin-bottom:.3rem}
-.bv-sub{font-family:'Inter',sans-serif;font-size:.82rem;color:var(--ink-soft);line-height:1.55;margin-bottom:1rem}
-.bv-google{width:100%;justify-content:center;padding:.7rem;font-size:.88rem;border:1.5px solid var(--navy)}
-.bv-saltar{background:none;border:none;color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;margin-top:.75rem;text-decoration:underline}
-#bvPaso2{text-align:left}
-#bvNombre{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:6px;font-family:'EB Garamond',serif;font-size:1rem}
-#bvPaso2 select{width:100%;font-family:'Inter',sans-serif;font-size:.85rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px}
-.bv-listo{width:100%;margin-top:1rem;padding:.65rem;font-size:.85rem}
-#muroForm textarea{width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:8px;font-family:'EB Garamond',serif;font-size:1rem;resize:vertical;margin-bottom:.4rem}
-.muro-post{border-bottom:1px dashed var(--line);padding:.6rem 0}
-.muro-post:last-child{border-bottom:none}
-.muro-cab{display:flex;align-items:center;gap:.6rem;font-family:'Inter',sans-serif;font-size:.78rem;margin-bottom:.25rem}
-.muro-nom{font-weight:600;color:var(--navy)}
-.muro-fec{color:var(--ink-soft)}
-.muro-borrar{margin-left:auto;background:none;border:none;cursor:pointer;font-size:.85rem;opacity:.55}
-.muro-borrar:hover{opacity:1}
-.muro-post p{font-size:1.02rem}
-.est-cita{border-bottom:1px dashed var(--line);padding:.55rem 0}
-.est-cita:last-of-type{border-bottom:none}
-.est-cita p{font-style:normal!important}
-.est-fuente{font-family:'Inter',sans-serif;font-size:.74rem;color:#7a5b1e;margin-top:.25rem;font-style:normal}
-.est-cruz{background:#f6f0e0;border-left:3px solid var(--gold);border-radius:6px;padding:.6rem .8rem;margin-top:.7rem;font-size:.95rem;font-style:normal}
-.est-vers{font-family:'Inter',sans-serif;font-size:.68rem;color:var(--ink-soft);font-weight:400}
-.est-res{padding:.5rem .2rem;border-bottom:1px dashed var(--line);cursor:pointer}
-.est-res:hover{background:var(--cream)}
-.est-res-et{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;color:#7a5b1e;background:#f6f0e0;border-radius:10px;padding:.1rem .5rem;margin-right:.4rem}
-.vv{display:flex;gap:.7rem;padding:.45rem 0;border-bottom:1px dashed #efe9dc;align-items:flex-start}
-.vv:last-child{border-bottom:none}
-.vv-n{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;color:#fff;background:var(--gold);border-radius:6px;min-width:1.7rem;text-align:center;padding:.15rem 0;margin-top:.3rem;flex-shrink:0}
-.vv p{margin:0;flex:1}
-.est-amplio{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:.4rem .9rem;margin-bottom:1.05rem}
-.est-amplio summary{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;color:var(--navy);cursor:pointer;padding:.5rem 0}
-.est-amplio[open] summary{border-bottom:1px solid var(--line);margin-bottom:.8rem}
-.est-amplio .sec{border:none;border-left:4px solid var(--gold);box-shadow:none;margin-bottom:.7rem}
-.muro-resp{margin:.5rem 0 0 1.3rem;padding:.5rem .7rem;background:var(--cream);border-left:3px solid var(--gold);border-radius:6px}
-.muro-resp p{font-size:.98rem}
-.muro-replybtn{background:none;border:none;color:#7a5b1e;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;margin-top:.4rem;padding:0}
-.muro-replybtn:hover{text-decoration:underline}
-.rform{display:flex;gap:.4rem;margin-top:.45rem}
-.rform input{flex:1;padding:.45rem .65rem;border:1px solid var(--line);border-radius:6px;font-family:'EB Garamond',serif;font-size:.98rem}
-.share-btn:hover{background:#2fe375}
-.share-btn.sec{background:transparent;color:var(--navy);border:1px solid var(--line)}
-.share-btn.sec:hover{border-color:var(--gold)}
-.share-name{color:var(--gold);font-weight:700}
+.topbar{position:sticky;top:0;z-index:100;background:var(--carbon);display:flex;align-items:center;gap:1rem;padding:.55rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:.55rem;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;white-space:nowrap;text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.brand small{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.25em;color:var(--gold-light);display:block;line-height:1}
+.buscador{flex:1;max-width:520px;margin:0 auto}
+.buscador>button{width:100%;display:flex;align-items:center;gap:.6rem;background:#333;border:1px solid #4a4a4a;border-radius:9px;padding:.5rem .8rem;color:#9a948a;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;text-align:left}
+.buscador>button:hover{border-color:var(--gold)}
+.avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--gold);background:#444 center/cover;flex-shrink:0;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;font-size:.9rem}
 
-/* ---------- Nav ---------- */
-nav{background:var(--navy2);position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-nav .inner{max-width:960px;margin:0 auto;display:flex;justify-content:center;gap:.25rem;flex-wrap:wrap}
-nav button{background:none;border:none;color:#cfcac2;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;padding:.85rem 1.2rem;cursor:pointer;border-bottom:3px solid transparent}
-nav button:hover{color:#fff}
-nav button.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+.hero{text-align:center;padding:2.6rem 1rem 1.4rem;max-width:760px;margin:0 auto}
+.hero .lema{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.1rem,6vw,3.1rem);font-weight:600;color:var(--carbon);line-height:1.1;margin:.35rem 0 .5rem}
+.hero p.sub{color:var(--ink-soft);font-style:italic;font-size:1.05rem;max-width:600px;margin:0 auto}
+.citas{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-soft);font-size:.9rem;margin-top:.9rem;line-height:1.5}
+.citas b{font-family:'Inter',sans-serif;font-style:normal;font-weight:500;font-size:.6rem;letter-spacing:.08em;color:#9a948a}
 
-main{max-width:860px;margin:0 auto;padding:2rem 1rem 4rem}
-.view{display:none}.view.active{display:block}
+.pagina{max-width:1000px;margin:0 auto;padding:0 1rem 5rem}
 
-/* ---------- Day view ---------- */
-.day-head{text-align:center;margin-bottom:1.4rem}
-.etapa-tag{display:inline-block;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:.3rem .9rem;border-radius:2rem;margin-bottom:.7rem}
-.day-num{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--ink-soft)}
-.day-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,4.4vw,2.35rem);font-weight:600;color:var(--navy);line-height:1.2;margin:.25rem 0 .3rem}
-.day-date{font-style:italic;color:var(--ink-soft);font-size:.95rem}
+/* Tarjeta "hoy" */
+.hoy{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:1.5rem 1.6rem;margin-bottom:1.4rem;box-shadow:0 3px 16px rgba(0,0,0,.05)}
+.hoy .et{font-family:'Inter',sans-serif;font-size:.64rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.hoy h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.45rem,3.6vw,1.95rem);font-weight:600;color:var(--carbon);line-height:1.2;margin:.3rem 0 .1rem}
+.hoy .lect{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--ink-soft);margin-bottom:1rem}
+.hoy .acciones{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+.btn{font-family:'Inter',sans-serif;font-size:.83rem;font-weight:600;text-decoration:none;padding:.62rem 1.15rem;border-radius:10px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-pri{background:var(--carbon);color:#fff}.btn-pri:hover{background:var(--carbon2)}
+.btn-sec{background:#fff;color:var(--carbon);border:1.5px solid var(--line)}.btn-sec:hover{border-color:var(--gold)}
+.mini-prog{margin-top:1rem}
+.mini-prog .b{height:7px;background:#efe9dc;border-radius:4px;overflow:hidden}
+.mini-prog .b div{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%}
+.mini-prog .t{font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);margin-top:.35rem}
 
-.lecturas-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.4rem 1.5rem;margin-bottom:1.3rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.lecturas-card h3{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.7rem}
-.lect-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
-.lect-chip{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.15rem;background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:.35rem .85rem;color:var(--navy)}
-.ver-buttons{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
-.btn{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;text-decoration:none;padding:.6rem 1.15rem;border-radius:6px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:.4rem}
-.btn-rvr{background:var(--navy);color:#fff}.btn-rvr:hover{background:var(--navy2)}
-.btn-lbla{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}.btn-lbla:hover{background:var(--cream)}
-.btn-sbt{background:#fff;color:#7a5b1e;border:1.5px solid var(--gold)}.btn-sbt:hover{background:#faf3e3}
-.btn-check{background:#fff;border:1.5px solid var(--green);color:var(--green);margin-left:auto}
-.btn-check.done{background:var(--green);color:#fff}
-#burbuja{position:fixed;top:.7rem;right:.8rem;z-index:95;width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;color:var(--navy);overflow:hidden;font-size:1.05rem}
-#burbuja img{width:100%;height:100%;object-fit:cover}
-#ajustesPanel{position:fixed;top:62px;right:.8rem;z-index:94;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:1rem 1.1rem;width:min(330px,92vw);display:none}
-#ajustesPanel.open{display:block}
-#ajustesPanel h4{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.2rem;margin-bottom:.4rem}
-.aj-label{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);margin:.75rem 0 .35rem}
-.aj-chips{display:flex;flex-wrap:wrap;gap:.35rem}
-.aj-sec{font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border-top:1px solid var(--line);padding-top:.7rem;margin-top:.8rem}
-.aj-sec:first-of-type{border-top:none;margin-top:.2rem;padding-top:0}
-#horaSel{font-family:'Inter',sans-serif;font-size:.85rem;padding:.45rem .6rem;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);width:100%}
-#ajustesPanel .login-wrap{margin-top:.5rem}
-.done-banner{margin-top:1rem;background:#eef6ef;border:1px solid #bcd8c0;border-left:4px solid var(--green);border-radius:8px;padding:.85rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;font-family:'Inter',sans-serif;font-size:.85rem;color:#2c4a34}
-.done-banner strong{color:var(--navy)}
-.btn-next{background:var(--green);color:#fff;border:none;margin-left:auto}
-.btn-next:hover{background:#346a43}
+/* Puertas */
+.puertas{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+.puerta{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.4rem;text-decoration:none;color:inherit;transition:border-color .15s,transform .15s;display:block}
+.puerta:hover{border-color:var(--gold);transform:translateY(-2px)}
+.puerta .ic{font-size:1.5rem}
+.puerta h3{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:700;color:var(--carbon);margin:.4rem 0 .2rem}
+.puerta p{font-family:'Inter',sans-serif;font-size:.79rem;color:var(--ink-soft);line-height:1.55}
 
-.sec{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:1.35rem 1.5rem;margin-bottom:1.05rem}
-.sec h3{font-family:'Cormorant Garamond',serif;font-size:1.32rem;font-weight:700;color:var(--navy);margin-bottom:.5rem;display:flex;align-items:center;gap:.55rem}
-.sec h3 .ico{font-size:1rem;color:var(--gold)}
-.sec p{color:var(--ink);text-align:justify}
-.sec.voces{border-left-color:var(--navy);background:#f4f1ea}
-.sec.voces p{font-style:italic}
-.sec.pregunta{border-left-color:var(--green);background:#f2f6f2}
-.sec.pregunta p{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#2c4a34;text-align:left}
-.no-com{background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:1.6rem;text-align:center;color:var(--ink-soft);font-style:italic}
+footer{background:var(--carbon);color:#a8a29a;text-align:center;font-family:'Inter',sans-serif;font-size:.72rem;padding:1.8rem 1rem;line-height:1.9}
+footer a{color:var(--gold-light);text-decoration:none}
 
-.day-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:1.8rem}
-.day-nav button{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;background:#fff;border:1px solid var(--line);border-radius:6px;padding:.65rem 1.1rem;cursor:pointer;color:var(--navy)}
-.day-nav button:hover{border-color:var(--gold)}
-.day-nav button:disabled{opacity:.35;cursor:default}
-
-/* ---------- Plan view ---------- */
-.plan-controls{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.6rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;font-family:'Inter',sans-serif;font-size:.85rem}
-.plan-controls label{font-weight:600;color:var(--navy)}
-.plan-controls input[type=date]{font-family:'Inter',sans-serif;padding:.4rem .6rem;border:1px solid var(--line);border-radius:6px}
-.plan-controls input[type=text]{font-family:'Inter',sans-serif;padding:.5rem .7rem;border:1px solid var(--line);border-radius:6px;min-width:190px}
-.mini-btn{font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;padding:.4rem .8rem;border-radius:6px;cursor:pointer;border:1.5px solid var(--navy);background:#fff;color:var(--navy)}
-.mini-btn.principal{background:var(--navy);color:#fff}
-.mini-btn:hover{border-color:var(--gold)}
-#pasajeResultado{font-family:'Inter',sans-serif;font-size:.85rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;width:100%}
-#pasajeResultado.err{color:#a33}
-.t-fila{display:flex;align-items:center;gap:.6rem;width:100%;padding:.34rem 0;border-bottom:1px dashed var(--line);font-family:'Inter',sans-serif;font-size:.82rem}
-.t-nom{min-width:130px;font-weight:600;color:var(--navy)}
-.t-bar{flex:1;height:8px;background:var(--cream);border:1px solid var(--line);border-radius:4px;overflow:hidden}
-.t-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
-.t-dat{min-width:95px;text-align:right;color:var(--ink-soft)}
-.t-verso{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;color:var(--ink-soft);line-height:1.5;margin:-.2rem 0 .4rem}
-.t-hoy{font-family:'Inter',sans-serif;font-style:normal;font-size:.64rem;font-weight:600;background:#e9f2ea;color:var(--green);border:1px solid #bcd8c0;border-radius:10px;padding:.08rem .45rem;margin-left:.3rem;vertical-align:middle}
-.etapa-block{margin-bottom:1.7rem}
-.etapa-block h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--navy);border-bottom:2px solid var(--gold);display:inline-block;padding-bottom:.15rem;margin-bottom:.75rem}
-.dias-grid{display:flex;flex-wrap:wrap;gap:.45rem}
-.dia-pill{font-family:'Inter',sans-serif;font-size:.78rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:.42rem .6rem;cursor:pointer;color:var(--ink);min-width:52px;text-align:center;line-height:1.35}
-.dia-pill small{display:block;color:var(--ink-soft);font-size:.66rem}
-.dia-pill:hover{border-color:var(--gold)}
-.dia-pill.done{background:#e9f2ea;border-color:var(--green);color:var(--green)}
-.dia-pill.today{outline:2px solid var(--gold);outline-offset:1px}
-.dia-pill.has-com{position:relative}
-.dia-pill.has-com::after{content:"✦";color:var(--gold);font-size:.6rem;position:absolute;top:2px;right:4px}
-
-/* ---------- About ---------- */
-.about{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1.8rem 1.9rem}
-.about h2{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.6rem;margin-bottom:.6rem}
-.about h3{font-family:'Cormorant Garamond',serif;color:var(--navy);font-size:1.25rem;margin:1.1rem 0 .35rem}
-.about p{margin-bottom:.7rem;text-align:justify}
-.about .verse{font-style:italic;color:var(--navy);border-left:3px solid var(--gold);padding-left:1rem;margin:1rem 0}
-
-footer{background:var(--navy);color:#a8a29a;text-align:center;font-family:'Inter',sans-serif;font-size:.75rem;padding:1.6rem 1rem;line-height:1.8}
-footer a{color:var(--gold-light)}
-@media(max-width:560px){ .btn-check{margin-left:0;width:100%;justify-content:center} .ver-buttons{flex-direction:column;align-items:stretch} .btn{justify-content:center} }
+.overlay{position:fixed;inset:0;background:rgba(20,18,14,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;z-index:150;padding:7vh 1rem 1rem}
+.overlay.abierto{display:flex}
+.tarjeta{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:680px;max-height:78vh;overflow:auto}
+.tarjeta-cab{padding:.9rem 1.3rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.6rem;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0}
+.tarjeta-cab input{flex:1;border:none;outline:none;font-family:'EB Garamond',serif;font-size:1.15rem;color:var(--ink);background:transparent}
+.grupo h5{font-family:'Inter',sans-serif;font-size:.62rem;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;padding:.6rem 1.3rem .2rem}
+.res{display:flex;align-items:baseline;gap:.6rem;padding:.5rem 1.3rem;cursor:pointer}
+.res:hover{background:var(--cream)}
+.res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
+.res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="head-bar">
-    <img class="logo-mini" src="Logo%20Ad%20Fontes.png" alt="Emblema" onerror="this.style.display='none'">
-    <div>
-      <div class="kicker">Ad Fontes · Plan cronológico · 365 días</div>
-      <h1>La Biblia en un Año</h1>
-    </div>
-  </div>
+<div class="topbar">
+  <a class="brand" href="index.html"><img src="Logo%20Ad%20Fontes.png" alt=""><div>Ad Fontes<small>SCRIPTURA</small></div></a>
+  <div class="buscador"><button onclick="abrirBuscar()">🔍 Buscar pasaje, palabra o tema…</button></div>
+  <a class="avatar" href="comunidad.html" id="avatar" title="Mi cuenta y comunidad">👤</a>
+</div>
+
+<div class="hero">
+  <div class="lema">Ad fontes · a las fuentes</div>
+  <h1>La Escritura, estudiada en serio</h1>
+  <p class="sub">Toda la Biblia en un año, con contexto histórico y cultural, análisis narrativo, teología pactual y las voces de la Iglesia — en español, gratis, sin distracciones.</p>
   <p class="citas">«Lámpara es a mis pies tu palabra, y lumbrera a mi camino» <b>SAL 119:105</b>&ensp;·&ensp;«La discreción del hombre le hace lento para la ira, y su gloria es pasar por alto una ofensa» <b>PR 19:11</b></p>
-  <div class="progress-slim"><div class="progress-fill" id="progressFill"></div></div>
-</header>
-
-<div id="burbuja" title="Ajustes" onclick="toggleAjustes()">👤</div>
-<div id="ajustesPanel">
-  <h4>⚙️ Ajustes</h4>
-  <div class="aj-sec">Cuenta</div>
-  <div class="login-wrap" id="loginBox"></div>
-  <div class="aj-sec">Notificaciones</div>
-  <div class="login-wrap" id="notifBox"></div>
-  <div id="horarioBox">
-    <div class="aj-label">🕖 Hora exacta de tu recordatorio diario:</div>
-    <select id="horaSel" onchange="guardarHora(this.value)"></select>
-  </div>
-  <div class="aj-sec">Información</div>
-  <button class="btn-login" onclick="document.getElementById('ajustesPanel').classList.remove('open'); showView('acerca')">📜 Acerca del plan</button>
-  <div class="aj-sec">Lectura</div>
-  <div class="aj-label">🔠 Tamaño de letra:</div>
-  <div class="aj-chips" id="fuenteChips">
-    <button class="mini-btn" data-f="16" onclick="guardarFuente('16')">Pequeña</button>
-    <button class="mini-btn" data-f="18" onclick="guardarFuente('18')">Normal</button>
-    <button class="mini-btn" data-f="20" onclick="guardarFuente('20')">Grande</button>
-  </div>
 </div>
 
-<nav>
-  <div class="inner">
-    <button onclick="location.href='biblia.html'">📖 Biblia</button>
-    <button onclick="location.href='biblioteca.html'">📚 Biblioteca</button>
-    <button id="navHoy" class="active" onclick="showView('hoy')">Lectura del día</button>
-    <button id="navPlan" onclick="showView('plan')">Plan completo</button>
-    <button id="navEstudio" onclick="showView('estudio')">Estudio</button>
-    <button id="navAvance" onclick="showView('avance')">Mi avance</button>
-    <button id="navConf" onclick="showView('conf')">Confesiones</button>
-  </div>
-</nav>
+<div class="pagina">
+  <div class="hoy" id="tarjetaHoy"></div>
 
-<main>
-  <!-- ===== Vista del día ===== -->
-  <section id="view-hoy" class="view active"></section>
-
-  <!-- ===== Vista Mi avance ===== -->
-  <section id="view-avance" class="view">
-    <div class="plan-controls" style="flex-direction:column;align-items:stretch;gap:.6rem">
-      <label>📊 Mi progreso</label>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill2"></div></div>
-      <div class="progress-label" id="progressLabel"></div>
-      <div class="share-wrap" id="shareWrap"></div>
-      <div class="login-wrap"><button class="btn-login" onclick="toggleAjustes()">⚙️ Cuenta, notificaciones y horario</button></div>
-    </div>
-    <div class="plan-controls" id="tableroCard" style="flex-direction:column;align-items:flex-start">
-      <label>🤝 Hermanos en el camino</label>
-      <div class="t-verso">«Y considerémonos unos a otros para estimularnos al amor y a las buenas obras» — Hebreos 10:24. Cada uno corre su propio año; lo que celebramos es la constancia de cada día.</div>
-      <div id="tablero" style="width:100%"></div>
-    </div>
-    <div class="plan-controls" style="flex-direction:column;align-items:stretch;gap:.6rem">
-      <label>✍️ Muro de los hermanos</label>
-      <div id="muroForm"></div>
-      <div id="muroLista"></div>
-    </div>
-  </section>
-
-  <!-- ===== Vista del plan ===== -->
-  <section id="view-plan" class="view">
-    <div class="plan-controls">
-      <label for="pasajeInput">¿Ya venías leyendo? Escribe el pasaje donde vas:</label>
-      <input type="text" id="pasajeInput" placeholder="p. ej. Éxodo 12" onkeydown="if(event.key==='Enter')buscarPasaje()">
-      <button class="mini-btn principal" onclick="buscarPasaje()">Buscar mi día</button>
-      <span id="pasajeResultado"></span>
-    </div>
-    <div class="plan-controls">
-      <label for="startDate">Fecha de inicio del plan:</label>
-      <input type="date" id="startDate" onchange="setStartDate(this.value)">
-      <span style="color:var(--ink-soft)">✦ = día con estudio profundo disponible</span>
-    </div>
-    <div id="planList"></div>
-  </section>
-
-  <!-- ===== Estudio ===== -->
-  <section id="view-estudio" class="view">
-    <div class="plan-controls">
-      <label for="estInput">📖 Estudiar un pasaje:</label>
-      <input type="text" id="estInput" placeholder="p. ej. Romanos 8:29" onkeydown="if(event.key==='Enter')estudiarPasaje()">
-      <button class="mini-btn principal" onclick="estudiarPasaje()">Estudiar</button>
-    </div>
-    <div class="plan-controls">
-      <label for="estPalabra">🔍 Buscar una palabra en todo el sitio:</label>
-      <input type="text" id="estPalabra" placeholder="p. ej. pacto, propiciación" onkeydown="if(event.key==='Enter')buscarPalabraEst()">
-      <button class="mini-btn principal" onclick="buscarPalabraEst()">Buscar</button>
-    </div>
-    <div id="estResultado"><div class="no-com">Escribe un pasaje (p. ej. «Romanos 8:29») para ver el texto, lo que dijeron Calvino, Owen, Watson, Bunyan, Gill, Edwards y Spurgeon, y enlaces a sus comentarios completos.<br>O busca una palabra en los 365 estudios, las confesiones y la base de autores.</div></div>
-  </section>
-
-  <!-- ===== Confesiones ===== -->
-  <section id="view-conf" class="view">
-    <div class="plan-controls" style="gap:.5rem">
-      <button class="mini-btn principal" id="confBtnLbc" onclick="verConf('lbc')">Bautista de Londres · 1689</button>
-      <button class="mini-btn" id="confBtnWest" onclick="verConf('west')">Westminster · 1647</button>
-    </div>
-    <div class="plan-controls" id="confCaps" style="gap:.35rem"></div>
-    <div id="confTexto"></div>
-  </section>
-
-  <!-- ===== Acerca ===== -->
-  <section id="view-acerca" class="view">
-    <div class="about">
-      <h2>Acerca de este plan</h2>
-      <p>Este es un plan de lectura <strong>cronológico</strong>: recorre la Escritura siguiendo el orden histórico de los acontecimientos. Job se lee junto a Génesis (era patriarcal), los Salmos junto a la vida de David, los profetas junto a los reyes bajo los cuales ministraron, y las epístolas entretejidas con el libro de los Hechos. Así el lector ve la historia de la redención desplegarse como un solo relato: la promesa hecha en Edén (Gn 3:15), jurada a Abraham, tipificada en Moisés y David, anunciada por los profetas y cumplida en Cristo.</p>
-      <div class="verse">«Y comenzando desde Moisés, y siguiendo por todos los profetas, les declaraba en todas las Escrituras lo que de él decían.» — Lucas 24:27</div>
-      <h3>Las versiones</h3>
-      <p>Cada día encontrarás botones para leer el pasaje en <strong>Reina-Valera 1960 (RVR60)</strong>, en la <strong>Nueva Traducción Viviente (NTV)</strong> y en la <strong>Reina Valera de la Sociedad Bíblica Trinitaria (RV-SBT)</strong>. Las dos primeras se abren en Bible Gateway y la tercera en el lector oficial de la SBT (tbsonlinebible.com), respetando los derechos de las sociedades bíblicas que custodian estas traducciones. El enlace RV-SBT abre en el primer capítulo de la lectura del día; desde allí se avanza capítulo a capítulo en el propio lector.</p>
-      <h3>El estudio profundo</h3>
-      <p>Los días marcados con ✦ incluyen cinco secciones de estudio: <em>contexto histórico</em> (cuándo y dónde ocurre el pasaje), <em>contexto cultural</em> (costumbres, derecho y mundo del antiguo Cercano Oriente), <em>análisis narrativo</em> (cómo está construido el texto y qué destaca), <em>teología bíblica y pactual</em> (el lugar del pasaje en la historia de la redención y su cumplimiento en Cristo) y <em>voces</em> (citas y referencias de autores puritanos y reformados: Matthew Henry, John Gill, John Owen, Nehemiah Coxe, Thomas Watson, Joseph Caryl, Spurgeon, entre otros). Cierra una pregunta de meditación personal.</p>
-      <p>La línea teológica del estudio es <strong>bautista reformada y confesional</strong> (Confesión de Fe de Londres de 1689), con lectura expositiva y pactual de la Escritura.</p>
-      <h3>Tu progreso</h3>
-      <p>Marca cada día como leído y tu avance se guarda en este navegador. En «Plan completo» puedes fijar tu fecha de inicio para que la página calcule automáticamente qué día te corresponde hoy.</p>
-    </div>
-  </section>
-</main>
-
-<div id="bienvenida">
-  <div id="bienvenidaBox">
-    <img class="bv-logo" src="Logo%20Ad%20Fontes.png" alt="Ad Fontes" onerror="this.style.display='none'">
-    <h3>Bienvenido a Ad Fontes</h3>
-    <p class="bv-sub">Toda la Escritura en un año, con estudio profundo cada día. Crea tu cuenta para guardar tu avance en la nube, aparecer entre los hermanos en el camino y recibir tu recordatorio diario de lectura.</p>
-    <div id="bvPaso1">
-      <button class="btn-login bv-google" onclick="loginGoogle()">🔑 Continuar con Google</button>
-      <br><button class="bv-saltar" onclick="cerrarBienvenida()">Explorar sin cuenta →</button>
-    </div>
-    <div id="bvPaso2" style="display:none">
-      <div class="aj-label">👤 Tu nombre (aparecerá en el tablero de hermanos):</div>
-      <input id="bvNombre" maxlength="30">
-      <div class="aj-label">🕖 Hora de tu recordatorio diario:</div>
-      <select id="bvHora"></select>
-      <button class="mini-btn principal bv-listo" onclick="terminarBienvenida()">Comenzar mi lectura ✓</button>
-    </div>
-  </div>
-</div>
-
-<div id="versoOverlay" onclick="if(event.target===this)this.classList.remove('open')">
-  <div id="versoBox">
-    <button id="versoCerrar" onclick="document.getElementById('versoOverlay').classList.remove('open')">✕</button>
-    <div id="versoTit"></div>
-    <div id="versoTxt"></div>
-    <div class="verso-pie">Texto: Reina-Valera 1909 (dominio público) · <a id="versoBg" target="_blank" rel="noopener">Ver en RVR60 ↗</a></div>
+  <div class="puertas">
+    <a class="puerta" href="biblia.html">
+      <div class="ic">📖</div><h3>Biblia</h3>
+      <p>Los 66 libros, capítulo a capítulo. Toca un versículo y estúdialo: significado, referencias, autores, recursos. RV 1909 y Reina Valera SBT.</p>
+    </a>
+    <a class="puerta" href="plan.html">
+      <div class="ic">📅</div><h3>Plan de lectura</h3>
+      <p>365 días en orden cronológico, cada uno con su estudio completo. Marca tu avance y recibe tu recordatorio diario.</p>
+    </a>
+    <a class="puerta" href="biblioteca.html">
+      <div class="ic">📚</div><h3>Biblioteca</h3>
+      <p>Confesión de 1689, autores puritanos y reformados, e introducciones a cada libro — todo conectado con los pasajes.</p>
+    </a>
+    <a class="puerta" href="comunidad.html">
+      <div class="ic">👥</div><h3>Comunidad</h3>
+      <p>Tu avance, los hermanos en el camino, el muro de reflexiones y tus ajustes.</p>
+    </a>
   </div>
 </div>
 
 <footer>
-  Plan cronológico de lectura bíblica · Textos bíblicos © Sociedades Bíblicas en América Latina (RVR60) y Tyndale House Foundation (NTV), leídos vía Bible Gateway.<br>
-  «La hierba se seca, y la flor se cae; mas la palabra del Señor permanece para siempre.» — 1 Pedro 1:24-25
+  <strong>Ad Fontes Project</strong> · Plan cronológico de lectura y estudio bíblico<br>
+  Reina Valera SBT © Sociedad Bíblica Trinitaria (con autorización) · RVR60 © Sociedades Bíblicas en América Latina · NTV © Tyndale House Foundation<br>
+  «La hierba se seca, y la flor se cae; mas la palabra del Señor permanece para siempre» — 1 Pedro 1:24-25<br>
+  <a href="clasico.html">Versión anterior del sitio</a>
 </footer>
+
+<div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div class="tarjeta">
+    <div class="tarjeta-cab">🔍 <input id="qInput" placeholder="Un pasaje (Romanos 8:29), una palabra (pacto)…" oninput="buscar(this.value)" autocomplete="off"></div>
+    <div id="qRes"><div class="sin-res">Escribe un pasaje o una palabra. Buscamos en la Escritura, los 365 estudios y la biblioteca.</div></div>
+  </div>
+</div>
 
 <script src="plan.js"></script>
 <script src="comentarios.js"></script>
-<script src="confesiones.js"></script>
-<script src="estudio.js"></script>
-<script src="contextos.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
-/* ================= Estado ================= */
-const LS_DONE = 'biblia365_done';
-const LS_START = 'biblia365_start';
-const LS_CUR = 'biblia365_current';
+function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
+const NOMBRES = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías','Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
+const IDX = {}; NOMBRES.forEach(n => IDX[normTxt(n)] = n);
+Object.assign(IDX, {'salmo':'Salmos','cantar':'Cantares'});
+let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
 
-let done = new Set(JSON.parse(localStorage.getItem(LS_DONE) || '[]'));
-let startDate = localStorage.getItem(LS_START) || '';
-let currentDay = parseInt(localStorage.getItem(LS_CUR) || '0', 10) || todayPlanDay();
-
-function saveDone(){ localStorage.setItem(LS_DONE, JSON.stringify([...done])); guardarNube(); }
-
-function todayPlanDay(){
-  if(!startDate) return 1;
-  const s = new Date(startDate + 'T00:00:00');
-  const now = new Date(); now.setHours(0,0,0,0);
-  const diff = Math.floor((now - s) / 86400000) + 1;
-  return Math.min(Math.max(diff, 1), 365);
+function diaHoy(){
+  const s0 = localStorage.getItem('biblia365_start');
+  if(!s0) return parseInt(localStorage.getItem('biblia365_current') || '1', 10) || 1;
+  const s = new Date(s0 + 'T00:00:00'), n = new Date(); n.setHours(0,0,0,0);
+  return Math.min(Math.max(Math.floor((n - s)/86400000) + 1, 1), 365);
 }
-
-function setStartDate(v){
-  startDate = v;
-  localStorage.setItem(LS_START, v);
-  currentDay = todayPlanDay();
-  localStorage.setItem(LS_CUR, currentDay);
-  renderAll();
+function urlBiblia(lectura){
+  const m = lectura.match(/^(.+?)\s+(\d+)/);
+  if(!m || !IDX[normTxt(m[1])]) return 'biblia.html';
+  return 'biblia.html#' + encodeURIComponent(IDX[normTxt(m[1])]) + '/' + m[2];
 }
-
-/* ================= Utilidades ================= */
-function bgUrl(lecturas, version){
-  return 'https://www.biblegateway.com/passage/?search=' +
-    encodeURIComponent(lecturas.join('; ')) + '&version=' + version;
-}
-
-/* RV-SBT (Sociedad Bíblica Trinitaria) vía tbsonlinebible.com — enlace por capítulo */
-const SBT_LIBROS = {
- 'Génesis':'GEN','Éxodo':'EXO','Levítico':'LEV','Números':'NUM','Deuteronomio':'DEU',
- 'Josué':'JOS','Jueces':'JDG','Rut':'RUT','1 Samuel':'1SA','2 Samuel':'2SA',
- '1 Reyes':'1KI','2 Reyes':'2KI','1 Crónicas':'1CH','2 Crónicas':'2CH',
- 'Esdras':'EZR','Nehemías':'NEH','Ester':'EST','Job':'JOB','Salmos':'PSA',
- 'Proverbios':'PRO','Eclesiastés':'ECC','Cantares':'SNG','Isaías':'ISA',
- 'Jeremías':'JER','Lamentaciones':'LAM','Ezequiel':'EZK','Daniel':'DAN',
- 'Oseas':'HOS','Joel':'JOL','Amós':'AMO','Abdías':'OBA','Jonás':'JON',
- 'Miqueas':'MIC','Nahúm':'NAM','Habacuc':'HAB','Sofonías':'ZEP','Hageo':'HAG',
- 'Zacarías':'ZEC','Malaquías':'MAL','Mateo':'MAT','Marcos':'MRK','Lucas':'LUK',
- 'Juan':'JHN','Hechos':'ACT','Romanos':'ROM','1 Corintios':'1CO','2 Corintios':'2CO',
- 'Gálatas':'GAL','Efesios':'EPH','Filipenses':'PHP','Colosenses':'COL',
- '1 Tesalonicenses':'1TH','2 Tesalonicenses':'2TH','1 Timoteo':'1TI','2 Timoteo':'2TI',
- 'Tito':'TIT','Filemón':'PHM','Hebreos':'HEB','Santiago':'JAS','1 Pedro':'1PE',
- '2 Pedro':'2PE','1 Juan':'1JN','2 Juan':'2JN','3 Juan':'3JN','Judas':'JUD',
- 'Apocalipsis':'REV'
-};
-function sbtUrl(lecturas){
-  const m = lecturas[0].match(/^(.+?)\s+(\d+)/);
-  if(!m) return null;
-  const code = SBT_LIBROS[m[1].trim()];
-  if(!code) return null;
-  return 'https://www.tbsonlinebible.com/#es_' + code + '_' + m[2];
-}
-/* Lector RV-SBT incrustado (iframe oficial autorizado por TBS para este dominio) */
-function sbtCapitulos(lecturas){
-  const caps = [];
-  lecturas.forEach(l => {
-    const m = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
-    if(!m) return;
-    const code = SBT_LIBROS[m[1].trim()];
-    if(!code) return;
-    const ini = parseInt(m[2],10), fin = parseInt(m[3] || m[2],10);
-    for(let c = ini; c <= fin; c++) caps.push({ code, cap: c, label: m[1].trim() + ' ' + c });
-  });
-  return caps;
-}
-function abrirSbt(){
-  const r = document.getElementById('sbtReader');
-  if(!r) return;
-  r.classList.toggle('open');
-  if(r.classList.contains('open') && !document.getElementById('sbtFrame').getAttribute('src')){
-    const c = sbtCapitulos(PLAN[currentDay - 1].lecturas)[0];
-    if(c) sbtIr(c.code, c.cap);
-  }
-}
-function sbtIr(code, cap){
-  const f = document.getElementById('sbtFrame');
-  if(f) f.src = 'https://www.tbsonlinebible.com#es_' + code + '_' + cap;
-  const k = code + '_' + cap;
-  document.querySelectorAll('.sbt-cap').forEach(b => b.classList.toggle('act', b.dataset.k === k));
-}
-/* Altura automática: la OBA informa el tamaño del capítulo (doc TBS v1.3) */
-window.addEventListener('message', function(ev){
-  if(ev.origin !== 'https://www.tbsonlinebible.com') return;
-  if(ev.data && ev.data.action === 'report' && ev.data.size && ev.data.size.height){
-    const f = document.getElementById('sbtFrame');
-    if(f) f.style.height = Math.max(450, ev.data.size.height + 40) + 'px';
-  }
-}, false);
-/* ===== Buscador: ¿en qué día del plan está un pasaje? ===== */
-function normTxt(s){
-  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
-}
-const LIBROS_NORM = {};
-Object.keys(SBT_LIBROS).forEach(n => LIBROS_NORM[normTxt(n)] = n);
-/* alias frecuentes */
-Object.assign(LIBROS_NORM, {
-  'salmo':'Salmos','psalmos':'Salmos','cantar de los cantares':'Cantares',
-  'cantar':'Cantares','eclesiastes':'Eclesiastés','apocalipsis de juan':'Apocalipsis',
-  'hechos de los apostoles':'Hechos','exodo':'Éxodo','genesis':'Génesis',
-  'levitico':'Levítico','numeros':'Números','deuteronomio':'Deuteronomio'
-});
-function buscarPasaje(){
-  const out = document.getElementById('pasajeResultado');
-  const raw = document.getElementById('pasajeInput').value;
-  out.classList.remove('err');
-  const m = raw.match(/^(.+?)\s*(\d+)?\s*(?::.*)?$/);
-  if(!m || !m[1]){ out.classList.add('err'); out.textContent = 'Escribe un libro y capítulo, p. ej. "Éxodo 12".'; return; }
-  const libro = LIBROS_NORM[normTxt(m[1])];
-  const cap = parseInt(m[2] || '1', 10);
-  if(!libro){ out.classList.add('err'); out.textContent = 'No reconozco ese libro. Revisa la ortografía (p. ej. "1 Samuel", "Salmos").'; return; }
-  for(const p of PLAN){
-    for(const l of p.lecturas){
-      const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
-      if(!lm) continue;
-      if(lm[1] !== libro) continue;
-      const ini = parseInt(lm[2],10), fin = parseInt(lm[3] || lm[2],10);
-      if(cap >= ini && cap <= fin){
-        out.innerHTML = `${libro} ${cap} está en el <strong>día ${p.d}</strong> (${p.lecturas.join('; ')}). ` +
-          `<button class="mini-btn" onclick="goToDay(${p.d})">Ver el día</button> ` +
-          `<button class="mini-btn principal" onclick="continuarDesde(${p.d})">Continuar desde aquí</button>`;
-        return;
-      }
-    }
-  }
-  out.classList.add('err');
-  out.textContent = 'No encontré ese capítulo en el plan. Verifica libro y capítulo.';
-}
-function continuarDesde(n){
-  for(let i = 1; i < n; i++) done.add(i);
-  saveDone();
-  const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - (n - 1));
-  startDate = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
-  localStorage.setItem(LS_START, startDate);
-  localStorage.setItem('biblia365_lh', hoyStr());
-  renderAll();
-  publicarAvance();
-  goToDay(n);
-}
-
-function fechaDelDia(d){
-  if(!startDate) return '';
-  const s = new Date(startDate + 'T00:00:00');
-  s.setDate(s.getDate() + d - 1);
-  return s.toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-}
-
-/* ================= Navegación ================= */
-function showView(name){
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  const nb = document.getElementById('nav' + name.charAt(0).toUpperCase() + name.slice(1));
-  if(nb) nb.classList.add('active');
-  if(name === 'avance'){ cargarTablero(); pintarMuroForm(); cargarMuro(); }
-  if(name === 'conf') renderConf();
-  localStorage.setItem('biblia365_vista', name);
-  window.scrollTo({top:0});
-}
-
-function goToDay(d){
-  currentDay = Math.min(Math.max(d,1),365);
-  localStorage.setItem(LS_CUR, currentDay);
-  renderDay();
-  showView('hoy');
-}
-
-/* ================= Render día ================= */
-function renderDay(){
-  const p = PLAN[currentDay - 1];
-  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[currentDay] : null;
-  const isDone = done.has(currentDay);
-  const fecha = fechaDelDia(currentDay);
-
-  let html = `
-  <div class="day-head">
-    <div class="etapa-tag">${p.etapa}</div>
-    <div class="day-num">Día ${p.d} de 365</div>
-    <h2 class="day-title">${c ? c.t : p.lecturas.join(' · ')}</h2>
-    ${fecha ? `<div class="day-date">${fecha}</div>` : ''}
-  </div>
-
-  <div class="lecturas-card">
-    <h3>Lectura de hoy</h3>
-    <div class="lect-list">${p.lecturas.map(l => `<span class="lect-chip">${l}</span>`).join('')}</div>
-    <div class="ver-buttons">
-      <a class="btn btn-rvr" target="_blank" rel="noopener" href="${bgUrl(p.lecturas,'RVR1960')}">📖 Leer en RVR60</a>
-      <a class="btn btn-lbla" target="_blank" rel="noopener" href="${bgUrl(p.lecturas,'NTV')}">📖 Leer en NTV</a>
-      ${sbtCapitulos(p.lecturas).length ? `<button class="btn btn-sbt" onclick="abrirSbt()">📖 Leer aquí (RV-SBT)</button>` : ''}
-      <button class="btn btn-check ${isDone?'done':''}" onclick="toggleDone(${p.d})">${isDone ? '✓ Leído' : 'Marcar como leído'}</button>
-    </div>
-    ${isDone && p.d < 365 ? `
-    <div class="done-banner">
-      <span>✅ <strong>Día ${p.d} completado.</strong> Tu próxima lectura — Día ${p.d + 1}: <strong>${PLAN[p.d].lecturas.join('; ')}</strong></span>
-      <button class="btn btn-next" onclick="goToDay(${p.d + 1})">Leer el día ${p.d + 1} →</button>
-    </div>` : ''}
-    ${isDone && p.d === 365 ? `
-    <div class="done-banner">
-      <span>🎉 <strong>¡Completaste toda la Escritura en un año!</strong> «Bendice, alma mía, a Jehová, y no olvides ninguno de sus beneficios» (Sal 103:2). Que la Palabra siga morando en abundancia en ti.</span>
-    </div>` : ''}
-    ${sbtCapitulos(p.lecturas).length ? `
-    <div class="sbt-reader" id="sbtReader">
-      <div class="sbt-caps">${sbtCapitulos(p.lecturas).map(c =>
-        `<button class="sbt-cap" data-k="${c.code}_${c.cap}" onclick="sbtIr('${c.code}',${c.cap})">${c.label}</button>`).join('')}</div>
-      <div class="sbt-frame-holder"><iframe id="sbtFrame" name="OBA" allow="clipboard-read; clipboard-write; fullscreen; screen-wake-lock; web-share" loading="lazy"></iframe></div>
-      <div class="sbt-foot">Reina Valera SBT © Sociedad Bíblica Trinitaria · <a target="_blank" rel="noopener" href="${sbtUrl(p.lecturas)}">Abrir en pestaña nueva ↗</a></div>
-    </div>` : ''}
-  </div>`;
-
-  if(c){
-    html += `
-    <div class="sec"><h3><span class="ico">🏛</span> Contexto histórico</h3><p>${c.h}</p></div>
-    <div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>${c.c}</p></div>
-    <div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>${c.n}</p></div>
-    <div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>${c.p}</p></div>
-    <div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>${c.v}</p></div>
-    <div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>${c.q}</p></div>`;
-  } else {
-    html += `<div class="no-com">El estudio profundo de este día aún está en preparación.<br>Disfruta la lectura del texto sagrado — la Palabra misma es el pan.</div>`;
-  }
-
-  html += `
-  <div class="day-nav">
-    <button onclick="goToDay(${p.d - 1})" ${p.d===1?'disabled':''}>← Día ${p.d-1 || ''}</button>
-    <button onclick="goToDay(todayPlanDay())">Ir al día de hoy</button>
-    <button onclick="goToDay(${p.d + 1})" ${p.d===365?'disabled':''}>Día ${p.d===365?'':p.d+1} →</button>
-  </div>`;
-
-  document.getElementById('view-hoy').innerHTML = html;
-}
-
-function hoyStr(){
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-function toggleDone(d){
-  if(done.has(d)){ done.delete(d); }
-  else { done.add(d); localStorage.setItem('biblia365_lh', hoyStr()); }
-  saveDone();
-  renderDay(); renderPlan(); renderProgress();
-  publicarAvance();
-}
-
-/* ================= Render plan ================= */
-function renderPlan(){
-  const hoy = todayPlanDay();
-  const cont = document.getElementById('planList');
-  let html = '', etapa = '';
-  PLAN.forEach(p => {
-    if(p.etapa !== etapa){
-      if(etapa) html += '</div></div>';
-      etapa = p.etapa;
-      html += `<div class="etapa-block"><h3>${etapa}</h3><div class="dias-grid">`;
-    }
-    const cls = ['dia-pill'];
-    if(done.has(p.d)) cls.push('done');
-    if(startDate && p.d === hoy) cls.push('today');
-    if(typeof COMENTARIOS !== 'undefined' && COMENTARIOS[p.d]) cls.push('has-com');
-    html += `<div class="${cls.join(' ')}" onclick="goToDay(${p.d})" title="${p.lecturas.join('; ')}">${p.d}<small>${p.lecturas[0].split(' ').slice(0,-1).join(' ').slice(0,10) || p.lecturas[0]}</small></div>`;
-  });
-  html += '</div></div>';
-  cont.innerHTML = html;
-  document.getElementById('startDate').value = startDate;
-}
-
-/* ================= Progreso ================= */
-function renderProgress(){
+function pintarHoy(){
+  const d = diaHoy(), p = PLAN[d-1], c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[d] : null;
   const pct = Math.round(done.size / 365 * 100);
-  const f1 = document.getElementById('progressFill');
-  const f2 = document.getElementById('progressFill2');
-  const lb = document.getElementById('progressLabel');
-  if(f1) f1.style.width = pct + '%';
-  if(f2) f2.style.width = pct + '%';
-  if(lb) lb.textContent = `${done.size} de 365 días leídos · ${pct}%`;
+  document.getElementById('tarjetaHoy').innerHTML =
+    '<div class="et">Tu lectura de hoy · Día ' + d + ' de 365</div>' +
+    '<h2>' + (c ? c.t : p.lecturas.join(' · ')) + '</h2>' +
+    '<div class="lect">' + p.lecturas.join(' · ') + (done.has(d) ? ' &nbsp;✓ leído' : '') + '</div>' +
+    '<div class="acciones">' +
+      '<a class="btn btn-pri" href="' + urlBiblia(p.lecturas[0]) + '">📖 Leer el pasaje</a>' +
+      '<a class="btn btn-sec" href="plan.html">✒ Ver el estudio del día</a>' +
+    '</div>' +
+    '<div class="mini-prog"><div class="b"><div style="width:' + pct + '%"></div></div><div class="t">' + done.size + ' de 365 días leídos · ' + pct + '%</div></div>';
 }
-
-/* ================= Tablero compartido (Firestore) ================= */
-const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
-
-async function publicarAvance(){
-  if(!fbUser || !fbDB || !nombre) return;
-  try{
-    await fbDB.collection('tablero').doc(fbUser.uid).set({
-      n: nombre,
-      l: done.size,
-      d: todayPlanDay(),
-      t: Date.now(),
-      lh: localStorage.getItem('biblia365_lh') || ''
-    }, { merge: true });
-  }catch(e){}
-}
-async function borrarDelTablero(uid){
-  if(!esAdminYo() || !fbDB || !confirm('¿Quitar este nombre del tablero?')) return;
-  try{ await fbDB.collection('tablero').doc(uid).delete(); cargarTablero(); }
-  catch(e){ alert('No se pudo quitar del tablero.'); }
-}
-async function cargarTablero(){
-  const el = document.getElementById('tablero');
-  if(!el) return;
-  if(!fbDB){ el.innerHTML = '<em>No se pudo conectar. Revisa tu conexión.</em>'; return; }
-  el.innerHTML = '<em>Cargando…</em>';
-  try{
-    const snap = await fbDB.collection('tablero').get();
-    const filas = snap.docs.map(d => [d.id, d.data()]).filter(([k, x]) => x && x.n).sort((a, b) => String(a[1].n).localeCompare(String(b[1].n), 'es'));
-    const hoy = hoyStr();
-    el.innerHTML = filas.length ? filas.map(([k, x]) => {
-      const pct = Math.min(100, Math.round((x.l||0)/365*100));
-      const leyoHoy = x.lh === hoy ? ' <span class="t-hoy">✓ leyó hoy</span>' : '';
-      const admin = esAdminYo() ? `<button class="muro-borrar" onclick="borrarDelTablero('${k}')" title="Quitar del tablero">✕</button>` : '';
-      return `<div class="t-fila"><span class="t-nom">👤 ${esc(x.n).slice(0,40)}${leyoHoy}</span>` +
-             `<span class="t-bar"><span style="width:${pct}%"></span></span>` +
-             `<span class="t-dat">${x.l||0} día${(x.l||0) === 1 ? '' : 's'} · ${pct}%</span>${admin}</div>`;
-    }).join('') : '<em>Aún nadie se ha anotado. ¡Sé el primero: crea tu cuenta y marca tu primer día!</em>';
-  }catch(e){ el.innerHTML = '<em>No se pudo cargar el tablero (revisa tu conexión).</em>'; }
-}
-
-/* ================= Nombre y compartir avance ================= */
-const LS_NAME = 'biblia365_nombre';
-let nombre = localStorage.getItem(LS_NAME) || '';
-
-function renderShare(){
-  const w = document.getElementById('shareWrap');
-  if(!w) return;
-  if(!nombre && !fbUser){
-    w.innerHTML = `<span style="color:var(--ink-soft)">Crea tu cuenta con Google para registrar tu nombre, guardar tu avance y aparecer en el tablero.</span>
-      <button class="btn-login" onclick="abrirBienvenida()">🔑 Crear mi cuenta</button>`;
-  } else if(!nombre){
-    w.innerHTML = `<input type="text" id="nombreInput" placeholder="Tu nombre" maxlength="30"
-        onkeydown="if(event.key==='Enter')guardarNombre()">
-      <button class="share-btn sec" onclick="guardarNombre()">Guardar</button>`;
-  } else {
-    w.innerHTML = `<span>👤 <span class="share-name">${nombre}</span></span>
-      <button class="share-btn" onclick="compartirAvance()">📱 Compartir mi avance</button>
-      <button class="share-btn sec" onclick="cambiarNombre()">Cambiar</button>`;
-  }
-}
-function guardarNombre(){
-  if(!fbUser) return;
-  const v = document.getElementById('nombreInput').value.trim();
-  if(!v) return;
-  nombre = v;
-  localStorage.setItem(LS_NAME, nombre);
-  renderShare();
-  publicarAvance();
-  guardarNube();
-}
-function cambiarNombre(){
-  nombre = '';
-  localStorage.removeItem(LS_NAME);
-  renderShare();
-}
-function compartirAvance(){
-  const pct = Math.round(done.size / 365 * 100);
-  const hoy = todayPlanDay();
-  const p = PLAN[hoy - 1];
-  const barra = '🟩'.repeat(Math.round(pct/10)) + '⬜'.repeat(10 - Math.round(pct/10));
-  const texto = `📖 *La Biblia en un Año*\n👤 ${nombre}\n${barra} ${pct}%\n✅ ${done.size} de 365 días leídos\n📍 Día ${hoy}: ${p.lecturas.join('; ')}\n\n«Lámpara es a mis pies tu palabra» Sal 119:105\nhttps://adfontesproject.github.io/`;
-  if(navigator.share){
-    navigator.share({ text: texto }).catch(()=>{});
-  } else {
-    window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener');
-  }
-}
-
-/* ================= Login con Google (Firebase) ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyDt3bA9HuXbIypVH_JRQMe-FGKkNfUDrv8",
-  authDomain: "biblia-en-un-ano.firebaseapp.com",
-  projectId: "biblia-en-un-ano",
-  storageBucket: "biblia-en-un-ano.firebasestorage.app",
-  messagingSenderId: "978571488009",
-  appId: "1:978571488009:web:cd9e062e57a1b9b62801d8"
-};
-let fbUser = null, fbDB = null;
-const ADMIN_EMAIL = 'mariowillow9717@gmail.com';
-function esAdminYo(){ return !!(fbUser && fbUser.email === ADMIN_EMAIL); }
+/* sincronía silenciosa del avance */
 try{
-  firebase.initializeApp(firebaseConfig);
-  fbDB = firebase.firestore();
-  firebase.auth().onAuthStateChanged(u => {
-    fbUser = u;
-    pintarLogin();
-    pintarMuroForm();
-    renderShare();
-    if(u) sincronizarNube();
-    const bv = document.getElementById('bienvenida');
-    if(u && bv && bv.classList.contains('open')){
-      bienvenidaPaso2();
-    } else if(u && !localStorage.getItem(LS_HORA)){
-      abrirBienvenida();
-      bienvenidaPaso2();
-    }
-  });
-}catch(e){ /* sin conexión a Firebase: el sitio sigue funcionando con localStorage */ }
-
-function loginGoogle(){
-  const prov = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(prov)
-    .catch(e => { if(e && e.code !== 'auth/popup-closed-by-user') alert('No se pudo iniciar sesión. Intenta de nuevo.'); });
-}
-function logoutGoogle(){ firebase.auth().signOut(); }
-
-/* ---- Bienvenida (registro de nuevos) ---- */
-const LS_BV = 'biblia365_bienvenida';
-function llenarSelHora(sel){
-  if(!sel || sel.options.length) return;
-  for(let h = 5; h <= 23; h++){
-    const o = document.createElement('option');
-    o.value = h;
-    o.textContent = (h % 12 || 12) + ':00 ' + (h < 12 ? 'a. m.' : 'p. m.');
-    sel.appendChild(o);
-  }
-}
-function abrirBienvenida(){
-  const sel = document.getElementById('bvHora');
-  llenarSelHora(sel);
-  sel.value = horaGuardada() || '7';
-  document.getElementById('bvPaso1').style.display = fbUser ? 'none' : 'block';
-  document.getElementById('bvPaso2').style.display = fbUser ? 'block' : 'none';
-  if(fbUser) prellenarNombreBv();
-  document.getElementById('bienvenida').classList.add('open');
-}
-function cerrarBienvenida(){
-  localStorage.setItem(LS_BV, '1');
-  document.getElementById('bienvenida').classList.remove('open');
-}
-function prellenarNombreBv(){
-  const n = document.getElementById('bvNombre');
-  if(n && !n.value) n.value = nombre || (fbUser && fbUser.displayName ? fbUser.displayName.split(' ').slice(0, 2).join(' ') : '');
-}
-function bienvenidaPaso2(){
-  document.getElementById('bvPaso1').style.display = 'none';
-  document.getElementById('bvPaso2').style.display = 'block';
-  prellenarNombreBv();
-}
-function terminarBienvenida(){
-  const v = document.getElementById('bvNombre').value.trim();
-  if(v){ nombre = v; localStorage.setItem(LS_NAME, nombre); renderShare(); }
-  localStorage.setItem(LS_HORA, String(document.getElementById('bvHora').value));
-  pintarHorario();
-  cerrarBienvenida();
-  activarNotif();
-  publicarAvance();
-  guardarNube();
-}
-
-/* ---- Burbuja de ajustes ---- */
-const LS_HORA = 'biblia365_hora';
-function toggleAjustes(){
-  document.getElementById('ajustesPanel').classList.toggle('open');
-  pintarHorario();
-}
-function horaGuardada(){
-  let v = localStorage.getItem(LS_HORA);
-  if(v === 'manana') v = '7'; else if(v === 'tarde') v = '15'; else if(v === 'noche') v = '21';
-  return v;
-}
-function pintarHorario(){
-  const sel = document.getElementById('horaSel');
-  if(!sel) return;
-  if(!sel.options.length){
-    for(let h = 5; h <= 23; h++){
-      const o = document.createElement('option');
-      o.value = h;
-      o.textContent = (h % 12 || 12) + ':00 ' + (h < 12 ? 'a. m.' : 'p. m.');
-      sel.appendChild(o);
-    }
-  }
-  sel.value = horaGuardada() || '7';
-}
-function guardarHora(h){
-  localStorage.setItem(LS_HORA, String(h));
-  registrarTokenFCM();
-}
-/* Tamaño de letra */
-const LS_FUENTE = 'biblia365_fuente';
-function aplicarFuente(){
-  const f = localStorage.getItem(LS_FUENTE) || '18';
-  document.body.style.fontSize = f + 'px';
-  document.querySelectorAll('#fuenteChips .mini-btn').forEach(b => b.classList.toggle('principal', b.dataset.f === f));
-}
-function guardarFuente(f){
-  localStorage.setItem(LS_FUENTE, f);
-  aplicarFuente();
-}
-function pintarBurbuja(){
-  const b = document.getElementById('burbuja');
-  if(!b) return;
-  if(fbUser && fbUser.photoURL){ b.innerHTML = '<img src="' + fbUser.photoURL + '" alt="yo">'; }
-  else if(fbUser){ b.textContent = (fbUser.displayName || 'U').charAt(0).toUpperCase(); }
-  else { b.textContent = '👤'; }
-}
-function pintarLogin(){
-  pintarBurbuja();
-  const el = document.getElementById('loginBox');
-  if(!el) return;
-  if(fbUser){
-    el.innerHTML = `<span class="login-info">☁️ Avance guardado en la nube — ${esc(fbUser.displayName || fbUser.email || '')}</span>` +
-      (esAdminYo() ? ` <span class="login-info">🛡 Administrador</span>` : '') +
-      ` <button class="btn-login" onclick="logoutGoogle()">Salir</button>`;
-  } else {
-    el.innerHTML = `<button class="btn-login" onclick="loginGoogle()">🔑 Iniciar sesión con Google</button>
-      <span>para guardar tu avance en la nube y usarlo en cualquier dispositivo</span>`;
-  }
-}
-
-async function sincronizarNube(){
-  if(!fbUser || !fbDB) return;
-  try{
-    const ref = fbDB.collection('progreso').doc(fbUser.uid);
-    const snap = await ref.get();
-    if(snap.exists){
-      const d = snap.data() || {};
-      if(Array.isArray(d.dias)) d.dias.forEach(x => { if(x >= 1 && x <= 365) done.add(x); });
-      if(d.nombre && !nombre){ nombre = d.nombre; localStorage.setItem(LS_NAME, nombre); }
-      if(d.inicio && !startDate){ startDate = d.inicio; localStorage.setItem(LS_START, startDate); currentDay = todayPlanDay(); }
-      localStorage.setItem(LS_DONE, JSON.stringify([...done]));
-      renderAll();
-    }
-    if(!nombre && fbUser.displayName){ nombre = fbUser.displayName.split(' ')[0]; localStorage.setItem(LS_NAME, nombre); renderShare(); }
-    guardarNube();
-    publicarAvance();
-  }catch(e){}
-}
-
-async function guardarNube(){
-  if(!fbUser || !fbDB) return;
-  try{
-    await fbDB.collection('progreso').doc(fbUser.uid).set({
-      nombre: nombre || fbUser.displayName || '',
-      dias: [...done],
-      total: done.size,
-      inicio: startDate || null,
-      actualizado: new Date().toISOString()
-    }, { merge: true });
-  }catch(e){}
-}
-
-/* ================= Confesiones de fe ================= */
-let confActual = 'lbc', confCap = 0;
-function verConf(id){ confActual = id; confCap = 0; renderConf(); }
-function verCap(i){ confCap = i; renderConf(); document.getElementById('confTexto').scrollIntoView({behavior:'smooth'}); }
-function renderConf(){
-  if(typeof CONFESIONES === 'undefined') return;
-  const c = CONFESIONES[confActual];
-  document.getElementById('confBtnLbc').classList.toggle('principal', confActual === 'lbc');
-  document.getElementById('confBtnWest').classList.toggle('principal', confActual === 'west');
-  document.getElementById('confCaps').innerHTML =
-    c.caps.map((cap, i) =>
-      `<button class="mini-btn ${i === confCap ? 'principal' : ''}" title="${cap.t}" onclick="verCap(${i})">${i + 1}</button>`
-    ).join('');
-  const cap = c.caps[confCap];
-  document.getElementById('confTexto').innerHTML = (cap && cap.p) ?
-    `<div class="about"><h2>Capítulo ${confCap + 1} · ${cap.t}</h2>` +
-    cap.p.map((tx, i) => {
-      const s = confRefs(tx);
-      return `<p><strong>${i + 1}.</strong> ${s.texto}</p>` +
-        (s.refs.length ? `<div class="refs">${s.refs.map(r =>
-          `<button class="ref-chip" data-r="${r}" onclick="verVerso(this.dataset.r)">${r}</button>`).join('')}</div>` : '');
-    }).join('') +
-    `<p style="color:var(--ink-soft);font-size:.8rem;font-family:'Inter',sans-serif;margin-top:1.2rem">${c.nota}</p></div>` :
-    `<div class="no-com">«${cap ? cap.t : ''}» — este capítulo estará disponible muy pronto.<br>Estamos incorporando el texto completo de ambas confesiones por partes.</div>`;
-}
-function confRefs(tx){
-  const m = tx.match(/^([\s\S]*?)\s*\(([^()]+)\)\s*$/);
-  if(!m || !/\d/.test(m[2])) return { texto: tx, refs: [] };
-  return { texto: m[1], refs: m[2].split(';').map(r => r.trim()).filter(Boolean) };
-}
-
-/* ---- Visor de versículos (cajita) ---- */
-const LIBROS_NUM = {gn:1,ex:2,lv:3,nm:4,dt:5,jos:6,jue:7,rut:8,'1s':9,'2s':10,'1r':11,'2r':12,'1cr':13,'2cr':14,esd:15,neh:16,est:17,job:18,sal:19,pr:20,ec:21,cnt:22,is:23,jer:24,lm:25,ez:26,dn:27,os:28,jl:29,am:30,abd:31,jon:32,mi:33,nah:34,hab:35,sof:36,hag:37,zac:38,mal:39,mt:40,mr:41,mc:41,lc:42,jn:43,hch:44,ro:45,'1co':46,'2co':47,ga:48,ef:49,fil:50,flp:50,col:51,'1ts':52,'2ts':53,'1ti':54,'2ti':55,tit:56,flm:57,he:58,stg:59,'1p':60,'2p':61,'1jn':62,'2jn':63,'3jn':64,jud:65,ap:66};
-const LIBROS_UNICAP = {abd:1,flm:1,'2jn':1,'3jn':1,jud:1};
-const versCache = {};
-async function verVerso(ref){
-  const ov = document.getElementById('versoOverlay');
-  document.getElementById('versoTit').textContent = ref;
-  document.getElementById('versoBg').href = 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(ref) + '&version=RVR1960';
-  const cont = document.getElementById('versoTxt');
-  cont.innerHTML = '<em>Cargando…</em>';
-  ov.classList.add('open');
-  try{
-    let html = '';
-    for(const parte of ref.split(/\s+con\s+/)){
-      const m = parte.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\s+(\d+)(?::([\d,\-]+))?$/);
-      if(!m) continue;
-      const clave = m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'');
-      const libro = LIBROS_NUM[clave];
-      if(!libro) continue;
-      let capN = parseInt(m[2],10), vv = m[3];
-      if(LIBROS_UNICAP[clave] && !vv){ vv = String(capN); capN = 1; }
-      const url = 'https://api.getbible.net/v2/valera/' + libro + '/' + capN + '.json';
-      if(!versCache[url]){
-        const r = await fetch(url);
-        if(!r.ok) throw 0;
-        versCache[url] = await r.json();
-      }
-      let nums = [];
-      if(vv){ vv.split(',').forEach(seg => { const ab = seg.split('-').map(Number); for(let i = ab[0]; i <= (ab[1] || ab[0]); i++) nums.push(i); }); }
-      const todos = versCache[url].verses || [];
-      const sel = nums.length ? todos.filter(v => nums.includes(v.verse)) : todos.slice(0, 6);
-      html += '<p><strong>' + parte.trim() + '</strong></p>' +
-        sel.map(v => '<p><sup>' + v.verse + '</sup>' + v.text + '</p>').join('') +
-        (!nums.length && todos.length > 6 ? '<p style="color:var(--ink-soft)"><em>(primeros versículos del capítulo — abre el enlace para verlo completo)</em></p>' : '');
-    }
-    cont.innerHTML = html || '<em>No pude interpretar esta referencia aquí; ábrela en Bible Gateway con el enlace de abajo.</em>';
-  }catch(e){
-    cont.innerHTML = '<em>No pude cargar el texto (revisa tu conexión). Puedes abrirlo en Bible Gateway con el enlace de abajo.</em>';
-  }
-}
-
-/* ================= Muro de los hermanos ================= */
-function pintarMuroForm(){
-  const f = document.getElementById('muroForm');
-  if(!f) return;
-  if(fbUser){
-    f.innerHTML = `<textarea id="muroTexto" maxlength="2000" rows="3" placeholder="Comparte una reflexión, un versículo que te habló, una petición de oración…"></textarea>
-      <button class="mini-btn principal" onclick="publicarMuro()">Publicar</button>`;
-  } else {
-    f.innerHTML = `<span style="color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:.82rem">Inicia sesión con Google (arriba) para escribir en el muro.</span>`;
-  }
-}
-async function publicarMuro(){
-  const t = document.getElementById('muroTexto');
-  const v = t && t.value.trim();
-  if(!v || !fbUser || !fbDB) return;
-  try{
-    await fbDB.collection('muro').add({
-      uid: fbUser.uid,
-      nombre: nombre || fbUser.displayName || 'Hermano',
-      texto: v.slice(0, 2000),
-      fecha: new Date().toISOString()
-    });
-    t.value = '';
-    cargarMuro();
-  }catch(e){ alert('No se pudo publicar. Revisa tu conexión.'); }
-}
-function fechaCorta(iso){
-  const f = new Date(iso);
-  return f.toLocaleDateString('es', {day:'numeric', month:'short'}) + ' · ' +
-         f.toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'});
-}
-async function cargarMuro(){
-  const el = document.getElementById('muroLista');
-  if(!el || !fbDB) return;
-  el.innerHTML = '<em>Cargando…</em>';
-  try{
-    const snap = await fbDB.collection('muro').orderBy('fecha', 'desc').limit(30).get();
-    /* respuestas: últimas 150, agrupadas por publicación */
-    const resp = {};
+  firebase.initializeApp({ apiKey:"AIzaSyDt3bA9HuXbIypVH_JRQMe-FGKkNfUDrv8", authDomain:"biblia-en-un-ano.firebaseapp.com", projectId:"biblia-en-un-ano", storageBucket:"biblia-en-un-ano.firebasestorage.app", messagingSenderId:"978571488009", appId:"1:978571488009:web:cd9e062e57a1b9b62801d8" });
+  const db = firebase.firestore();
+  firebase.auth().onAuthStateChanged(async u => {
+    if(!u) return;
+    if(u.photoURL){ const a = document.getElementById('avatar'); a.style.backgroundImage = 'url(' + u.photoURL + ')'; a.textContent = ''; }
     try{
-      const rs = await fbDB.collection('muroResp').orderBy('fecha', 'asc').limit(150).get();
-      rs.docs.forEach(r => {
-        const y = r.data();
-        (resp[y.padre] = resp[y.padre] || []).push({ id: r.id, ...y });
-      });
-    }catch(e){}
-    el.innerHTML = snap.empty ? '<em>Aún no hay publicaciones. ¡Sé el primero en escribir!</em>' :
-      snap.docs.map(d => {
-        const x = d.data();
-        const mio = fbUser && (x.uid === fbUser.uid || esAdminYo());
-        const rr = (resp[d.id] || []).map(y => {
-          const rmio = fbUser && (y.uid === fbUser.uid || esAdminYo());
-          return `<div class="muro-resp"><div class="muro-cab"><span class="muro-nom">↳ ${esc(y.nombre || '')}</span>` +
-            `<span class="muro-fec">${fechaCorta(y.fecha)}</span>` +
-            (rmio ? `<button class="muro-borrar" onclick="borrarResp('${y.id}')" title="Eliminar mi respuesta">🗑</button>` : '') +
-            `</div><p>${esc(y.texto || '')}</p></div>`;
-        }).join('');
-        return `<div class="muro-post"><div class="muro-cab"><span class="muro-nom">👤 ${esc(x.nombre || '')}</span>` +
-          `<span class="muro-fec">${fechaCorta(x.fecha)}</span>` +
-          (mio ? `<button class="muro-borrar" onclick="borrarMuro('${d.id}')" title="Eliminar mi publicación">🗑</button>` : '') +
-          `</div><p>${esc(x.texto || '')}</p>` + rr +
-          (fbUser ? `<button class="muro-replybtn" onclick="toggleResp('${d.id}')">💬 Responder</button>
-          <div class="rform" id="rform-${d.id}" style="display:none">
-            <input id="rtxt-${d.id}" maxlength="1000" placeholder="Escribe tu respuesta…" onkeydown="if(event.key==='Enter')publicarResp('${d.id}')">
-            <button class="mini-btn principal" onclick="publicarResp('${d.id}')">Enviar</button>
-          </div>` : '') +
-          `</div>`;
-      }).join('');
-  }catch(e){ el.innerHTML = '<em>No se pudo cargar el muro (revisa tu conexión).</em>'; }
-}
-function toggleResp(id){
-  const f = document.getElementById('rform-' + id);
-  if(!f) return;
-  f.style.display = f.style.display === 'none' ? 'flex' : 'none';
-  if(f.style.display === 'flex') document.getElementById('rtxt-' + id).focus();
-}
-async function publicarResp(id){
-  const t = document.getElementById('rtxt-' + id);
-  const v = t && t.value.trim();
-  if(!v || !fbUser || !fbDB) return;
-  try{
-    await fbDB.collection('muroResp').add({
-      padre: id,
-      uid: fbUser.uid,
-      nombre: nombre || fbUser.displayName || 'Hermano',
-      texto: v.slice(0, 1000),
-      fecha: new Date().toISOString()
-    });
-    cargarMuro();
-  }catch(e){ alert('No se pudo enviar la respuesta.'); }
-}
-async function borrarResp(id){
-  if(!fbDB || !confirm('¿Eliminar tu respuesta?')) return;
-  try{ await fbDB.collection('muroResp').doc(id).delete(); cargarMuro(); }catch(e){}
-}
-async function borrarMuro(id){
-  if(!fbDB || !confirm('¿Eliminar tu publicación?')) return;
-  try{ await fbDB.collection('muro').doc(id).delete(); cargarMuro(); }catch(e){}
-}
-
-/* ================= Estudio: pasajes, autores y buscador ================= */
-const BH_SLUG = {'Génesis':'genesis','Éxodo':'exodus','Levítico':'leviticus','Números':'numbers','Deuteronomio':'deuteronomy','Josué':'joshua','Jueces':'judges','Rut':'ruth','1 Samuel':'1_samuel','2 Samuel':'2_samuel','1 Reyes':'1_kings','2 Reyes':'2_kings','1 Crónicas':'1_chronicles','2 Crónicas':'2_chronicles','Esdras':'ezra','Nehemías':'nehemiah','Ester':'esther','Job':'job','Salmos':'psalms','Proverbios':'proverbs','Eclesiastés':'ecclesiastes','Cantares':'songs','Isaías':'isaiah','Jeremías':'jeremiah','Lamentaciones':'lamentations','Ezequiel':'ezekiel','Daniel':'daniel','Oseas':'hosea','Joel':'joel','Amós':'amos','Abdías':'obadiah','Jonás':'jonah','Miqueas':'micah','Nahúm':'nahum','Habacuc':'habakkuk','Sofonías':'zephaniah','Hageo':'haggai','Zacarías':'zechariah','Malaquías':'malachi','Mateo':'matthew','Marcos':'mark','Lucas':'luke','Juan':'john','Hechos':'acts','Romanos':'romans','1 Corintios':'1_corinthians','2 Corintios':'2_corinthians','Gálatas':'galatians','Efesios':'ephesians','Filipenses':'philippians','Colosenses':'colossians','1 Tesalonicenses':'1_thessalonians','2 Tesalonicenses':'2_thessalonians','1 Timoteo':'1_timothy','2 Timoteo':'2_timothy','Tito':'titus','Filemón':'philemon','Hebreos':'hebrews','Santiago':'james','1 Pedro':'1_peter','2 Pedro':'2_peter','1 Juan':'1_john','2 Juan':'2_john','3 Juan':'3_john','Judas':'jude','Apocalipsis':'revelation'};
-function numLibro(nombre){ return Object.keys(SBT_LIBROS).indexOf(nombre) + 1; }
-async function estudiarPasaje(refExt){
-  const raw = (refExt || document.getElementById('estInput').value).trim();
-  if(refExt) document.getElementById('estInput').value = refExt;
-  const out = document.getElementById('estResultado');
-  const m = raw.match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+?)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/);
-  if(!m){ out.innerHTML = '<div class="no-com">Escribe un pasaje como «Romanos 8:29», «Salmos 23» o «Isaías 53:4-6».</div>'; return; }
-  const libro = LIBROS_NORM[normTxt(m[1])];
-  if(!libro){ out.innerHTML = '<div class="no-com">No reconozco ese libro. Prueba con el nombre completo (p. ej. «1 Samuel», «Salmos»).</div>'; return; }
-  const cap = parseInt(m[2], 10);
-  const vIni = m[3] ? parseInt(m[3], 10) : null;
-  const vFin = m[4] ? parseInt(m[4], 10) : vIni;
-  const refBonita = libro + ' ' + cap + (vIni ? ':' + vIni + (vFin !== vIni ? '-' + vFin : '') : '');
-  out.innerHTML = '<div class="no-com"><em>Preparando el estudio de ' + refBonita + '…</em></div>';
-
-  /* 1. Texto bíblico (RV1909), verso a verso */
-  let textoHtml = '';
-  try{
-    const url = 'https://api.getbible.net/v2/valera/' + numLibro(libro) + '/' + cap + '.json';
-    if(!versCache[url]){ const r = await fetch(url); if(r.ok) versCache[url] = await r.json(); }
-    const todos = (versCache[url] && versCache[url].verses) || [];
-    const sel = vIni ? todos.filter(v => v.verse >= vIni && v.verse <= vFin) : todos.slice(0, 200);
-    if(sel.length) textoHtml = '<div class="sec"><h3><span class="ico">📖</span> ' + refBonita + ' <span class="est-vers">(RV 1909)</span></h3>' +
-      sel.map(v => '<div class="vv"><span class="vv-n">' + v.verse + '</span><p>' + v.text + '</p></div>').join('') + '</div>';
-  }catch(e){}
-
-  /* 1b. Contexto del libro: breve y sobrio */
-  let ctxLibro = '';
-  if(typeof CONTEXTOS !== 'undefined' && CONTEXTOS[libro]){
-    const cx = CONTEXTOS[libro];
-    ctxLibro = '<div class="sec"><h3><span class="ico">🏛</span> Contexto de ' + libro + ' <span class="est-vers">· ' + cx.a + ' · ' + cx.f + '</span></h3><p>' + cx.m + '</p></div>';
-  }
-
-  /* 2. Citas curadas de autores */
-  const entradas = (typeof ESTUDIO !== 'undefined' ? ESTUDIO : []).filter(e =>
-    e.libro === libro && e.cap === cap && (!vIni || !e.vv || e.vv.some(v => v >= vIni && v <= vFin)));
-  const curadas = entradas.map(e =>
-    '<div class="sec voces"><h3><span class="ico">✦</span> ' + e.ref + ' — ' + e.tema + '</h3>' +
-    e.citas.map(c => '<div class="est-cita"><p>«' + c.txt + '»</p><div class="est-fuente">— ' + c.autor + ', <em>' + c.obra + '</em></div></div>').join('') +
-    (e.cruzadas ? '<div class="est-cruz"><strong>Diálogo entre autores:</strong> ' + e.cruzadas + '</div>' : '') +
-    (e.ver && e.ver.length ? '<div class="refs">' + e.ver.map(r => '<button class="ref-chip" data-r="' + r + '" onclick="verVerso(this.dataset.r)">' + r + '</button>').join('') + '</div>' : '') +
-    '</div>').join('');
-
-  /* 3. Enlaces a los comentarios completos (en inglés, dominio público) */
-  const slug = BH_SLUG[libro];
-  let enlaces = '';
-  if(slug){
-    const vSlug = vIni ? cap + '-' + vIni : cap + '-1';
-    const refEn = slug.replace(/_/g, ' ') + ' ' + cap + (vIni ? ':' + vIni : '');
-    enlaces = '<div class="sec"><h3><span class="ico">🔗</span> Para profundizar: comentarios completos (en inglés)</h3>' +
-      '<div class="ver-buttons" style="margin-top:.4rem">' +
-      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/gill/' + slug + '/' + cap + '.htm">Gill</a>' +
-      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/calvin/' + slug + '/' + cap + '.htm">Calvino</a>' +
-      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://www.spurgeon.org/?s=' + encodeURIComponent(refEn) + '">Spurgeon</a>' +
-      '<a class="btn btn-lbla" target="_blank" rel="noopener" href="https://biblehub.com/commentaries/' + slug + '/' + vSlug + '.htm">Todos (BibleHub)</a>' +
-      '</div><p style="font-family:Inter,sans-serif;font-size:.75rem;color:var(--ink-soft);margin-top:.5rem">Obras de dominio público en su idioma original. Las citas en español de arriba provienen de nuestra base curada, que crece pasaje a pasaje.</p></div>';
-  }
-
-  /* 4. Análisis en español: el estudio del día del plan que cubre este pasaje */
-  let diaPlan = '', comentarioDia = '';
-  for(const p of PLAN){
-    for(const l of p.lecturas){
-      const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
-      if(lm && lm[1] === libro && cap >= parseInt(lm[2],10) && cap <= parseInt(lm[3] || lm[2],10)){
-        const cd = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[p.d] : null;
-        if(cd) comentarioDia = '<details class="est-amplio"><summary>📚 Estudio amplio del bloque — Día ' + p.d + ': ' + p.lecturas.join('; ') + ' <span class="est-vers">(toca para abrir)</span></summary>' +
-          '<div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>' + cd.n + '</p></div>' +
-          '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + cd.p + '</p></div>' +
-          '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural del bloque</h3><p>' + cd.c + '</p></div>' +
-          '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + cd.q + '</p></div>' +
-          '</details>';
-        break;
+      const s = await db.collection('progreso').doc(u.uid).get();
+      if(s.exists && Array.isArray(s.data().dias)){
+        s.data().dias.forEach(x => done.add(x));
+        localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+        if(s.data().inicio && !localStorage.getItem('biblia365_start')) localStorage.setItem('biblia365_start', s.data().inicio);
+        pintarHoy();
       }
-    }
-    if(diaPlan) break;
-  }
+    }catch(e){}
+  });
+}catch(e){}
 
-  out.innerHTML = (textoHtml || '<div class="no-com">No pude cargar el texto (revisa tu conexión), pero aquí está el estudio:</div>') +
-    ctxLibro + curadas + comentarioDia + enlaces;
+function abrirBuscar(){
+  document.getElementById('ovBuscar').classList.add('abierto');
+  setTimeout(() => document.getElementById('qInput').focus(), 50);
 }
-function seccionesDia(d, c){
-  const et = ' <span class="est-vers">· estudio del Día ' + d + '</span>';
-  return '<div class="sec"><h3><span class="ico">🏛</span> Contexto histórico' + et + '</h3><p>' + c.h + '</p></div>' +
-    '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>' + c.c + '</p></div>' +
-    '<div class="sec"><h3><span class="ico">✒</span> Análisis narrativo</h3><p>' + c.n + '</p></div>' +
-    '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + c.p + '</p></div>' +
-    '<div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>' + c.v + '</p></div>' +
-    '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + c.q + '</p></div>';
-}
-function enfocarDia(d){
-  const p = PLAN[d - 1];
-  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[d] : null;
-  const out = document.getElementById('estResultado');
-  out.innerHTML =
-    '<div class="day-head" style="margin-top:.3rem"><div class="etapa-tag">' + p.etapa + '</div>' +
-    '<div class="day-num">Día ' + d + ' de 365 · modo enfoque</div>' +
-    '<h2 class="day-title">' + (c ? c.t : p.lecturas.join(' · ')) + '</h2></div>' +
-    '<div class="lecturas-card"><h3>Pasaje</h3><div class="lect-list">' +
-    p.lecturas.map(l => '<span class="lect-chip" style="cursor:pointer" title="Leer el texto (RV 1909) aquí mismo" onclick="estudiarPasaje(\'' + l.replace(/-\d+\s*$/, '').trim() + '\')">' + l + ' 📖</span>').join('') +
-    '</div><p style="font-family:Inter,sans-serif;font-size:.75rem;color:var(--ink-soft);margin-top:.4rem">Toca un pasaje para leer su texto aquí mismo. Tu día actual del plan no se mueve.</p></div>' +
-    (c ? seccionesDia(d, c) : '<div class="no-com">Este día aún no tiene estudio profundo.</div>');
-  window.scrollTo({ top: 0 });
-}
-function buscarPalabraEst(){
-  const q = normTxt(document.getElementById('estPalabra').value);
-  const out = document.getElementById('estResultado');
-  if(q.length < 3){ out.innerHTML = '<div class="no-com">Escribe al menos 3 letras.</div>'; return; }
-  const res = [];
-  if(typeof COMENTARIOS !== 'undefined'){
+function buscar(q){
+  const out = document.getElementById('qRes'); q = q.trim();
+  if(q.length < 2){ out.innerHTML = '<div class="sin-res">Escribe un pasaje o una palabra…</div>'; return; }
+  let h = '';
+  const m = q.match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+?)\s+(\d+)(?::(\d+))?$/);
+  if(m && IDX[normTxt(m[1])]){
+    const nom = IDX[normTxt(m[1])];
+    h += '<div class="grupo"><h5>Ir al pasaje</h5><div class="res" onclick="location.href=\'biblia.html#' + encodeURIComponent(nom) + '/' + m[2] + (m[3] ? '/' + m[3] : '') + '\'"><b>' + nom + ' ' + m[2] + (m[3] ? ':' + m[3] : '') + '</b><span>Abrir en la Biblia</span></div></div>';
+  }
+  const nq = normTxt(q);
+  if(nq.length >= 3 && typeof COMENTARIOS !== 'undefined'){
+    let rp = [];
     for(const d in COMENTARIOS){
       const c = COMENTARIOS[d];
-      if(normTxt([c.t, c.h, c.c, c.n, c.p, c.v, c.q].join(' ')).includes(q))
-        res.push({ et: 'Plan · Día ' + d, tit: c.t, on: 'enfocarDia(' + d + ')' });
+      if(normTxt([c.t,c.h,c.c,c.n,c.p,c.v,c.q].join(' ')).includes(nq)){ rp.push({ d:d, t:c.t }); if(rp.length >= 6) break; }
     }
+    if(rp.length) h += '<div class="grupo"><h5>Estudios del plan</h5>' + rp.map(r =>
+      '<div class="res" onclick="localStorage.setItem(\'biblia365_current\',' + r.d + ');location.href=\'plan.html\'"><b>Día ' + r.d + '</b><span>' + r.t + '</span></div>').join('') + '</div>';
+    h += '<div class="grupo"><h5>Biblioteca</h5><div class="res" onclick="location.href=\'biblioteca.html\'"><b>Buscar «' + q + '»</b><span>en confesiones, autores e introducciones</span></div></div>';
   }
-  if(typeof CONFESIONES !== 'undefined'){
-    CONFESIONES.lbc.caps.forEach((cap, i) => {
-      if(cap.p && normTxt(cap.t + ' ' + cap.p.join(' ')).includes(q))
-        res.push({ et: '1689 · Cap. ' + (i + 1), tit: cap.t, on: "showView('conf');verConf('lbc');verCap(" + i + ")" });
-    });
-  }
-  if(typeof ESTUDIO !== 'undefined'){
-    ESTUDIO.forEach(e => {
-      if(normTxt(e.ref + ' ' + e.tema + ' ' + e.citas.map(c => c.txt + ' ' + c.autor).join(' ') + ' ' + (e.cruzadas || '')).includes(q))
-        res.push({ et: 'Autores · ' + e.ref, tit: e.tema, on: "estudiarPasaje('" + e.ref + "')" });
-    });
-  }
-  out.innerHTML = res.length ?
-    '<div class="sec"><h3><span class="ico">🔍</span> ' + res.length + ' resultado' + (res.length === 1 ? '' : 's') + ' para «' + esc(document.getElementById('estPalabra').value.trim()) + '»</h3>' +
-    res.slice(0, 50).map(r => '<div class="est-res" onclick="' + r.on + '"><span class="est-res-et">' + r.et + '</span> ' + esc(r.tit) + '</div>').join('') + '</div>' :
-    '<div class="no-com">Sin resultados para esa palabra en los estudios, las confesiones y la base de autores.</div>';
+  out.innerHTML = h || '<div class="sin-res">Sin resultados.</div>';
 }
-
-/* ================= PWA: instalación y sin conexión ================= */
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-/* ================= Recordatorios (notificaciones) ================= */
-function pintarNotif(){
-  const el = document.getElementById('notifBox');
-  if(!el) return;
-  if(!('Notification' in window) || !('serviceWorker' in navigator)){ el.innerHTML = ''; return; }
-  if(Notification.permission === 'granted'){
-    el.innerHTML = `<span class="login-info">🔔 Notificaciones activadas en este dispositivo</span>
-      <button class="btn-login" onclick="probarNotif()">Probar</button>`;
-  } else if(Notification.permission === 'denied'){
-    el.innerHTML = '';
-  } else {
-    el.innerHTML = `<button class="btn-login" onclick="activarNotif()">🔔 Activar recordatorios de lectura</button>`;
-  }
-}
-const VAPID_KEY = 'BEj4NBqEYuwAPoA-Ds2nNh-ac4pGa-6NCjYo_ku3wZlM3sAQIgmqURdIs_cKzf0RWvmV1vSTytW_VOnk4CaWJRU';
-async function registrarTokenFCM(){
-  try{
-    if(!fbDB || !firebase.messaging || !firebase.messaging.isSupported()) return;
-    const reg = await navigator.serviceWorker.ready;
-    const token = await firebase.messaging().getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
-    if(token){
-      await fbDB.collection('tokens').doc(token).set({
-        token: token,
-        nombre: nombre || '',
-        uid: fbUser ? fbUser.uid : null,
-        hora: parseInt(horaGuardada() || '7', 10),
-        tz: new Date().getTimezoneOffset(),
-        creado: new Date().toISOString()
-      }, { merge: true });
-    }
-  }catch(e){}
-}
-async function activarNotif(){
-  try{
-    const p = await Notification.requestPermission();
-    pintarNotif();
-    if(p === 'granted'){ registrarTokenFCM(); probarNotif(); }
-  }catch(e){}
-}
-async function probarNotif(){
-  try{
-    const reg = await navigator.serviceWorker.ready;
-    const hoy = todayPlanDay();
-    const pl = PLAN[hoy - 1];
-    reg.showNotification('📖 La Biblia en un Año', {
-      body: 'Día ' + hoy + ': ' + pl.lecturas.join('; ') + ' — tu lectura de hoy te espera.',
-      icon: 'Logo Ad Fontes.png'
-    });
-  }catch(e){ alert('Este navegador no permite notificaciones aquí.'); }
-}
-
-function renderAll(){ renderDay(); renderPlan(); renderProgress(); renderShare(); }
-renderAll();
-pintarLogin();
-pintarNotif();
-pintarHorario();
-aplicarFuente();
-/* volver a la pestaña donde estaba el usuario */
-(function(){
-  const v0 = localStorage.getItem('biblia365_vista');
-  if(v0 && v0 !== 'hoy' && document.getElementById('view-' + v0)) showView(v0);
-})();
-/* bienvenida para visitantes nuevos */
-setTimeout(function(){
-  if(!fbUser && !nombre && !localStorage.getItem(LS_BV)) abrirBienvenida();
-}, 1200);
-if('Notification' in window && Notification.permission === 'granted'){ setTimeout(registrarTokenFCM, 2500); }
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); abrirBuscar(); }
+  if(e.key === 'Escape') document.querySelectorAll('.overlay.abierto').forEach(o => o.classList.remove('abierto'));
+});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+pintarHoy();
 </script>
 </body>
 </html>
