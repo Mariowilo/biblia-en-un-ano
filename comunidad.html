@@ -211,14 +211,17 @@ select,input.txt{font-family:'Inter',sans-serif;font-size:.85rem;padding:.45rem 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
-const ADMIN_EMAIL = 'mariowillow9717@gmail.com';
+/* El administrador se verifica en el servidor (reglas de Firestore).
+   Aquí solo decidimos si mostrar los botones: comparamos una huella, no el correo. */
+const ADMIN_H = 549305618;
+function huella(s){ let h = 5381; for(const c of String(s)) h = (((h * 33) ^ c.charCodeAt(0)) >>> 0); return h; }
 const VAPID_KEY = 'BEj4NBqEYuwAPoA-Ds2nNh-ac4pGa-6NCjYo_ku3wZlM3sAQIgmqURdIs_cKzf0RWvmV1vSTytW_VOnk4CaWJRU';
 const LS_HORA = 'biblia365_hora', LS_NAME = 'biblia365_nombre', LS_FUENTE = 'af_fuente', LS_BV = 'biblia365_bienvenida';
 let fbUser = null, fbDB = null;
 let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
 let nombre = localStorage.getItem(LS_NAME) || '';
 const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
-function esAdmin(){ return !!(fbUser && fbUser.email === ADMIN_EMAIL); }
+function esAdmin(){ return !!(fbUser && fbUser.email && huella(fbUser.email) === ADMIN_H); }
 function hoyStr(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fechaCorta(iso){ const f = new Date(iso); return f.toLocaleDateString('es',{day:'numeric',month:'short'}) + ' · ' + f.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}); }
 function diaHoy(){
