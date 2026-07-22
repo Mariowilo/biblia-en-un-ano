@@ -40,6 +40,21 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 .pill.act{background:var(--carbon);color:#fff;border-color:var(--carbon)}
 .buscar-v{margin-left:auto;font-family:'Inter',sans-serif;font-size:.82rem;padding:.45rem .7rem;border:1px solid var(--line);border-radius:9px;background:#fff;min-width:180px}
 
+.serie-panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.6rem}
+.serie-panel h3{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--carbon);margin:0}
+.serie-sub{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--ink-soft);margin:.15rem 0 .7rem}
+.serie-barra{height:5px;border-radius:3px;background:#e6e0d6;overflow:hidden;margin-bottom:1rem}
+.serie-barra div{height:100%;background:var(--gold)}
+.serie-rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.45rem}
+.cel{border:1px solid var(--line);border-radius:9px;padding:.5rem .65rem;background:#fff;text-decoration:none;display:block}
+.cel b{display:block;font-family:'Inter',sans-serif;font-size:.63rem;letter-spacing:.09em;text-transform:uppercase;color:#a9a29a;font-weight:600}
+.cel span{display:block;font-family:'Inter',sans-serif;font-size:.78rem;color:#a9a29a;line-height:1.3;margin-top:.1rem}
+.cel.hay{border-color:var(--line)}
+.cel.hay b{color:#8a6a24}
+.cel.hay span{color:var(--carbon)}
+.cel.hay:hover{border-color:var(--gold);transform:translateY(-1px);transition:.15s}
+.serie-pie{font-family:'Inter',sans-serif;font-size:.73rem;color:var(--ink-soft);margin-top:.9rem}
+.serie-pie a{color:#8a6a24}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s;display:flex;flex-direction:column}
 .card:hover{border-color:var(--gold);transform:translateY(-2px)}
@@ -134,6 +149,11 @@ function fechaBonita(iso){
   return isNaN(f) ? '' : f.toLocaleDateString('es', { day:'numeric', month:'long', year:'numeric' });
 }
 /* Une lo automático (YouTube) con lo curado (tu texto y pasajes) */
+const NOMBRE_SERIE = { lbc: 'Confesión 1689', west: 'Westminster' };
+const CONF_CAPS = {
+  lbc: ["De las Santas Escrituras","De Dios y de la Santa Trinidad","Del decreto de Dios","De la creación","De la divina providencia","De la caída del hombre, del pecado y su castigo","Del pacto de Dios","De Cristo el Mediador","Del libre albedrío","Del llamamiento eficaz","De la justificación","De la adopción","De la santificación","De la fe salvadora","Del arrepentimiento para vida y salvación","De las buenas obras","De la perseverancia de los santos","De la seguridad de la gracia y de la salvación","De la ley de Dios","Del evangelio y del alcance de su gracia","De la libertad cristiana y de la libertad de conciencia","De la adoración religiosa y del día de reposo","De los juramentos y votos lícitos","Del magistrado civil","Del matrimonio","De la iglesia","De la comunión de los santos","Del bautismo y la cena del Señor","Del bautismo","De la cena del Señor","Del estado del hombre después de la muerte y de la resurrección de los muertos","Del juicio final"],
+  west: ["De las Santas Escrituras","De Dios y de la Santísima Trinidad","Del decreto eterno de Dios","De la creación","De la providencia","De la caída del hombre, del pecado y su castigo","Del pacto de Dios con el hombre","De Cristo el Mediador","Del libre albedrío","Del llamamiento eficaz","De la justificación","De la adopción","De la santificación","De la fe salvadora","Del arrepentimiento para vida","De las buenas obras","De la perseverancia de los santos","De la seguridad de la gracia y de la salvación","De la ley de Dios","De la libertad cristiana y de la libertad de conciencia","De la adoración religiosa y del día de reposo","De los juramentos y votos lícitos","Del magistrado civil","Del matrimonio y del divorcio","De la iglesia","De la comunión de los santos","De los sacramentos","Del bautismo","De la cena del Señor","De las censuras eclesiásticas","De los sínodos y concilios","Del estado del hombre después de la muerte y de la resurrección de los muertos","Del juicio final"]
+};
 function todos(){
   const cur = (typeof CURADOS !== 'undefined') ? CURADOS : {};
   const auto = (typeof VIDEOS !== 'undefined') ? VIDEOS : [];
@@ -141,14 +161,38 @@ function todos(){
   const lista = auto.map(v => {
     vistos.add(v.yt);
     const c = cur[v.yt] || {};
-    return { yt: v.yt, titulo: v.titulo, fecha: v.fecha, ytDesc: v.desc || '', serie: c.serie || '', texto: c.texto || '', pasajes: c.pasajes || [] };
+    return { yt: v.yt, titulo: v.titulo, fecha: v.fecha, ytDesc: v.desc || '',
+      serie: c.serie || NOMBRE_SERIE[v.serie] || '', conf: v.serie || '', caps: v.caps || [], parte: v.parte || '',
+      texto: c.texto || '', pasajes: c.pasajes || [] };
   });
   Object.keys(cur).forEach(k => {
     if(vistos.has(k)) return;
     const c = cur[k];
-    lista.push({ yt: k, titulo: c.titulo || c.serie || 'Video', fecha: '', ytDesc: '', serie: c.serie || '', texto: c.texto || '', pasajes: c.pasajes || [] });
+    lista.push({ yt: k, titulo: c.titulo || c.serie || 'Video', fecha: '', ytDesc: '', serie: c.serie || '', conf: '', caps: [], parte: '', texto: c.texto || '', pasajes: c.pasajes || [] });
   });
   return lista;
+}
+/* Índice de la serie de una confesión: qué capítulos ya tienen video y cuáles faltan */
+function panelConfesion(lista, id){
+  const vs = lista.filter(v => v.conf === id && v.caps.length);
+  if(!vs.length) return '';
+  const caps = (typeof CONF_CAPS !== 'undefined' && CONF_CAPS[id]) ? CONF_CAPS[id] : [];
+  const total = caps.length || (id === 'lbc' ? 32 : 33);
+  const porCap = {};
+  vs.forEach(v => v.caps.forEach(n => { if(!porCap[n]) porCap[n] = v; }));
+  const hechos = Object.keys(porCap).length;
+  let celdas = '';
+  for(let n = 1; n <= total; n++){
+    const v = porCap[n], t = caps[n-1] || ('Capítulo ' + n);
+    celdas += v
+      ? '<a class="cel hay" href="https://www.youtube.com/watch?v=' + v.yt + '" target="_blank" rel="noopener"><b>Cap. ' + n + '</b><span>' + t + '</span></a>'
+      : '<div class="cel"><b>Cap. ' + n + '</b><span>En preparación</span></div>';
+  }
+  return '<div class="serie-panel"><h3>' + (id === 'lbc' ? 'La Confesión de 1689, capítulo por capítulo' : 'La Confesión de Westminster, capítulo por capítulo') + '</h3>' +
+    '<div class="serie-sub">' + hechos + ' de ' + total + ' publicados</div>' +
+    '<div class="serie-barra"><div style="width:' + Math.round(hechos / total * 100) + '%"></div></div>' +
+    '<div class="serie-rejilla">' + celdas + '</div>' +
+    '<div class="serie-pie">Cada capítulo con video también lo muestra dentro de la <a href="biblioteca.html#confesiones">Confesión en la Biblioteca</a>.</div></div>';
 }
 let filtro = '', busca = '';
 function pintar(){
@@ -162,8 +206,11 @@ function pintar(){
   const vis = lista.filter(v => (!filtro || v.serie === filtro) &&
     (!busca || normTxt(v.titulo + ' ' + v.texto + ' ' + v.ytDesc + ' ' + v.serie).includes(normTxt(busca))));
 
+  const paneles = (!busca && (!filtro || filtro === 'Confesión 1689' || filtro === 'Westminster'))
+    ? panelConfesion(lista, 'lbc') + panelConfesion(lista, 'west') : '';
+
   document.getElementById('lista').innerHTML = lista.length ? (vis.length ?
-    '<div class="grid">' + vis.map((v, i) =>
+    paneles + '<div class="grid">' + vis.map((v, i) =>
       '<div class="card" onclick="abrir(' + i + ')">' +
       '<div class="thumb"><img loading="lazy" src="https://img.youtube.com/vi/' + v.yt + '/mqdefault.jpg" alt=""><div class="play">▶</div></div>' +
       '<div class="cuerpo"><h3>' + v.titulo + '</h3>' +

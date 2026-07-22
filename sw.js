@@ -1,5 +1,5 @@
 /* Service Worker — La Biblia en un Año (PWA: sin conexión + notificaciones) */
-const CACHE = 'adfontes-v16';
+const CACHE = 'adfontes-v17';
 const FILES = ['./', 'index.html', 'biblia.html', 'plan.html', 'biblioteca.html', 'comunidad.html', 'videos.html', 'plan.js', 'planes.js', 'comentarios.js', 'confesiones.js', 'estudio.js', 'contextos.js', 'referencias.js', 'videos.js', 'recursos.js', 'manifest.json', 'Logo Ad Fontes.png'];
 
 self.addEventListener('install', e => {

@@ -59,6 +59,19 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 .num-grid button{font-family:'Inter',sans-serif;font-size:.78rem;width:40px;height:36px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink)}
 .num-grid button:hover{border-color:var(--gold)}
 .num-grid button.act{background:var(--carbon);color:#fff;border-color:var(--carbon)}
+.num-grid button.con-vid{position:relative}
+.num-grid button.con-vid::after{content:'';position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--gold);border:1.5px solid var(--paper)}
+
+/* Video del capítulo (detectado por el título en YouTube) */
+.vid-cap{display:flex;flex-direction:column;gap:.5rem;margin:0 0 1.4rem}
+.vid-fila{display:flex;align-items:center;gap:.9rem;text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;transition:.15s}
+.vid-fila:hover{border-color:var(--gold);transform:translateY(-1px)}
+.vid-fila img{width:104px;height:59px;object-fit:cover;border-radius:8px;flex:0 0 auto;background:#eae5dc}
+.vid-txt{min-width:0;flex:1}
+.vid-et{font-family:'Inter',sans-serif;font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:#8a6a24}
+.vid-tit{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--carbon);line-height:1.25;margin-top:.1rem}
+.vid-des{font-family:'Inter',sans-serif;font-size:.75rem;color:var(--ink-soft);line-height:1.4;margin-top:.15rem}
+.vid-play{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#c0392b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem}
 
 .doc{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.8rem;max-width:760px;margin:0 auto}
 .doc h2{font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:var(--carbon);margin-bottom:.3rem}
@@ -223,6 +236,7 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 </div>
 
 <script src="confesiones.js"></script>
+<script src="videos.js"></script>
 <script src="estudio.js"></script>
 <script src="contextos.js"></script>
 <script>
@@ -255,23 +269,44 @@ function partirRefs(tx){
   if(!m || !/\d/.test(m[2])) return { t: tx, refs: [] };
   return { t: m[1], refs: m[2].split(';').map(r => r.trim()).filter(Boolean) };
 }
+/* Videos de la serie, detectados por el título en YouTube (ver videos.yml) */
+function videosDeCap(serie, n){
+  if(typeof VIDEOS === 'undefined') return [];
+  return VIDEOS.filter(v => v.serie === serie && Array.isArray(v.caps) && v.caps.includes(n))
+               .sort((a, b) => String(a.parte || '').localeCompare(String(b.parte || '')));
+}
+function tarjetaVideo(serie, n, titCap){
+  const vs = videosDeCap(serie, n);
+  if(!vs.length) return '';
+  return '<div class="vid-cap">' + vs.map(v => {
+    const ex = (v.desc || '').split('\n').filter(x => x.trim())[0] || '';
+    return '<a class="vid-fila" href="https://www.youtube.com/watch?v=' + v.yt + '" target="_blank" rel="noopener">' +
+      '<img src="https://i.ytimg.com/vi/' + v.yt + '/mqdefault.jpg" alt="" loading="lazy">' +
+      '<div class="vid-txt">' +
+        '<div class="vid-et">La confesión en video · Cap. ' + n + (v.parte ? ' · parte ' + v.parte : '') + '</div>' +
+        '<div class="vid-tit">' + titCap + '</div>' +
+        (ex ? '<div class="vid-des">' + ex.slice(0, 130) + (ex.length > 130 ? '…' : '') + '</div>' : '') +
+      '</div><span class="vid-play">▶</span></a>';
+  }).join('') + '</div>';
+}
 function pintarConf(){
   if(typeof CONFESIONES === 'undefined') return;
   const c = CONFESIONES[confId];
   document.getElementById('pLbc').classList.toggle('act', confId === 'lbc');
   document.getElementById('pWest').classList.toggle('act', confId === 'west');
   document.getElementById('capsConf').innerHTML = c.caps.map((cap, i) =>
-    '<button class="' + (i === confCap ? 'act' : '') + '" title="' + cap.t + '" onclick="verCapConf(' + i + ')">' + (i+1) + '</button>').join('');
+    '<button class="' + (i === confCap ? 'act' : '') + (videosDeCap(confId, i+1).length ? ' con-vid' : '') + '" title="' + cap.t + (videosDeCap(confId, i+1).length ? ' — tiene video' : '') + '" onclick="verCapConf(' + i + ')">' + (i+1) + '</button>').join('');
   const cap = c.caps[confCap];
+  const vid = cap ? tarjetaVideo(confId, confCap + 1, cap.t) : '';
   document.getElementById('docConf').innerHTML = (cap && cap.p) ?
-    '<div class="doc"><h2>Capítulo ' + (confCap+1) + ' · ' + cap.t + '</h2><div class="doc-sub">' + c.titulo + '</div>' +
+    '<div class="doc"><h2>Capítulo ' + (confCap+1) + ' · ' + cap.t + '</h2><div class="doc-sub">' + c.titulo + '</div>' + vid +
     cap.p.map((tx, i) => {
       const s = partirRefs(tx);
       return '<p class="par"><strong class="n">' + (i+1) + '.</strong> ' + s.t + '</p>' +
         (s.refs.length ? '<div class="refs">' + s.refs.map(r => '<span class="ref-chip" onclick="verVerso(\'' + r.replace(/'/g, "\\'") + '\')">' + r + '</span>').join('') + '</div>' : '');
     }).join('') +
     '<div class="nota-pie">' + c.nota + ' · Toca una referencia para leerla en la Biblia.</div></div>' :
-    '<div class="doc"><h2>' + (cap ? cap.t : '') + '</h2><p class="par">Este capítulo estará disponible pronto. Estamos incorporando el texto por partes.</p></div>';
+    '<div class="doc"><h2>' + (cap ? cap.t : '') + '</h2>' + vid + '<p class="par">Este capítulo estará disponible pronto. Estamos incorporando el texto por partes.</p></div>';
 }
 
 /* ===== Autores ===== */
