@@ -91,6 +91,16 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 .res b{font-family:'Inter',sans-serif;font-size:.78rem;color:var(--carbon);white-space:nowrap}
 .res span{font-size:.88rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sin-res{padding:1.2rem 1.3rem;color:var(--ink-soft);font-style:italic}
+#vBox{background:#fff;border-radius:14px;max-width:600px;width:100%;max-height:76vh;overflow:auto;padding:1.3rem 1.5rem;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.35)}
+#vTit{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.35rem;color:var(--carbon);margin-bottom:.6rem;padding-right:1.6rem}
+#vTxt .vv{display:flex;gap:.7rem;padding:.4rem 0;border-bottom:1px dashed #efe9dc;align-items:flex-start}
+#vTxt .vv:last-child{border-bottom:none}
+#vTxt .vn{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:700;color:#fff;background:var(--gold);border-radius:6px;min-width:1.7rem;text-align:center;padding:.12rem 0;margin-top:.3rem;flex-shrink:0}
+#vTxt p{margin:0;flex:1}
+.v-pie{margin-top:.9rem;font-family:'Inter',sans-serif;font-size:.72rem;color:var(--ink-soft);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:.7rem}
+.v-pie a{color:#7a5b1e;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem}
+.v-pie a:hover{border-color:var(--gold)}
+#vCerrar{position:absolute;top:.7rem;right:.8rem;background:none;border:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft)}
 @media(max-width:680px){
   html,body{overflow-x:hidden;max-width:100%}
   body{font-size:17px}
@@ -191,6 +201,19 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
   </div>
 </div>
 
+<!-- Lector de versículos -->
+<div class="overlay" id="ovVerso" onclick="if(event.target===this)this.classList.remove('abierto')">
+  <div id="vBox">
+    <button id="vCerrar" onclick="document.getElementById('ovVerso').classList.remove('abierto')">✕</button>
+    <div id="vTit"></div>
+    <div id="vTxt"></div>
+    <div class="v-pie">
+      <span>Reina-Valera 1909</span>
+      <a id="vAbrir" href="#">📖 Abrir en la Biblia →</a>
+    </div>
+  </div>
+</div>
+
 <!-- Búsqueda -->
 <div class="overlay" id="ovBuscar" onclick="if(event.target===this)this.classList.remove('abierto')">
   <div class="tarjeta">
@@ -245,7 +268,7 @@ function pintarConf(){
     cap.p.map((tx, i) => {
       const s = partirRefs(tx);
       return '<p class="par"><strong class="n">' + (i+1) + '.</strong> ' + s.t + '</p>' +
-        (s.refs.length ? '<div class="refs">' + s.refs.map(r => '<a class="ref-chip" href="' + urlPasaje(r) + '">' + r + '</a>').join('') + '</div>' : '');
+        (s.refs.length ? '<div class="refs">' + s.refs.map(r => '<span class="ref-chip" onclick="verVerso(\'' + r.replace(/'/g, "\\'") + '\')">' + r + '</span>').join('') + '</div>' : '');
     }).join('') +
     '<div class="nota-pie">' + c.nota + ' · Toca una referencia para leerla en la Biblia.</div></div>' :
     '<div class="doc"><h2>' + (cap ? cap.t : '') + '</h2><p class="par">Este capítulo estará disponible pronto. Estamos incorporando el texto por partes.</p></div>';
@@ -286,6 +309,47 @@ function pintarLibros(){
     return '<div class="tarjeta-lib"><div class="met">' + x.a + ' · ' + x.f + '</div><h4>' + n + '</h4><p style="font-size:.98rem">' + x.m + '</p>' +
       '<a class="abrir" href="biblia.html#' + encodeURIComponent(n) + '/1">📖 Abrir ' + n + ' 1 →</a></div>';
   }).join('');
+}
+
+/* ===== Lector de versículos (RV 1909) ===== */
+const NUMLIB = {}; NOMBRES.forEach((n, i) => NUMLIB[n] = i + 1);
+const LIBROS_UNICAP = { 'Abdías':1, 'Filemón':1, '2 Juan':1, '3 Juan':1, 'Judas':1 };
+const cacheV = {};
+async function verVerso(ref){
+  const ov = document.getElementById('ovVerso');
+  document.getElementById('vTit').textContent = ref;
+  document.getElementById('vAbrir').href = urlPasaje(ref);
+  const cont = document.getElementById('vTxt');
+  cont.innerHTML = '<p style="color:var(--ink-soft);font-style:italic">Cargando…</p>';
+  ov.classList.add('abierto');
+  try{
+    let html = '';
+    for(const parte of String(ref).split(/\s+con\s+/)){
+      const m = parte.trim().match(/^([123]?\s?[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)\.?\s+(\d+)(?::([\d,\-]+))?$/);
+      if(!m) continue;
+      const clave = normTxt(m[1]).replace(/\s+/g, '');
+      const libro = IDX[normTxt(m[1])] || ABREV[clave];
+      if(!libro) continue;
+      let cap = parseInt(m[2], 10), vv = m[3];
+      if(LIBROS_UNICAP[libro] && !vv){ vv = String(cap); cap = 1; }
+      const url = 'https://api.getbible.net/v2/valera/' + NUMLIB[libro] + '/' + cap + '.json';
+      if(!cacheV[url]){
+        const r = await fetch(url);
+        if(!r.ok) throw 0;
+        cacheV[url] = await r.json();
+      }
+      let nums = [];
+      if(vv) vv.split(',').forEach(seg => { const ab = seg.split('-').map(Number); for(let i = ab[0]; i <= (ab[1] || ab[0]); i++) nums.push(i); });
+      const todos = cacheV[url].verses || [];
+      const sel = nums.length ? todos.filter(v => nums.includes(v.verse)) : todos.slice(0, 8);
+      html += '<div style="font-family:Inter,sans-serif;font-size:.72rem;color:#7a5b1e;margin:.5rem 0 .2rem">' + parte.trim() + '</div>' +
+        sel.map(v => '<div class="vv"><span class="vn">' + v.verse + '</span><p>' + v.text + '</p></div>').join('') +
+        (!nums.length && todos.length > 8 ? '<p style="font-family:Inter,sans-serif;font-size:.72rem;color:var(--ink-soft);margin-top:.4rem">(primeros versículos — abre el capítulo completo abajo)</p>' : '');
+    }
+    cont.innerHTML = html || '<p style="color:var(--ink-soft);font-style:italic">No pude interpretar esta referencia. Ábrela en la Biblia con el enlace de abajo.</p>';
+  }catch(e){
+    cont.innerHTML = '<p style="color:var(--ink-soft);font-style:italic">No pude cargar el texto (revisa tu conexión). Puedes abrirlo en la Biblia con el enlace de abajo.</p>';
+  }
 }
 
 /* ===== Búsqueda ===== */

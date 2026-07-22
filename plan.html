@@ -63,6 +63,17 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 .sec.pregunta p{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:600;color:#2c4a34;text-align:left}
 .sin-est{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:1.6rem;text-align:center;color:var(--ink-soft);font-style:italic}
 
+.config{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.config h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--carbon);margin-bottom:.2rem}
+.config .ay{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--ink-soft);margin-bottom:.9rem;line-height:1.5}
+.cfg-fila{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font-family:'Inter',sans-serif;font-size:.82rem;margin-bottom:.7rem}
+.cfg-fila label{color:var(--ink-soft);min-width:100%}
+.cfg-fila input[type=text], .cfg-fila input[type=date], .cfg-fila select{font-family:'Inter',sans-serif;font-size:.85rem;padding:.5rem .65rem;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);flex:1;min-width:170px}
+.cfg-res{font-family:'Inter',sans-serif;font-size:.8rem;color:#2c4a34;background:#eef6ef;border:1px solid #bcd8c0;border-radius:9px;padding:.55rem .8rem;margin-top:.2rem;width:100%}
+.cfg-res.err{background:#fdf0ef;border-color:#e0bcbc;color:#8a3b3b}
+.cerrar-cfg{background:none;border:none;color:var(--ink-soft);font-family:'Inter',sans-serif;font-size:.74rem;cursor:pointer;text-decoration:underline;margin-top:.3rem}
+.abrir-cfg{background:none;border:1px solid var(--line);border-radius:9px;color:var(--carbon);font-family:'Inter',sans-serif;font-size:.76rem;padding:.45rem .8rem;cursor:pointer;margin-bottom:1rem}
+.abrir-cfg:hover{border-color:var(--gold)}
 .dia-nav{display:flex;justify-content:space-between;gap:.7rem;margin-top:1.6rem;font-family:'Inter',sans-serif}
 .dia-nav button{font-size:.82rem;font-weight:500;background:#fff;border:1px solid var(--line);border-radius:9px;padding:.6rem 1rem;cursor:pointer;color:var(--carbon)}
 .dia-nav button:hover{border-color:var(--gold)}
@@ -117,6 +128,7 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 <div class="progreso-linea"><div id="progFill"></div></div>
 
 <div class="pagina">
+  <div id="configZona"></div>
   <div class="dia-cab">
     <div class="etapa-tag" id="etapa">…</div>
     <div class="dia-num" id="diaNum"></div>
@@ -212,6 +224,70 @@ async function empujarNube(){
   }catch(e){}
 }
 
+/* ===== Configurar dónde empiezo ===== */
+let cfgAbierta = false;
+function pintarConfig(){
+  const z = document.getElementById('configZona');
+  const nuevo = !localStorage.getItem('biblia365_start') && done.size === 0;
+  if(!cfgAbierta && !nuevo){
+    z.innerHTML = '<button class="abrir-cfg" onclick="cfgAbierta=true;pintarConfig()">⚙️ Ajustar dónde voy en el plan</button>';
+    return;
+  }
+  z.innerHTML =
+    '<div class="config"><h3>' + (nuevo ? '¡Bienvenido al plan!' : 'Ajustar mi lugar en el plan') + '</h3>' +
+    '<div class="ay">Si ya venías leyendo la Biblia, dinos por dónde vas y calculamos tu día. Si empiezas hoy desde el principio, solo pulsa «Comenzar desde el Día 1».</div>' +
+    '<div class="cfg-fila"><label>📖 ¿En qué pasaje vas?</label>' +
+    '<input type="text" id="cfgPasaje" placeholder="p. ej. Éxodo 12, Salmos 40, Juan 3" onkeydown="if(event.key===\'Enter\')buscarPasaje()">' +
+    '<button class="btn btn-pri" onclick="buscarPasaje()">Ubicarme</button></div>' +
+    '<div class="cfg-fila"><label>📅 O elige el día del plan (1 a 365)</label>' +
+    '<input type="text" id="cfgDia" placeholder="p. ej. 84" onkeydown="if(event.key===\'Enter\')fijarDia()">' +
+    '<button class="btn btn-sec" onclick="fijarDia()">Fijar día</button>' +
+    '<button class="btn btn-sec" onclick="fijarDia(1)">Comenzar desde el Día 1</button></div>' +
+    '<div id="cfgRes"></div>' +
+    (nuevo ? '' : '<button class="cerrar-cfg" onclick="cfgAbierta=false;pintarConfig()">Cerrar</button>') +
+    '</div>';
+}
+function fijarDia(n){
+  const v = n || parseInt((document.getElementById('cfgDia') || {}).value || '0', 10);
+  if(!v || v < 1 || v > 365){
+    document.getElementById('cfgRes').innerHTML = '<div class="cfg-res err">Escribe un número entre 1 y 365.</div>';
+    return;
+  }
+  aplicarDia(v);
+}
+function buscarPasaje(){
+  const raw = (document.getElementById('cfgPasaje').value || '').trim();
+  const res = document.getElementById('cfgRes');
+  const m = raw.match(/^(.+?)\s*(\d+)?\s*(?::.*)?$/);
+  if(!m || !m[1]){ res.innerHTML = '<div class="cfg-res err">Escribe un libro y capítulo, p. ej. «Éxodo 12».</div>'; return; }
+  const libro = IDX[normTxt(m[1])] !== undefined ? NOMBRES[IDX[normTxt(m[1])]] : null;
+  const cap = parseInt(m[2] || '1', 10);
+  if(!libro){ res.innerHTML = '<div class="cfg-res err">No reconozco ese libro. Prueba con el nombre completo: «1 Samuel», «Salmos», «Apocalipsis».</div>'; return; }
+  for(const p of PLAN){
+    for(const l of p.lecturas){
+      const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
+      if(!lm || lm[1] !== libro) continue;
+      const ini = parseInt(lm[2],10), fin = parseInt(lm[3] || lm[2],10);
+      if(cap >= ini && cap <= fin){
+        res.innerHTML = '<div class="cfg-res">📍 <strong>' + libro + ' ' + cap + '</strong> se lee el <strong>Día ' + p.d + '</strong> (' + p.lecturas.join('; ') + ').<br>' +
+          '<button class="btn btn-pri" style="margin-top:.5rem" onclick="aplicarDia(' + p.d + ')">Continuar desde aquí ✓</button></div>';
+        return;
+      }
+    }
+  }
+  res.innerHTML = '<div class="cfg-res err">No encontré ese capítulo en el plan. Revisa el número.</div>';
+}
+function aplicarDia(n){
+  for(let i = 1; i < n; i++) done.add(i);
+  localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+  const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - (n - 1));
+  const iso = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
+  localStorage.setItem('biblia365_start', iso);
+  empujarNube();
+  cfgAbierta = false;
+  irDia(n);
+}
+
 /* ===== render del día ===== */
 function irDia(d){
   D = Math.min(Math.max(1, d), 365);
@@ -266,6 +342,7 @@ function pintarDia(){
   document.getElementById('navPrev').disabled = (D === 1);
   document.getElementById('navNext').disabled = (D === 365);
   document.getElementById('progFill').style.width = Math.round(done.size / 365 * 100) + '%';
+  pintarConfig();
 }
 
 /* ===== búsqueda federada ===== */
