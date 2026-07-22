@@ -30,6 +30,49 @@ jobs:
           URL = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + CANAL
           NS = {'a':'http://www.w3.org/2005/Atom','yt':'http://www.youtube.com/xml/schemas/2015','media':'http://search.yahoo.com/mrss/'}
 
+          # --- Deteccion automatica de series por el titulo del video ---
+          # Ejemplos que reconoce:
+          #   "1689 - Capitulo 7 - Del pacto de Dios"
+          #   "Confesion 1689 | Capitulos 25-26 | La iglesia"
+          #   "1689 - Capitulo 1 (1/2) - Las Santas Escrituras"
+          #   "Westminster - Capitulo 3 - Del decreto eterno"
+          def serie_de(titulo, desc):
+              t = (titulo + ' ' + desc).lower()
+              t = (t.replace('á','a').replace('é','e').replace('í','i')
+                     .replace('ó','o').replace('ú','u').replace('ü','u'))
+              if re.search(r'westminster|\bwcf\b', t):
+                  serie = 'west'
+              elif re.search(r'1689|londres|\blbc\b|confesion bautista', t):
+                  serie = 'lbc'
+              else:
+                  return None
+              m = re.search(r'capitulos?\s*([0-9]+(?:\s*(?:[-a-y,y]|hasta)\s*[0-9]+)*)', t)
+              if not m:
+                  return None
+              crudo = m.group(1)
+              caps = []
+              for tramo in re.split(r'[,y]| y ', crudo):
+                  tramo = tramo.strip()
+                  if not tramo:
+                      continue
+                  r2 = re.match(r'^([0-9]+)\s*(?:-|a|hasta)\s*([0-9]+)$', tramo)
+                  if r2:
+                      ini, fin = int(r2.group(1)), int(r2.group(2))
+                      if 1 <= ini <= fin <= 33 and fin - ini < 12:
+                          caps.extend(range(ini, fin + 1))
+                  elif tramo.isdigit():
+                      n = int(tramo)
+                      if 1 <= n <= 33:
+                          caps.append(n)
+              caps = sorted(set(caps))
+              if not caps:
+                  return None
+              dato = {'serie': serie, 'caps': caps}
+              p = re.search(r'\(\s*([0-9]+)\s*/\s*([0-9]+)\s*\)', titulo)
+              if p:
+                  dato['parte'] = p.group(1) + '/' + p.group(2)
+              return dato
+
           videos = []
           try:
               r = requests.get(URL, timeout=30, headers={'User-Agent':'AdFontesBot/1.0'})
@@ -45,12 +88,17 @@ jobs:
                       continue
                   texto = (des.text or '') if des is not None else ''
                   texto = texto.strip().replace('\r', '')
-                  videos.append({
+                  titulo = (tit.text or '').strip()
+                  item = {
                       'yt': vid.text,
-                      'titulo': (tit.text or '').strip(),
+                      'titulo': titulo,
                       'fecha': (pub.text or '')[:10] if pub is not None else '',
                       'desc': texto[:600]
-                  })
+                  }
+                  s = serie_de(titulo, texto)
+                  if s:
+                      item.update(s)
+                  videos.append(item)
           except Exception as ex:
               print('No se pudo leer el canal:', ex)
               raise SystemExit(0)   # no rompemos el sitio si YouTube falla
@@ -65,6 +113,10 @@ jobs:
                   ids = {v['yt'] for v in videos}
                   for v in previos:
                       if v.get('yt') and v['yt'] not in ids:
+                          v.pop('serie', None); v.pop('caps', None); v.pop('parte', None)
+                          s = serie_de(v.get('titulo',''), v.get('desc',''))
+                          if s:
+                              v.update(s)
                           videos.append(v)
           except Exception:
               pass
