@@ -53,6 +53,27 @@ body{background:var(--cream);color:var(--ink);font-family:'EB Garamond',Georgia,
 .fila .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
 .fila .dat{min-width:100px;text-align:right;color:var(--ink-soft);font-size:.8rem}
 .hoy-tag{font-size:.62rem;font-weight:600;background:#e9f2ea;color:var(--green);border:1px solid #bcd8c0;border-radius:10px;padding:.05rem .4rem}
+
+/* Hermanos en el camino — crece sin perder la armonía */
+.herm-resumen{display:flex;gap:.5rem;margin-bottom:1rem}
+.hr-dato{flex:1;background:var(--cream);border-radius:10px;padding:.6rem .5rem;text-align:center;font-family:'Inter',sans-serif}
+.hr-dato b{display:block;font-size:1.25rem;font-weight:600;color:var(--carbon);line-height:1.1}
+.hr-dato span{display:block;font-size:.68rem;color:var(--ink-soft);margin-top:.1rem}
+.herm-buscar{width:100%;font-family:'Inter',sans-serif;font-size:.82rem;padding:.5rem .7rem;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--carbon);margin-bottom:.8rem;box-sizing:border-box}
+.herm-buscar:focus{outline:none;border-color:var(--gold)}
+.herm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:.5rem}
+.herm{background:#fff;border:1px solid var(--line);border-radius:10px;padding:.55rem .65rem;font-family:'Inter',sans-serif;min-width:0}
+.herm.hoy{border-color:#bcd8c0;background:#fbfdfb}
+.herm-cab{display:flex;align-items:center;gap:.4rem;min-width:0}
+.herm .ini{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--cream);color:#8a6a24;font-size:.62rem;font-weight:600;display:flex;align-items:center;justify-content:center}
+.herm .hn{flex:1;min-width:0;font-size:.8rem;font-weight:600;color:var(--carbon);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.herm .hoy-tag{flex:0 0 auto}
+.herm .borrar{flex:0 0 auto;font-size:.7rem}
+.herm-bar{height:5px;background:var(--cream);border-radius:3px;overflow:hidden;margin:.45rem 0 .3rem}
+.herm-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.herm-dat{font-size:.68rem;color:var(--ink-soft)}
+.ver-mas{display:block;width:100%;margin-top:.8rem;background:none;border:1px dashed var(--line);border-radius:9px;padding:.55rem;font-family:'Inter',sans-serif;font-size:.8rem;color:#8a6a24;cursor:pointer}
+.ver-mas:hover{border-color:var(--gold);border-style:solid}
 .borrar{background:none;border:none;cursor:pointer;opacity:.5;font-size:.85rem}
 .borrar:hover{opacity:1}
 
@@ -107,6 +128,9 @@ select,input.txt{font-family:'Inter',sans-serif;font-size:.85rem;padding:.45rem 
   .card{padding:1.1rem 1.2rem}
   .card h2{font-size:1.25rem}
   .acciones .btn{flex:1 1 100%;justify-content:center}
+  .herm-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.4rem}
+  .hr-dato b{font-size:1.05rem}
+  .hr-dato span{font-size:.62rem}
   .fila{flex-wrap:wrap;gap:.4rem}
   .fila .nom{min-width:0;flex:1 1 100%}
   .fila .bar{min-width:0;flex:1}
@@ -290,22 +314,82 @@ function compartir(){
   else window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
 }
 
-/* ===== Tablero ===== */
+/* ===== Tablero =====
+   Alfabético, sin ranking. Crece bien: resumen arriba, tarjetas iguales,
+   nombres acortados con elegancia, y se muestran por tandas. */
+const TANDA = 12;
+let tabFilas = [], tabTodos = false, tabBusca = '';
+
+/* «María Fernanda Rodríguez Salas» → «María F. R. S.» — nunca rompe la cuadrícula */
+function nombreCorto(n){
+  const s = String(n).replace(/\s+/g, ' ').trim();
+  if(s.length <= 16) return s;
+  const p = s.split(' ');
+  if(p.length > 1){
+    const c = p[0] + ' ' + p.slice(1).map(w => w.charAt(0).toUpperCase() + '.').join(' ');
+    if(c.length <= 20) return c;
+    return p[0].slice(0, 14) + ' ' + p[1].charAt(0).toUpperCase() + '.';
+  }
+  return s.slice(0, 15) + '…';
+}
+function iniciales(n){
+  const p = String(n).trim().split(/\s+/);
+  return ((p[0] || '?').charAt(0) + (p.length > 1 ? p[1].charAt(0) : '')).toUpperCase();
+}
 async function cargarTablero(){
   const el = document.getElementById('tablero');
   if(!fbDB){ el.innerHTML = '<div class="aviso">Sin conexión.</div>'; return; }
   try{
-    const snap = await fbDB.collection('tablero').get();
-    const filas = snap.docs.map(d => [d.id, d.data()]).filter(([k,x]) => x && x.n).sort((a,b) => String(a[1].n).localeCompare(String(b[1].n),'es'));
-    const hoy = hoyStr();
-    el.innerHTML = filas.length ? filas.map(([k,x]) => {
-      const pct = Math.min(100, Math.round((x.l||0)/365*100));
-      return '<div class="fila"><span class="nom">👤 ' + esc(x.n).slice(0,32) + (x.lh === hoy ? '<span class="hoy-tag">✓ hoy</span>' : '') + '</span>' +
-        '<span class="bar"><span style="width:' + pct + '%"></span></span>' +
-        '<span class="dat">' + (x.l||0) + ' día' + ((x.l||0)===1?'':'s') + ' · ' + pct + '%</span>' +
-        (esAdmin() ? '<button class="borrar" onclick="quitarTablero(\'' + k + '\')" title="Quitar">✕</button>' : '') + '</div>';
-    }).join('') : '<div class="aviso">Aún nadie se ha anotado. ¡Sé el primero!</div>';
+    const snap = await fbDB.collection('tablero').limit(400).get();
+    tabFilas = snap.docs.map(d => [d.id, d.data()]).filter(([k,x]) => x && x.n)
+      .sort((a,b) => String(a[1].n).localeCompare(String(b[1].n),'es'));
+    pintarTablero();
   }catch(e){ el.innerHTML = '<div class="aviso">No se pudo cargar.</div>'; }
+}
+function setBuscaHermano(v){ tabBusca = v; pintarTablero(); }
+function verTodosHermanos(){ tabTodos = true; pintarTablero(); }
+function pintarTablero(){
+  const el = document.getElementById('tablero');
+  if(!tabFilas.length){ el.innerHTML = '<div class="aviso">Aún nadie se ha anotado. ¡Sé el primero!</div>'; return; }
+  const hoy = hoyStr();
+  const total = tabFilas.length;
+  const hoyN = tabFilas.filter(([k,x]) => x.lh === hoy).length;
+  const diasJuntos = tabFilas.reduce((s,[k,x]) => s + (x.l||0), 0);
+
+  const nb = tabBusca.trim().toLowerCase();
+  const vis = nb ? tabFilas.filter(([k,x]) => String(x.n).toLowerCase().includes(nb)) : tabFilas;
+  const corte = (tabTodos || nb) ? vis.length : Math.min(TANDA, vis.length);
+
+  const resumen = '<div class="herm-resumen">' +
+    '<div class="hr-dato"><b>' + total + '</b><span>' + (total === 1 ? 'hermano' : 'hermanos') + '</span></div>' +
+    '<div class="hr-dato"><b>' + hoyN + '</b><span>' + (hoyN === 1 ? 'leyó hoy' : 'leyeron hoy') + '</span></div>' +
+    '<div class="hr-dato"><b>' + diasJuntos.toLocaleString('es') + '</b><span>días en la Palabra</span></div>' +
+    '</div>';
+
+  const buscador = total > TANDA
+    ? '<input class="herm-buscar" placeholder="Buscar un hermano…" value="' + esc(tabBusca) + '" oninput="setBuscaHermano(this.value)">'
+    : '';
+
+  const tarjetas = vis.slice(0, corte).map(([k,x]) => {
+    const pct = Math.min(100, Math.round((x.l||0)/365*100));
+    const leyoHoy = x.lh === hoy;
+    return '<div class="herm' + (leyoHoy ? ' hoy' : '') + '" title="' + esc(x.n) + ' · ' + (x.l||0) + ' días">' +
+      '<div class="herm-cab">' +
+        '<span class="ini">' + esc(iniciales(x.n)) + '</span>' +
+        '<span class="hn">' + esc(nombreCorto(x.n)) + '</span>' +
+        (leyoHoy ? '<span class="hoy-tag" title="Leyó hoy">✓</span>' : '') +
+        (esAdmin() ? '<button class="borrar" onclick="quitarTablero(\'' + k + '\')" title="Quitar">✕</button>' : '') +
+      '</div>' +
+      '<div class="herm-bar"><span style="width:' + pct + '%"></span></div>' +
+      '<div class="herm-dat">' + (x.l||0) + ' día' + ((x.l||0)===1?'':'s') + ' · ' + pct + '%</div>' +
+    '</div>';
+  }).join('');
+
+  const pie = nb
+    ? (vis.length ? '' : '<div class="aviso">Ningún hermano con ese nombre.</div>')
+    : (corte < vis.length ? '<button class="ver-mas" onclick="verTodosHermanos()">Ver los ' + vis.length + ' hermanos →</button>' : '');
+
+  el.innerHTML = resumen + buscador + '<div class="herm-grid">' + tarjetas + '</div>' + pie;
 }
 async function quitarTablero(uid){
   if(!esAdmin() || !confirm('¿Quitar este nombre del tablero?')) return;
