@@ -63,6 +63,17 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 .sec.pregunta p{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:600;color:#2c4a34;text-align:left}
 .sin-est{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:1.6rem;text-align:center;color:var(--ink-soft);font-style:italic}
 
+.planes-barra{display:flex;gap:.6rem;margin-bottom:1.4rem;overflow-x:auto;padding-bottom:.3rem;-webkit-overflow-scrolling:touch}
+.plan-pill{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;cursor:pointer;text-align:left;font-family:Inter,sans-serif;transition:.15s;min-width:150px}
+.plan-pill:hover{border-color:#c9ab6d;transform:translateY(-1px)}
+.plan-pill b{font-size:.86rem;font-weight:600;color:var(--ink)}
+.plan-pill small{font-size:.68rem;color:var(--ink-soft);line-height:1.3}
+.plan-pill i{font-style:normal;font-size:.66rem;color:#8a6a24;letter-spacing:.02em;margin-top:.15rem}
+.plan-pill i.cero{color:#a9a29a}
+.plan-pill.act{background:var(--ink);border-color:var(--ink)}
+.plan-pill.act b,.plan-pill.act small,.plan-pill.act i,.plan-pill.act i.cero{color:#f5f1ea}
+.plan-pill.act small{opacity:.72}
+.plan-pill.act i{opacity:.85}
 .config{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.2rem}
 .config h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--carbon);margin-bottom:.2rem}
 .config .ay{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--ink-soft);margin-bottom:.9rem;line-height:1.5}
@@ -128,6 +139,7 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 <div class="progreso-linea"><div id="progFill"></div></div>
 
 <div class="pagina">
+  <div class="planes-barra" id="planesBarra"></div>
   <div id="configZona"></div>
   <div class="dia-cab">
     <div class="etapa-tag" id="etapa">…</div>
@@ -166,6 +178,7 @@ h1.dia-titulo{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,4.5v
 </div>
 
 <script src="plan.js"></script>
+<script src="planes.js"></script>
 <script src="comentarios.js"></script>
 <script src="estudio.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -186,16 +199,50 @@ function bgUrl(lecturas, version){
   return 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(lecturas.join('; ')) + '&version=' + version;
 }
 
-/* ===== estado del plan (mismos datos que todo el sitio) ===== */
-let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
-const startDate = localStorage.getItem('biblia365_start') || '';
+/* ===== estado del plan activo ===== */
+let PID = localStorage.getItem('af_plan_activo') || 'cronologico';
+if(!PLANES_IDX[PID]) PID = 'cronologico';
+let PLAN_ACT = PLANES_IDX[PID];
+let DIAS = [];            /* arreglo de días del plan activo */
+let TOT = 365;            /* cuántos días tiene */
+let done = new Set();
+let startDate = '';
+let D = 1;
+
+function cargarEstado(){
+  PLAN_ACT = PLANES_IDX[PID];
+  DIAS = diasDe(PID);
+  TOT = DIAS.length;
+  done = new Set(JSON.parse(localStorage.getItem(claveP(PID,'done')) || '[]'));
+  startDate = localStorage.getItem(claveP(PID,'start')) || '';
+  D = parseInt(localStorage.getItem(claveP(PID,'current')) || '0', 10) || diaHoy();
+  D = Math.min(Math.max(1, D), TOT);
+}
 function diaHoy(){
   if(!startDate) return 1;
   const s = new Date(startDate + 'T00:00:00');
   const n = new Date(); n.setHours(0,0,0,0);
-  return Math.min(Math.max(Math.floor((n - s) / 86400000) + 1, 1), 365);
+  return Math.min(Math.max(Math.floor((n - s) / 86400000) + 1, 1), TOT);
 }
-let D = parseInt(localStorage.getItem('biblia365_current') || '0', 10) || diaHoy();
+function cambiarPlan(id){
+  if(!PLANES_IDX[id]) return;
+  PID = id;
+  localStorage.setItem('af_plan_activo', id);
+  cargarEstado();
+  cfgAbierta = false;
+  pintarDia();
+  window.scrollTo({ top: 0 });
+}
+function pintarPlanes(){
+  document.getElementById('planesBarra').innerHTML = PLANES.map(p => {
+    const hechos = JSON.parse(localStorage.getItem(claveP(p.id,'done')) || '[]').length;
+    const pct = Math.round(hechos / p.dias * 100);
+    return '<button class="plan-pill' + (p.id === PID ? ' act' : '') + '" onclick="cambiarPlan(\'' + p.id + '\')" title="' + p.desc.replace(/"/g,'&quot;') + '">' +
+      '<b>' + p.nombre + '</b><small>' + p.sub + '</small>' +
+      (hechos ? '<i>' + hechos + '/' + p.dias + ' · ' + pct + '%</i>' : '<i class="cero">sin empezar</i>') +
+      '</button>';
+  }).join('');
+}
 
 /* ===== firebase: sincronía silenciosa ===== */
 let fbUser = null, fbDB = null;
@@ -208,19 +255,25 @@ try{
     try{
       const s = await fbDB.collection('progreso').doc(u.uid).get();
       if(s.exists && Array.isArray(s.data().dias)){
-        s.data().dias.forEach(x => done.add(x));
-        localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+        const nube = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
+        s.data().dias.forEach(x => nube.add(x));
+        localStorage.setItem('biblia365_done', JSON.stringify([...nube]));
+        if(PID === 'cronologico') done = nube;
         pintarDia();
       }
     }catch(e){}
   });
 }catch(e){}
+/* La nube y el tablero de comunidad siguen el plan cronológico (el plan de la casa). */
 async function empujarNube(){
   if(!fbUser || !fbDB) return;
+  const cro = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
+  const ini = localStorage.getItem('biblia365_start') || null;
+  const dCro = parseInt(localStorage.getItem('biblia365_current') || '0', 10) || 1;
   try{
     const nombre = localStorage.getItem('biblia365_nombre') || fbUser.displayName || '';
-    await fbDB.collection('progreso').doc(fbUser.uid).set({ nombre: nombre, dias: [...done], total: done.size, inicio: startDate || null, actualizado: new Date().toISOString() }, { merge: true });
-    if(nombre) await fbDB.collection('tablero').doc(fbUser.uid).set({ n: nombre, l: done.size, d: D, t: Date.now(), lh: localStorage.getItem('biblia365_lh') || '' }, { merge: true });
+    await fbDB.collection('progreso').doc(fbUser.uid).set({ nombre: nombre, dias: [...cro], total: cro.size, inicio: ini, actualizado: new Date().toISOString() }, { merge: true });
+    if(nombre) await fbDB.collection('tablero').doc(fbUser.uid).set({ n: nombre, l: cro.size, d: dCro, t: Date.now(), lh: localStorage.getItem('biblia365_lh') || '' }, { merge: true });
   }catch(e){}
 }
 
@@ -228,19 +281,19 @@ async function empujarNube(){
 let cfgAbierta = false;
 function pintarConfig(){
   const z = document.getElementById('configZona');
-  const nuevo = !localStorage.getItem('biblia365_start') && done.size === 0;
+  const nuevo = !localStorage.getItem(claveP(PID,'start')) && done.size === 0;
   if(!cfgAbierta && !nuevo){
     z.innerHTML = '<button class="abrir-cfg" onclick="cfgAbierta=true;pintarConfig()">⚙️ Ajustar dónde voy en el plan</button>';
     return;
   }
   z.innerHTML =
-    '<div class="config"><h3>' + (nuevo ? '¡Bienvenido al plan!' : 'Ajustar mi lugar en el plan') + '</h3>' +
-    '<div class="ay">Si ya venías leyendo la Biblia, dinos por dónde vas y calculamos tu día. Si empiezas hoy desde el principio, solo pulsa «Comenzar desde el Día 1».</div>' +
+    '<div class="config"><h3>' + (nuevo ? 'Plan ' + PLAN_ACT.nombre + ' — ¿por dónde empiezas?' : 'Ajustar mi lugar en «' + PLAN_ACT.nombre + '»') + '</h3>' +
+    '<div class="ay">' + PLAN_ACT.desc + '<br><br>Si ya venías leyendo, dinos por dónde vas y calculamos tu día. Si empiezas hoy desde el principio, solo pulsa «Comenzar desde el Día 1».</div>' +
     '<div class="cfg-fila"><label>📖 ¿En qué pasaje vas?</label>' +
     '<input type="text" id="cfgPasaje" placeholder="p. ej. Éxodo 12, Salmos 40, Juan 3" onkeydown="if(event.key===\'Enter\')buscarPasaje()">' +
     '<button class="btn btn-pri" onclick="buscarPasaje()">Ubicarme</button></div>' +
-    '<div class="cfg-fila"><label>📅 O elige el día del plan (1 a 365)</label>' +
-    '<input type="text" id="cfgDia" placeholder="p. ej. 84" onkeydown="if(event.key===\'Enter\')fijarDia()">' +
+    '<div class="cfg-fila"><label>📅 O elige el día del plan (1 a ' + TOT + ')</label>' +
+    '<input type="text" id="cfgDia" placeholder="p. ej. ' + Math.round(TOT/4) + '" onkeydown="if(event.key===\'Enter\')fijarDia()">' +
     '<button class="btn btn-sec" onclick="fijarDia()">Fijar día</button>' +
     '<button class="btn btn-sec" onclick="fijarDia(1)">Comenzar desde el Día 1</button></div>' +
     '<div id="cfgRes"></div>' +
@@ -249,8 +302,8 @@ function pintarConfig(){
 }
 function fijarDia(n){
   const v = n || parseInt((document.getElementById('cfgDia') || {}).value || '0', 10);
-  if(!v || v < 1 || v > 365){
-    document.getElementById('cfgRes').innerHTML = '<div class="cfg-res err">Escribe un número entre 1 y 365.</div>';
+  if(!v || v < 1 || v > TOT){
+    document.getElementById('cfgRes').innerHTML = '<div class="cfg-res err">Escribe un número entre 1 y ' + TOT + '.</div>';
     return;
   }
   aplicarDia(v);
@@ -263,7 +316,7 @@ function buscarPasaje(){
   const libro = IDX[normTxt(m[1])] !== undefined ? NOMBRES[IDX[normTxt(m[1])]] : null;
   const cap = parseInt(m[2] || '1', 10);
   if(!libro){ res.innerHTML = '<div class="cfg-res err">No reconozco ese libro. Prueba con el nombre completo: «1 Samuel», «Salmos», «Apocalipsis».</div>'; return; }
-  for(const p of PLAN){
+  for(const p of DIAS){
     for(const l of p.lecturas){
       const lm = l.match(/^(.+?)\s+(\d+)(?:-(\d+))?$/);
       if(!lm || lm[1] !== libro) continue;
@@ -275,14 +328,15 @@ function buscarPasaje(){
       }
     }
   }
-  res.innerHTML = '<div class="cfg-res err">No encontré ese capítulo en el plan. Revisa el número.</div>';
+  res.innerHTML = '<div class="cfg-res err">Ese capítulo no aparece en el plan «' + PLAN_ACT.nombre + '». Prueba en otro plan de la barra de arriba.</div>';
 }
 function aplicarDia(n){
   for(let i = 1; i < n; i++) done.add(i);
-  localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+  localStorage.setItem(claveP(PID,'done'), JSON.stringify([...done]));
   const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - (n - 1));
   const iso = s.getFullYear() + '-' + String(s.getMonth()+1).padStart(2,'0') + '-' + String(s.getDate()).padStart(2,'0');
-  localStorage.setItem('biblia365_start', iso);
+  localStorage.setItem(claveP(PID,'start'), iso);
+  startDate = iso;
   empujarNube();
   cfgAbierta = false;
   irDia(n);
@@ -290,8 +344,8 @@ function aplicarDia(n){
 
 /* ===== render del día ===== */
 function irDia(d){
-  D = Math.min(Math.max(1, d), 365);
-  localStorage.setItem('biblia365_current', D);
+  D = Math.min(Math.max(1, d), TOT);
+  localStorage.setItem(claveP(PID,'current'), D);
   pintarDia();
   window.scrollTo({ top: 0 });
 }
@@ -302,7 +356,7 @@ function marcar(){
     const x = new Date();
     localStorage.setItem('biblia365_lh', x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0'));
   }
-  localStorage.setItem('biblia365_done', JSON.stringify([...done]));
+  localStorage.setItem(claveP(PID,'done'), JSON.stringify([...done]));
   empujarNube();
   pintarDia();
 }
@@ -313,10 +367,11 @@ function fechaDelDia(d){
   return s.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 function pintarDia(){
-  const p = PLAN[D - 1];
-  const c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[D] : null;
+  pintarPlanes();
+  const p = DIAS[D - 1];
+  const c = (PLAN_ACT.estudio && typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[D] : null;
   document.getElementById('etapa').textContent = p.etapa;
-  document.getElementById('diaNum').textContent = 'Día ' + D + ' de 365';
+  document.getElementById('diaNum').textContent = 'Día ' + D + ' de ' + TOT;
   document.getElementById('titulo').textContent = c ? c.t : p.lecturas.join(' · ');
   document.getElementById('fecha').textContent = fechaDelDia(D);
   document.getElementById('chips').innerHTML = p.lecturas.map(l =>
@@ -328,9 +383,9 @@ function pintarDia(){
   const b = document.getElementById('btnLeido');
   b.textContent = hecho ? '✓ Leído' : '✓ Marcar como leído';
   b.classList.toggle('hecho', hecho);
-  document.getElementById('bannerOk').innerHTML = (hecho && D < 365) ?
-    '<div class="banner-ok"><span>✅ <strong>Día ' + D + ' completado.</strong> Siguiente — Día ' + (D+1) + ': <strong>' + PLAN[D].lecturas.join('; ') + '</strong></span><button onclick="irDia(' + (D+1) + ')">Día ' + (D+1) + ' →</button></div>' :
-    (hecho && D === 365 ? '<div class="banner-ok"><span>🎉 <strong>¡Completaste toda la Escritura en un año!</strong> «Bendice, alma mía, a Jehová» (Sal 103:2).</span></div>' : '');
+  document.getElementById('bannerOk').innerHTML = (hecho && D < TOT) ?
+    '<div class="banner-ok"><span>✅ <strong>Día ' + D + ' completado.</strong> Siguiente — Día ' + (D+1) + ': <strong>' + DIAS[D].lecturas.join('; ') + '</strong></span><button onclick="irDia(' + (D+1) + ')">Día ' + (D+1) + ' →</button></div>' :
+    (hecho && D === TOT ? '<div class="banner-ok"><span>🎉 <strong>¡Completaste el plan ' + PLAN_ACT.nombre + '!</strong> «Bendice, alma mía, a Jehová» (Sal 103:2).</span></div>' : '');
   document.getElementById('estudio').innerHTML = c ?
     '<div class="sec"><h3><span class="ico">🏛</span> Contexto histórico</h3><p>' + c.h + '</p></div>' +
     '<div class="sec"><h3><span class="ico">🏺</span> Contexto cultural</h3><p>' + c.c + '</p></div>' +
@@ -338,10 +393,12 @@ function pintarDia(){
     '<div class="sec"><h3><span class="ico">✝</span> Teología bíblica y pactual</h3><p>' + c.p + '</p></div>' +
     '<div class="sec voces"><h3><span class="ico">📜</span> Voces de la iglesia</h3><p>' + c.v + '</p></div>' +
     '<div class="sec pregunta"><h3><span class="ico">❦</span> Para meditar</h3><p>' + c.q + '</p></div>' :
-    '<div class="sin-est">El estudio profundo de este día está en preparación. La Palabra misma es el pan.</div>';
+    (PLAN_ACT.estudio
+      ? '<div class="sin-est">El estudio profundo de este día está en preparación. La Palabra misma es el pan.</div>'
+      : '<div class="sin-est">Este plan es de lectura pura — sin estudio diario todavía.<br>El estudio verso por verso vive en el <a href="#" onclick="cambiarPlan(\'cronologico\');return false" style="color:#8a6a24">plan cronológico</a> y en la <a href="biblioteca.html" style="color:#8a6a24">Biblioteca</a>.</div>');
   document.getElementById('navPrev').disabled = (D === 1);
-  document.getElementById('navNext').disabled = (D === 365);
-  document.getElementById('progFill').style.width = Math.round(done.size / 365 * 100) + '%';
+  document.getElementById('navNext').disabled = (D === TOT);
+  document.getElementById('progFill').style.width = Math.round(done.size / TOT * 100) + '%';
   pintarConfig();
 }
 
@@ -377,6 +434,7 @@ function buscar(q){
 }
 function cerrarBuscarYIr(d){
   document.getElementById('ovBuscar').classList.remove('abierto');
+  if(PID !== 'cronologico') cambiarPlan('cronologico');
   irDia(d);
 }
 document.addEventListener('keydown', e => {
@@ -386,6 +444,12 @@ document.addEventListener('keydown', e => {
   if(e.key === 'ArrowRight' && !e.target.closest('input')) irDia(D + 1);
 });
 
+/* Permite enlazar un plan concreto: plan.html#nt90 */
+if(location.hash){
+  const h = location.hash.slice(1);
+  if(PLANES_IDX[h]){ PID = h; localStorage.setItem('af_plan_activo', h); }
+}
+cargarEstado();
 pintarDia();
 </script>
 </body>

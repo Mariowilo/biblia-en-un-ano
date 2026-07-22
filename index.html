@@ -123,7 +123,7 @@ footer a{color:var(--gold-light);text-decoration:none}
     </a>
     <a class="puerta" href="plan.html">
       <div class="ic">📅</div><h3>Plan de lectura</h3>
-      <p>365 días en orden cronológico, cada uno con su estudio completo. Marca tu avance y recibe tu recordatorio diario.</p>
+      <p>Cuatro planes: cronológico (365 días, con estudio completo), canónico, Nuevo Testamento en 90 días, y Salmos y Proverbios. Marca tu avance y recibe tu recordatorio diario.</p>
     </a>
     <a class="puerta" href="biblioteca.html">
       <div class="ic">📚</div><h3>Biblioteca</h3>
@@ -155,6 +155,7 @@ footer a{color:var(--gold-light);text-decoration:none}
 </div>
 
 <script src="plan.js"></script>
+<script src="planes.js"></script>
 <script src="comentarios.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -164,13 +165,19 @@ function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,
 const NOMBRES = ['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías','Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
 const IDX = {}; NOMBRES.forEach(n => IDX[normTxt(n)] = n);
 Object.assign(IDX, {'salmo':'Salmos','cantar':'Cantares'});
-let done = new Set(JSON.parse(localStorage.getItem('biblia365_done') || '[]'));
+/* Plan activo del lector (cronológico por defecto) */
+const PID = (typeof PLANES_IDX !== 'undefined' && PLANES_IDX[localStorage.getItem('af_plan_activo')]) ? localStorage.getItem('af_plan_activo') : 'cronologico';
+const PL = (typeof PLANES_IDX !== 'undefined') ? PLANES_IDX[PID] : { nombre:'Cronológico', dias:365, estudio:true };
+const KP = (PID === 'cronologico') ? 'biblia365_' : 'af_' + PID + '_';
+const TOT = PL.dias;
+const DIAS = (typeof diasDe !== 'undefined') ? diasDe(PID) : PLAN;
+let done = new Set(JSON.parse(localStorage.getItem(KP + 'done') || '[]'));
 
 function diaHoy(){
-  const s0 = localStorage.getItem('biblia365_start');
-  if(!s0) return parseInt(localStorage.getItem('biblia365_current') || '1', 10) || 1;
+  const s0 = localStorage.getItem(KP + 'start');
+  if(!s0) return parseInt(localStorage.getItem(KP + 'current') || '1', 10) || 1;
   const s = new Date(s0 + 'T00:00:00'), n = new Date(); n.setHours(0,0,0,0);
-  return Math.min(Math.max(Math.floor((n - s)/86400000) + 1, 1), 365);
+  return Math.min(Math.max(Math.floor((n - s)/86400000) + 1, 1), TOT);
 }
 function urlBiblia(lectura){
   const m = lectura.match(/^(.+?)\s+(\d+)/);
@@ -178,17 +185,17 @@ function urlBiblia(lectura){
   return 'biblia.html#' + encodeURIComponent(IDX[normTxt(m[1])]) + '/' + m[2];
 }
 function pintarHoy(){
-  const d = diaHoy(), p = PLAN[d-1], c = (typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[d] : null;
-  const pct = Math.round(done.size / 365 * 100);
+  const d = diaHoy(), p = DIAS[d-1], c = (PL.estudio && typeof COMENTARIOS !== 'undefined') ? COMENTARIOS[d] : null;
+  const pct = Math.round(done.size / TOT * 100);
   document.getElementById('tarjetaHoy').innerHTML =
-    '<div class="et">Tu lectura de hoy · Día ' + d + ' de 365</div>' +
+    '<div class="et">Tu lectura de hoy · Plan ' + PL.nombre + ' · Día ' + d + ' de ' + TOT + '</div>' +
     '<h2>' + (c ? c.t : p.lecturas.join(' · ')) + '</h2>' +
     '<div class="lect">' + p.lecturas.join(' · ') + (done.has(d) ? ' &nbsp;✓ leído' : '') + '</div>' +
     '<div class="acciones">' +
       '<a class="btn btn-pri" href="' + urlBiblia(p.lecturas[0]) + '">📖 Leer el pasaje</a>' +
-      '<a class="btn btn-sec" href="plan.html">✒ Ver el estudio del día</a>' +
+      '<a class="btn btn-sec" href="plan.html">' + (PL.estudio ? '✒ Ver el estudio del día' : '✒ Ver el plan') + '</a>' +
     '</div>' +
-    '<div class="mini-prog"><div class="b"><div style="width:' + pct + '%"></div></div><div class="t">' + done.size + ' de 365 días leídos · ' + pct + '%</div></div>';
+    '<div class="mini-prog"><div class="b"><div style="width:' + pct + '%"></div></div><div class="t">' + done.size + ' de ' + TOT + ' días leídos · ' + pct + '%</div></div>';
 }
 /* sincronía silenciosa del avance */
 try{
