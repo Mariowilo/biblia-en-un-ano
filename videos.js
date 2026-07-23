@@ -3,6 +3,16 @@
    Para anadir texto explicativo o pasajes a un video, usa recursos.js */
 const VIDEOS = [
  {
+  "yt": "KkdpgQXxh7k",
+  "titulo": "1689 · Capítulo 1 — De las Santas Escrituras",
+  "fecha": "2026-07-23",
+  "desc": "",
+  "serie": "lbc",
+  "caps": [
+   1
+  ]
+ },
+ {
   "yt": "oUutxcAvKOU",
   "titulo": "Tipología Bíblica",
   "fecha": "2026-07-20",
