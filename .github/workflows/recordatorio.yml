@@ -34,9 +34,12 @@ jobs:
           H = {'Authorization': 'Bearer ' + creds.token}
           pid = sa['project_id']
 
-          hora_utc = datetime.datetime.now(datetime.timezone.utc).hour
+          ahora = datetime.datetime.now(datetime.timezone.utc)
+          hora_utc = ahora.hour
+          hoy_utc = ahora.strftime('%Y-%m-%d')
           manual = os.environ.get('EVENTO') == 'workflow_dispatch'
           LEGADO = {'manana': 7, 'tarde': 15, 'noche': 21}
+          VENTANA = 2   # horas de gracia: si una ejecucion se salta, la siguiente alcanza al lector
 
           # Leer los dispositivos registrados en Firestore
           docs, page = [], None
@@ -57,11 +60,16 @@ jobs:
                       hora_local = LEGADO.get(h['stringValue'], 7)
                   else:
                       hora_local = 7
-                  # tz: minutos de getTimezoneOffset (UTC - local); Chile invierno = 240
+                  # tz: minutos de getTimezoneOffset (UTC menos local); Chile invierno = 240
                   tz = f.get('tz', {})
                   tz_min = int(tz.get('integerValue', 240)) if tz else 240
                   objetivo_utc = round((hora_local + tz_min / 60)) % 24
-                  if manual or objetivo_utc == hora_utc:
+                  # ya recibio hoy?  (guardamos la fecha UTC del ultimo envio)
+                  ult = f.get('last', {}).get('stringValue', '')
+                  # delta = horas transcurridas desde su hora objetivo (con vuelta de dia)
+                  delta = (hora_utc - objetivo_utc) % 24
+                  toca = (0 <= delta <= VENTANA)
+                  if manual or (toca and ult != hoy_utc):
                       docs.append((d['name'], t))
               page = r.get('nextPageToken')
               if not page:
@@ -85,10 +93,15 @@ jobs:
               resp = requests.post(msg_url, headers=H, json=body)
               if resp.status_code == 200:
                   ok += 1
+                  # marcar como enviado hoy (solo en envios programados, no en pruebas manuales)
+                  if not manual:
+                      requests.patch(
+                          'https://firestore.googleapis.com/v1/' + name + '?updateMask.fieldPaths=last',
+                          headers=H, json={'fields': {'last': {'stringValue': hoy_utc}}})
               else:
                   bad += 1
                   if resp.status_code in (400, 404):
                       requests.delete('https://firestore.googleapis.com/v1/' + name, headers=H)
 
-          print(f'Hora UTC: {hora_utc} | Enviadas: {ok} | Fallidas/limpiadas: {bad} | Dispositivos en esta hora: {len(docs)}')
+          print(f'Hora UTC: {hora_utc} | Enviadas: {ok} | Fallidas/limpiadas: {bad} | Dispositivos alcanzados: {len(docs)}')
           EOF
